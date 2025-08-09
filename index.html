@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DD Transport | 디디운송</title>
+  <meta name="description" content="디디운송 – 1톤 카고 탑차 용달. 정직한 운임표, 옵션 계산기(엘리베이터/층수, 상하차 도움 통합, 야간·주말 10% 가산, 동승 1인당 2만원), 운행 사진 슬라이더, KR/EN 지원." />
+  <style>
+    :root{--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--ghost:#f3f4f6;--bg:#f9fafb;--brand:#111827;--white:#fff}
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1140px;margin:0 auto;padding:0 16px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);z-index:20}
+    header .bar{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+    nav a{margin:0 10px;font-weight:700}
+    .badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:999px;color:#6b7280;font-size:12px}
+    .btn{display:inline-block;border:1px solid var(--line);padding:10px 14px;border-radius:12px;background:#fff;font-weight:700}
+    .btn.primary{background:#111827;color:#fff;border-color:#111827}
+    .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}
+    .shadow{box-shadow:0 10px 32px rgba(0,0,0,.06)}
+    .grid{display:grid;gap:16px}
+    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    @media (max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+    h1{font-size:40px;margin:0 0 6px;font-weight:800}
+    h2{font-size:28px;margin:0 0 8px;font-weight:800}
+    h3{font-size:18px;margin:0 0 6px;font-weight:700}
+    p{margin:6px 0}.muted{color:#6b7280}
+    section{padding:34px 0}
+    footer{background:#0f172a;color:#e5e7eb}
+
+    /* Slider */
+    .slider{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:14px}
+    .slides{display:flex;gap:0;transform:translateX(0);transition:transform .5s ease}
+    .slide{flex:0 0 100%;max-width:100%;display:grid;grid-template-rows:auto auto}
+    .frame{height:320px;background:var(--ghost)}
+    .frame img{width:100%;height:100%;object-fit:cover;display:block}
+    .cap{padding:10px;background:#fff;border-top:1px solid var(--line);font-size:14px;color:#374151}
+    .nav{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+    .nav button{pointer-events:auto;border:none;background:rgba(17,24,39,.7);color:#fff;width:40px;height:40px;border-radius:50%}
+
+    /* Pricing */
+    .price-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    @media (max-width:900px){.price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    .price-card{cursor:pointer}
+    .price-card.active{outline:2px solid #111827}
+
+    /* Calculator */
+    .calc-controls{display:grid;gap:10px}
+    .opt{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .stack{display:grid;gap:8px}
+    .num{display:flex;gap:6px;align-items:center}
+    .num input[type="number"]{width:92px;padding:6px 8px;border:1px solid var(--line);border-radius:10px}
+    .checkbox{display:flex;align-items:center;gap:8px}
+    .tot{font-size:28px;font-weight:800}
+    .subtle{font-size:12px;color:#6b7280}
+  </style>
+</head>
+
+
+<body>
+  <!-- ===== Header ===== -->
+  <header>
+    <div class="container bar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:10px;background:#111827;color:#fff;display:grid;place-items:center;font-weight:800">DD</div>
+        <strong>DD Transport</strong>
+      </div>
+      <nav>
+        <a href="#hero" data-i="nav.home">소개</a>
+        <a href="#pricing" data-i="nav.pricing">요금</a>
+        <a href="#truck" data-i="nav.truck">트럭 크기</a>
+        <a href="#extras" data-i="nav.extras">추가요금</a>
+        <a href="#photos" data-i="nav.photos">운행 사진</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact" data-i="nav.contact">연락처</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="badge">
+          <button id="btn-kr" aria-pressed="true">KR</button> ·
+          <button id="btn-en" aria-pressed="false">EN</button>
+        </div>
+        <a class="btn primary" href="#quote" data-i="cta.quote">견적 요청하기</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Hero + Truck spec ===== -->
+  <section id="hero">
+    <div class="container grid grid-2">
+      <div>
+        <h1 data-i="hero.title">💯 거품 뺀 견적 / 추가비 無 / 정직한 운송</h1>
+        <p class="muted" data-i="hero.sub">사진 전송하면 1시간 내 견적. 수도권 중심 전국 운행.</p>
+        <ul class="muted" style="margin:10px 0">
+          <li data-i="hero.b1">1톤 더블캡 카고 탑차 – 적재함 1600×2300×1700mm</li>
+          <li data-i="hero.b2">최대 1,200kg / 약 5.5㎥ / 파레트 2개</li>
+          <li data-i="hero.b3">외국인 문의 가능 (영어 스픽 대화 지원)</li>
+        </ul>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <a class="btn primary" href="#quote" data-i="cta.quote">견적 요청하기</a>
+          <a class="btn" href="#pricing" data-i="cta.pricing">요금 보기</a>
+        </div>
+      </div>
+      <div class="card shadow" aria-labelledby="truck-cap">
+        <svg viewBox="0 0 520 260" role="img" aria-labelledby="truck-cap" width="100%" height="auto">
+          <title id="truck-cap">Truck cargo box dimensions</title>
+          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f3f4f6"/><stop offset="100%" stop-color="#ffffff"/></linearGradient></defs>
+          <rect x="20" y="60" width="320" height="140" fill="url(#g)" stroke="#111827" stroke-width="2" rx="10" />
+          <rect x="340" y="95" width="100" height="75" fill="#e5e7eb" stroke="#111827" stroke-width="2" rx="8" />
+          <line x1="40" y1="140" x2="320" y2="140" stroke="#111827" stroke-width="2" />
+          <polygon points="40,140 48,136 48,144" fill="#111827" />
+          <polygon points="320,140 312,136 312,144" fill="#111827" />
+          <text x="180" y="132" text-anchor="middle" font-size="12" fill="#111827">L 2300 mm</text>
+          <line x1="28" y1="70" x2="28" y2="200" stroke="#111827" stroke-width="2" />
+          <polygon points="28,70 24,78 32,78" fill="#111827" />
+          <polygon points="28,200 24,192 32,192" fill="#111827" />
+          <text x="20" y="140" transform="rotate(-90 20,140)" text-anchor="middle" font-size="12" fill="#111827">H 1700 mm</text>
+          <line x1="60" y1="210" x2="300" y2="210" stroke="#111827" stroke-width="2" />
+          <polygon points="60,210 68,206 68,214" fill="#111827" />
+          <polygon points="300,210 292,206 292,214" fill="#111827" />
+          <text x="180" y="205" text-anchor="middle" font-size="12" fill="#111827">W 1600 mm</text>
+          <text x="180" y="80" text-anchor="middle" font-size="12" fill="#6b7280">Max ~1,200 kg / ~5.5 m³ / 2 pallets</text>
+        </svg>
+        <p class="muted" style="text-align:center" data-i="truck.caption">적재함 W1600 × L2300 × H1700mm / 최대 1,200kg / 약 5.5㎥ / 파레트 2개</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Pricing ===== -->
+  <section id="pricing" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div class="container">
+      <h2 data-i="pricing.title">거리별 기본 요금</h2>
+      <p class="muted" data-i="pricing.note">아래 금액은 기본 운임입니다. <strong>왕복 유류비 포함</strong>. 경유지·지역 접근성·교통 상황에 따라 추가요금이 발생할 수 있습니다.</p>
+      <div id="price-grid" class="price-grid" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ===== Extras & Calculator ===== -->
+  <section id="extras">
+    <div class="container grid grid-2">
+      <div class="card shadow">
+        <h3 data-i="extras.title">추가 요금 가이드</h3>
+        <ul id="extras-list" class="muted" style="margin-top:8px"></ul>
+      </div>
+      <div class="card shadow">
+        <h3 data-i="calc.title">간편 견적 계산기</h3>
+        <p class="muted" data-i="calc.sub">거리 구간을 선택하고 필요한 옵션을 체크하면 예상 총액이 계산됩니다. (참고용)</p>
+        <div class="calc-controls" style="margin-top:8px">
+          <div class="opt"><span data-i="calc.baseDist">선택한 기본 거리</span><strong id="baseKm">-</strong></div>
+          <div class="opt"><span data-i="calc.baseFare">기본 운임</span><strong id="baseFare">₩0</strong></div>
+
+          <div class="stack" style="border-top:1px dashed var(--line);padding-top:8px">
+            <div class="opt"><strong>🚪 <span data-i="calc.elevGuide">엘리베이터가 없을 시 층수를 선택해주세요.</span></strong><span class="subtle" data-i="calc.elevNote">(출발지/도착지 각각)</span></div>
+
+            <div class="card" style="padding:12px">
+              <div class="opt">
+                <div class="checkbox"><input type="checkbox" id="originNoElev"> <label for="originNoElev" data-i="calc.origin">출발지: 엘리베이터 없음</label></div>
+                <div class="num"><label class="subtle" for="originFloors" data-i="calc.floors">층수</label><input type="number" id="originFloors" min="1" value="1" disabled></div>
+              </div>
+              <div class="opt">
+                <div class="checkbox"><input type="checkbox" id="destNoElev"> <label for="destNoElev" data-i="calc.dest">도착지: 엘리베이터 없음</label></div>
+                <div class="num"><label class="subtle" for="destFloors" data-i="calc.floors">층수</label><input type="number" id="destFloors" min="1" value="1" disabled></div>
+              </div>
+              <div class="opt"><span data-i="calc.stairsFee">계단 작업 비용</span><span id="stairsFee">₩0</span></div>
+            </div>
+          </div>
+
+          <div class="opt"><label class="checkbox"><input type="checkbox" id="optHandling"/> <span data-i="calc.handling">상하차 도움(당일 통합)</span></label><span id="handlingFee">₩0</span></div>
+
+          <div class="opt"><label class="checkbox"><input type="checkbox" id="optLadder"/> <span data-i="calc.ladder">사다리차 필요</span></label><span class="num"><input type="number" id="ladderCost" min="0" value="120000"/>원</span></div>
+
+          <div class="opt"><label class="checkbox"><input type="checkbox" id="optNight"/> <span data-i="calc.night">야간/주말 운행 시 선택 (기준: 오후 7시 이후)</span></label><span id="nightFee">+10%</span></div>
+
+          <div class="opt"><label class="num"><span data-i="calc.ride">동승 인원</span><input type="number" id="rideCount" min="0" value="0"/></label><span id="rideFee">₩0</span></div>
+
+          <div class="opt" style="border-top:1px dashed var(--line);padding-top:8px"><span data-i="calc.total">예상 총액</span><span class="tot" id="total">₩0</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Photos + Google Form ===== -->
+  <section id="photos" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div class="container grid grid-2">
+      <div class="card shadow">
+        <h3 data-i="sample.title">운행 사진</h3>
+        <div class="slider" id="slider">
+          <div class="slides" id="slides"></div>
+          <div class="nav"><button id="prev" aria-label="prev">‹</button><button id="next" aria-label="next">›</button></div>
+        </div>
+      </div>
+      <div class="card shadow" id="quote">
+        <h3 data-i="form.title">간편 견적 요청</h3>
+        <p class="muted" data-i="form.sub">구글 폼으로 접수 후 1시간 내 응답 드립니다.</p>
+        <iframe id="gform" title="Google Form" src="about:blank" width="100%" height="720" style="border:0"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Truck bullets ===== -->
+  <section id="truck">
+    <div class="container">
+      <div class="card">
+        <h3 data-i="truck.title">트럭 크기 및 스펙</h3>
+        <p class="muted" data-i="truck.caption">적재함 W1600 × L2300 × H1700mm / 최대 1,200kg / 약 5.5㎥ / 파레트 2개</p>
+        <ul id="truck-points" class="muted"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section id="faq">
+    <div class="container">
+      <h2>FAQ</h2>
+      <div id="faq-grid" class="grid grid-2"></div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer id="contact">
+    <div class="container grid grid-3">
+      <div>
+        <h3>DD Transport</h3>
+        <p class="muted" data-i="footer.tag">수도권 중심 전국 운행 / 사진 전송 견적 / 외국인 상담 가능</p>
+      </div>
+      <div>
+        <h3 data-i="footer.contact">연락처</h3>
+        <p><a href="tel:+821040941666">📞 +82-10-4094-1666</a></p>
+        <p><a href="mailto:dypapa0309@gmail.com">📧 dypapa0309@gmail.com</a></p>
+      </div>
+      <div>
+        <h3 data-i="footer.notice">주의/안내</h3>
+        <ul id="footer-notes" class="muted"></ul>
+      </div>
+    </div>
+    <div class="container" style="text-align:center;color:#9ca3af;font-size:12px;margin-top:10px">© 2025 DD Transport — All rights reserved.</div>
+  </footer>
+
+  <script>
+  // ===== Translations =====
+  const T={
+    kr:{
+      nav:{home:"소개",pricing:"요금",truck:"트럭 크기",extras:"추가요금",photos:"운행 사진",contact:"연락처"},
+      cta:{quote:"견적 요청하기",pricing:"요금 보기"},
+      hero:{title:"💯 거품 뺀 견적 / 추가비 無 / 정직한 운송",sub:"사진 전송하면 1시간 내 견적. 수도권 중심 전국 운행.",b1:"1톤 더블캡 카고 탑차 – 적재함 1600×2300×1700mm",b2:"최대 1,200kg / 약 5.5㎥ / 파레트 2개",b3:"외국인 문의 가능 (영어 스픽 대화 지원)"},
+      pricing:{title:"거리별 기본 요금",note:"아래 금액은 기본 운임입니다. 왕복 유류비 포함. 경유지·지역 접근성·교통 상황에 따라 추가요금이 발생할 수 있습니다.",dist:"거리",fuel:"* 왕복 유류비 포함",rows:[{km:"~10km",won:"₩40,000"},{km:"~30km",won:"₩60,000"},{km:"~50km",won:"₩70,000"},{km:"~70km",won:"₩80,000"},{km:"~100km",won:"₩90,000"},{km:"~200km",won:"₩140,000"},{km:"~300km",won:"₩200,000"},{km:"~400km",won:"₩230,000"}]},
+      extras:{title:"추가 요금 가이드",items:[{label:"엘리베이터 없음(계단)",desc:"층당 10,000원(고정)"},{label:"상하차 도움(당일 통합)",desc:"30,000원"},{label:"사다리차 필요",desc:"120,000원~ (층수별 상이)"},{label:"야간/주말",desc:"기본요금의 10% 가산 (오후 7시 이후)"},{label:"동승 옵션",desc:"1인당 20,000원"}]},
+      calc:{title:"간편 견적 계산기",sub:"거리 구간을 선택하고 필요한 옵션을 체크하면 예상 총액이 계산됩니다.",baseDist:"선택한 기본 거리",baseFare:"기본 운임",elevGuide:"엘리베이터가 없을 시 층수를 선택해주세요.",elevNote:"(출발지/도착지 각각)",origin:"출발지: 엘리베이터 없음",dest:"도착지: 엘리베이터 없음",floors:"층수",stairsFee:"계단 작업 비용",handling:"상하차 도움(당일 통합)",ladder:"사다리차 필요",night:"야간/주말 운행 시 선택 (기준: 오후 7시 이후)",ride:"동승 인원",total:"예상 총액"},
+      sample:{title:"운행 사진"},
+      form:{title:"간편 견적 요청",sub:"구글 폼으로 접수 후 1시간 내 응답 드립니다."},
+      truck:{title:"트럭 크기 및 스펙",caption:"적재함 W1600 × L2300 × H1700mm / 최대 1,200kg / 약 5.5㎥ / 파레트 2개",points:["더블캡 카고 탑차 (밀폐형)","지하주차장 진입 제한 시 지상 하역 전환","리프트 미보유 / 사다리차는 고객 측 별도 예약","문 폭·천장고 제한 시 사전 고지 필요"]},
+      faq:[
+        {q:"영어 상담 가능한가요?",a:"가능합니다. 스픽으로 영어 대화 지원합니다."},
+        {q:"동승할 수 있나요?",a:"일정·좌석 여건에 따라 가능할 수 있습니다. 사전 문의 바랍니다."},
+        {q:"사다리차 예약은 누가 하나요?",a:"필요 시 별도 사다리차 예약이 필요하며, 보통 고객 측에서 예약합니다."},
+        {q:"계단 작업 비용은?",a:"엘리베이터가 없을 경우 층당 1만원(고정) 추가됩니다."},
+        {q:"장거리 운행도 되나요?",a:"네, 전국 운행 가능합니다."},
+        {q:"시간대/날씨 영향은?",a:"출퇴근·악천후 시 도착 시간이 지연될 수 있습니다."},
+        {q:"경유지가 있으면?",a:"경유지 추가 시 동선에 따라 추가요금 발생."},
+        {q:"파손 책임은?",a:"취급주의 물품은 포장 권장. 내부 내용물 파손은 면책될 수 있습니다."},
+        {q:"취소/변경 규정은?",a:"전날 18시 이전 취소 무료, 이후 배차 상황 따라 비용 발생."},
+        {q:"영업시간은?",a:"08:00–20:00, 야간은 상담 후 진행."}
+      ],
+      footer:{tag:"수도권 중심 전국 운행 / 사진 전송 견적 / 외국인 상담 가능",contact:"연락처",notice:"주의/안내",notes:["엘리베이터 미사용 시 수작업 상하차 인건비 추가","고가 가전/가구는 포장·커버링 권장","교통/통제구역/시간대 따라 도착 시간 유동적"]}
+    },
+    en:{
+      nav:{home:"Home",pricing:"Pricing",truck:"Truck Size",extras:"Extras",photos:"Run Photos",contact:"Contact"},
+      cta:{quote:"Get a quote",pricing:"See pricing"},
+      hero:{title:"Easy. Honest. Affordable.",sub:"Send photos, get a quote within 1 hour. Nationwide from Seoul.",b1:"1‑ton double‑cab cargo — 1600×2300×1700mm",b2:"Max ~1,200kg / ~5.5m³ / 2 pallets",b3:"Foreigner‑friendly (English via Spik)"},
+      pricing:{title:"Distance‑based pricing",note:"Base fares. Fuel included round‑trip. Extra stops/access/traffic may add charges.",dist:"Distance",fuel:"* Fuel included",rows:[{km:"~10 km",won:"₩40,000"},{km:"~30 km",won:"₩60,000"},{km:"~50 km",won:"₩70,000"},{km:"~70 km",won:"₩80,000"},{km:"~100 km",won:"₩90,000"},{km:"~200 km",won:"₩140,000"},{km:"~300 km",won:"₩200,000"},{km:"~400 km",won:"₩230,000"}]},
+      extras:{title:"Extra charges guide",items:[{label:"No elevator (stairs)",desc:"₩10,000 per floor (fixed)"},{label:"Loading/Unloading help (daily)",desc:"₩30,000 flat"},{label:"Ladder truck",desc:"from ₩120,000 (by floor)"},{label:"Night/Weekend",desc:"+10% of base fare (after 7 PM)"},{label:"Ride‑along",desc:"₩20,000 per person"}]},
+      calc:{title:"Quick fare calculator",sub:"Pick a distance and options to estimate the total.",baseDist:"Selected base distance",baseFare:"Base fare",elevGuide:"If no elevator, choose floors.",elevNote:"(for origin/destination)",origin:"Origin: No elevator",dest:"Destination: No elevator",floors:"Floors",stairsFee:"Stair carry fee",handling:"Loading/Unloading help (daily)",ladder:"Ladder truck needed",night:"Select if night/weekend (after 7 PM)",ride:"Ride‑along count",total:"Estimated total"},
+      sample:{title:"Run Photos"},
+      form:{title:"Quick quote form",sub:"Submit via Google Form. We reply within 1 hour."},
+      truck:{title:"Truck size & spec",caption:"Cargo W1600 × L2300 × H1700mm / Max ~1,200kg / ~5.5m³ / 2 pallets",points:["Double‑cab cargo truck (enclosed)","Underground parking may be limited","No lift on truck — ladder truck booked separately","Tell us if doorway/ceiling is narrow/low"]},
+      faq:[
+        {q:"Do you support English?",a:"Yes, English conversation via Spik."},
+        {q:"Can I ride with the driver?",a:"Sometimes depending on schedule and space. Ask in advance."},
+        {q:"Who books the ladder truck?",a:"A separate ladder truck is required when needed and is usually booked by the customer."},
+        {q:"How is stair‑only delivery charged?",a:"₩10,000 per floor (fixed) when no elevator is available."},
+        {q:"Long‑distance runs?",a:"Yes, nationwide in Korea."},
+        {q:"Time/Weather impact?",a:"Traffic or bad weather may delay arrival times."},
+        {q:"Extra stops?",a:"Additional charge applies depending on the route."},
+        {q:"Damage liability?",a:"Please pack fragile items. Internal content damage may not be covered."},
+        {q:"Cancellation policy?",a:"Free until 6pm the day before; later changes may incur fees."},
+        {q:"Business hours?",a:"08:00–20:00; night runs on request."}
+      ],
+      footer:{tag:"Seoul‑based nationwide runs / Photo quotes / Foreigner‑friendly",contact:"Contact",notice:"Notice",notes:["Manual carry fees for stair‑only buildings","Pack fragile/expensive items well","Arrival time can vary due to traffic or restrictions"]}
+    }
+  };
+
+  // ===== Data (photos & forms) =====
+  const FALLBACK_RUN=[
+    {src:'https://via.placeholder.com/1200x800?text=Run+1',kr:'서울 관악→강동 / 12–15시',en:'Gwanak→Gangdong / 12–3 PM'},
+    {src:'https://via.placeholder.com/1200x800?text=Run+2',kr:'1톤 탑차 / 엘베 有',en:'1‑ton box / Elevator'},
+    {src:'https://via.placeholder.com/1200x800?text=Run+3',kr:'동승: 0 / 도움: 없음',en:'Ride‑along: 0 / No helper'}
+  ];
+
+  // ===== Helpers =====
+  const $=(q)=>document.querySelector(q);
+  const $$=(q)=>document.querySelectorAll(q);
+  const byI=(k)=>$$(`[data-i="${k}"]`);
+  const setText=(k,v)=>byI(k).forEach(n=>n.textContent=v);
+  function renderList(id,arr){const root=document.getElementById(id);root.innerHTML='';(arr||[]).forEach(x=>{const li=document.createElement('li');li.textContent=x;root.appendChild(li);});}
+  function renderPricing(rows,labels){const grid=document.getElementById('price-grid');grid.innerHTML='';(rows||[]).forEach(r=>{const c=document.createElement('div');c.className='card price-card';c.innerHTML=`<div class="badge">${labels.dist}</div><div style="font-size:22px;font-weight:800;margin-top:6px">${r.km}</div><div style="margin-top:6px"><strong>${r.won}</strong></div>`;grid.appendChild(c);});}
+  function renderExtras(items){const g=document.getElementById('extras-list');g.innerHTML='';(items||[]).forEach(x=>{const li=document.createElement('li');li.innerHTML=`<strong>${x.label}</strong> – ${x.desc}`;g.appendChild(li);});}
+  function renderFAQ(list){const g=document.getElementById('faq-grid');g.innerHTML='';((list)||[]).forEach(f=>{const c=document.createElement('div');c.className='card';c.innerHTML=`<div style="font-weight:700">${f.q}</div><div class="muted" style="margin-top:6px">${f.a}</div>`;g.appendChild(c);});}
+
+  // ===== Slider =====
+  let auto=null,idx=0,items=[]; // items: [{src,cap}]
+  function renderSlides(lang){
+    const langKey=lang==='en'?'en':'kr';
+    const srcArr=(Array.isArray(window.DD_RUN_ITEMS)&&window.DD_RUN_ITEMS.length?window.DD_RUN_ITEMS:FALLBACK_RUN)
+      .map(x=>({src:x.src,cap:x[langKey]||x.kr||''}));
+    items=srcArr; idx=0; const root=document.getElementById('slides'); root.innerHTML='';
+    srcArr.forEach((it)=>{const s=document.createElement('div');s.className='slide';s.innerHTML=`<div class="frame"><img src="${it.src}" alt="run photo"></div><div class="cap">${it.cap}</div>`;root.appendChild(s);});
+    show(0); startAuto();
+  }
+  function show(i){const root=document.getElementById('slides');root.style.transform=`translateX(${-i*100}%)`;}
+  function startAuto(){stopAuto();auto=setInterval(()=>{idx=(idx+1)%items.length;show(idx);},5000);} function stopAuto(){if(auto){clearInterval(auto);auto=null;}}
+  document.addEventListener('click',e=>{if(e.target.id==='prev'){stopAuto();idx=(idx-1+items.length)%items.length;show(idx);startAuto();} if(e.target.id==='next'){stopAuto();idx=(idx+1)%items.length;show(idx);startAuto();}});
+
+  // ===== Calculator =====
+  let selectedBase=0; const CFG={STAIR_PER_FLOOR:10000, HANDLING_FLAT:30000, RIDE_PER:20000, NIGHT_RATE:0.1};
+  function bindCalc(){['originNoElev','originFloors','destNoElev','destFloors','optHandling','optLadder','ladderCost','optNight','rideCount'].forEach(id=>document.getElementById(id).addEventListener('input',calc));
+    document.getElementById('originNoElev').addEventListener('input',e=>{document.getElementById('originFloors').disabled=!e.target.checked; calc();});
+    document.getElementById('destNoElev').addEventListener('input',e=>{document.getElementById('destFloors').disabled=!e.target.checked; calc();});
+  }
+  function toKRW(n){return `₩${(n||0).toLocaleString('ko-KR')}`}
+  function calc(){
+    const oNo=$('#originNoElev').checked, dNo=$('#destNoElev').checked;
+    const oF=oNo?Math.max(1,parseInt($('#originFloors').value||1,10)):0;
+    const dF=dNo?Math.max(1,parseInt($('#destFloors').value||1,10)):0;
+    const stair=(oF+dF)*CFG.STAIR_PER_FLOOR; $('#stairsFee').textContent=toKRW(stair);
+    const handling=$('#optHandling').checked?CFG.HANDLING_FLAT:0; $('#handlingFee').textContent=toKRW(handling);
+    const ladder=$('#optLadder').checked?Math.max(0,parseInt($('#ladderCost').value||0,10)):0;
+    const night=$('#optNight').checked?Math.round(selectedBase*CFG.NIGHT_RATE):0; $('#nightFee').textContent = $('#optNight').checked?'+10%':'+0%';
+    const rideCnt=Math.max(0,parseInt($('#rideCount').value||0,10)); const ride=rideCnt*CFG.RIDE_PER; $('#rideFee').textContent=toKRW(ride);
+    const total=selectedBase+stair+handling+ladder+night+ride;
+    $('#total').textContent=toKRW(total);
+  }
+
+  // ===== Apply translations =====
+  let LANG='kr';
+  function apply(lang){LANG=lang; const t=T[lang]||T.kr;
+    // simple texts
+    ['nav.home','nav.pricing','nav.truck','nav.extras','nav.photos','nav.contact','cta.quote','cta.pricing','hero.title','hero.sub','hero.b1','hero.b2','hero.b3','pricing.title','pricing.note','extras.title','calc.title','calc.sub','calc.baseDist','calc.baseFare','calc.elevGuide','calc.elevNote','calc.origin','calc.dest','calc.floors','calc.stairsFee','calc.handling','calc.ladder','calc.night','calc.ride','calc.total','sample.title','form.title','form.sub','truck.title','truck.caption','footer.tag','footer.contact','footer.notice'].forEach(k=>setText(k,t[k.split('.')[0]][k.split('.')[1]]||t[k]));
+    // lists
+    renderPricing(t.pricing.rows,{dist:t.pricing.dist,fuel:t.pricing.fuel});
+    renderExtras(t.extras.items); renderList('truck-points',t.truck.points); renderFAQ(t.faq||[]);
+    const notes=document.getElementById('footer-notes');notes.innerHTML='';(t.footer.notes||[]).forEach(n=>{const li=document.createElement('li');li.textContent=n;notes.appendChild(li);});
+    // pricing select → base
+    const grid=document.getElementById('price-grid');[...grid.children].forEach((c,idx)=>{c.onclick=()=>{[...grid.children].forEach(x=>x.classList.remove('active'));c.classList.add('active'); const raw=t.pricing.rows[idx].won.replace(/[^0-9]/g,''); selectedBase=parseInt(raw,10)||0; document.getElementById('baseKm').textContent=t.pricing.rows[idx].km; document.getElementById('baseFare').textContent=t.pricing.rows[idx].won; calc();};});
+    // photos
+    renderSlides(lang);
+    // forms
+    const kr=window.DD_GFORM_URL_KR||''; const en=window.DD_GFORM_URL_EN||''; document.getElementById('gform').src=(lang==='en'?en:kr)||kr||en||'about:blank';
+    document.documentElement.lang=(lang==='en'?'en':'ko');
+    document.getElementById('btn-kr').setAttribute('aria-pressed',lang!=='en');
+    document.getElementById('btn-en').setAttribute('aria-pressed',lang==='en');
+  }
+
+  // ===== Init =====
+  function init(){
+    bindCalc();
+    const initLang= (new URL(location.href)).searchParams.get('lang')?.toLowerCase()==='en' ? 'en': (navigator.language||'ko').toLowerCase().startsWith('en')?'en':'kr';
+    document.getElementById('btn-kr').addEventListener('click',()=>apply('kr'));
+    document.getElementById('btn-en').addEventListener('click',()=>apply('en'));
+    apply(initLang);
+    // default base select (~50km)
+    const grid=document.getElementById('price-grid'); const observer=new MutationObserver(()=>{ if(grid.children[2]){grid.children[2].click(); observer.disconnect();}}); observer.observe(grid,{childList:true});
+  }
+  document.addEventListener('DOMContentLoaded',init);
+  </script>
+
+  <noscript>JavaScript가 꺼져 있습니다. 가격표/슬라이더/언어 전환 기능을 사용하려면 브라우저에서 JavaScript를 켜주세요.</noscript>
+ <script src="config.js"></script>
+</body>
+</html>

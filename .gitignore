@@ -1,0 +1,10 @@
+# OS/IDE
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Node/Logs (혹시 생길 수 있는 것들)
+node_modules/
+npm-debug.log*
+yarn.lock
+pnpm-lock.yaml
