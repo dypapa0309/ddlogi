@@ -3,52 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DD Transport | 디디운송</title>
+  <title>DD Logistics | 디디운송</title>
   <meta name="description" content="디디운송 – 1톤 카고 탑차 용달. 정직한 운임표, 옵션 계산기(엘리베이터/층수, 상하차 도움 통합, 야간·주말 10% 가산, 동승 1인당 2만원), 운행 사진 슬라이더, KR/EN 지원." />
   <style>
-    :root{--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--ghost:#f3f4f6;--bg:#f9fafb;--brand:#111827;--white:#fff}
+    :root{
+      --ink:#111827;--muted:#6b7280;--line:#e5e7eb;--ghost:#f3f4f6;--bg:#f9fafb;--brand:#111827;--white:#fff;
+      --radius:16px
+    }
     *{box-sizing:border-box}
     html,body{margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,Arial,sans-serif;background:var(--bg);color:var(--ink)}
     a{color:inherit;text-decoration:none}
     .container{max-width:1140px;margin:0 auto;padding:0 16px}
-    header{position:sticky;top:0;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);z-index:20}
-    header .bar{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
-    nav a{margin:0 10px;font-weight:700}
-    .badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:999px;color:#6b7280;font-size:12px}
-    .btn{display:inline-block;border:1px solid var(--line);padding:10px 14px;border-radius:12px;background:#fff;font-weight:700}
-    .btn.primary{background:#111827;color:#fff;border-color:#111827}
-    .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}
+    .btn{display:inline-block;border:1px solid var(--line);padding:.65rem .9rem;border-radius:12px;background:#fff;font-weight:700}
+    .btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+    .badge{display:inline-flex;gap:.25rem;align-items:center;border:1px solid var(--line);padding:.2rem .5rem;border-radius:999px;font-size:12px;color:var(--muted);background:#fff}
+    .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px}
     .shadow{box-shadow:0 10px 32px rgba(0,0,0,.06)}
     .grid{display:grid;gap:16px}
     .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
     .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
     @media (max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
-    h1{font-size:40px;margin:0 0 6px;font-weight:800}
-    h2{font-size:28px;margin:0 0 8px;font-weight:800}
+    h1{font-size:clamp(26px,4.5vw,40px);margin:0 0 6px;font-weight:800;line-height:1.15}
+    h2{font-size:clamp(22px,3.5vw,28px);margin:0 0 8px;font-weight:800}
     h3{font-size:18px;margin:0 0 6px;font-weight:700}
-    p{margin:6px 0}.muted{color:#6b7280}
+    p{margin:6px 0}.muted{color:var(--muted)}
     section{padding:34px 0}
     footer{background:#0f172a;color:#e5e7eb}
 
-    /* Slider */
+    /* ===== Header (responsive) ===== */
+    header{position:sticky;top:0;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);z-index:50}
+    header .bar{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+    .brand{display:flex;align-items:center;gap:10px}
+    .brand .logo{width:36px;height:36px;border-radius:10px;background:#111827;color:#fff;display:grid;place-items:center;font-weight:800}
+    nav .links{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    nav .links a{font-weight:700;white-space:nowrap}
+    .menu-btn{display:none;border:1px solid var(--line);background:#fff;border-radius:10px;padding:.4rem .6rem}
+    .header-right{display:flex;align-items:center;gap:8px}
+
+    /* Mobile menu (<= 760px) */
+    @media (max-width:760px){
+      nav .links{display:none}
+      .menu-btn{display:inline-flex}
+      .mobile-menu{position:fixed;inset:56px 0 auto 0;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 12px 24px rgba(0,0,0,.08);display:none;z-index:60}
+      .mobile-menu.open{display:block}
+      .mobile-menu .wrap{padding:12px 16px;display:grid;gap:8px}
+      .mobile-menu a{padding:.6rem;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700}
+    }
+
+    /* ===== Slider ===== */
     .slider{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:14px}
     .slides{display:flex;gap:0;transform:translateX(0);transition:transform .5s ease}
     .slide{flex:0 0 100%;max-width:100%;display:grid;grid-template-rows:auto auto}
-    .frame{height:320px;background:var(--ghost)}
+    .frame{height:clamp(220px,35vw,320px);background:var(--ghost)}
     .frame img{width:100%;height:100%;object-fit:cover;display:block}
     .cap{padding:10px;background:#fff;border-top:1px solid var(--line);font-size:14px;color:#374151}
     .nav{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
     .nav button{pointer-events:auto;border:none;background:rgba(17,24,39,.7);color:#fff;width:40px;height:40px;border-radius:50%}
 
-    /* Pricing */
+    /* ===== Pricing ===== */
     .price-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
     @media (max-width:900px){.price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:520px){.price-grid{grid-template-columns:1fr}}
     .price-card{cursor:pointer}
     .price-card.active{outline:2px solid #111827}
 
-    /* Calculator */
+    /* ===== Calculator ===== */
     .calc-controls{display:grid;gap:10px}
     .opt{display:flex;align-items:center;justify-content:space-between;gap:10px}
     .stack{display:grid;gap:8px}
@@ -60,16 +81,41 @@
   </style>
 </head>
 
-
 <body>
   <!-- ===== Header ===== -->
   <header>
     <div class="container bar">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:36px;height:36px;border-radius:10px;background:#111827;color:#fff;display:grid;place-items:center;font-weight:800">DD</div>
+      <div class="brand">
+        <div class="logo">DD</div>
         <strong>DD Transport</strong>
       </div>
+
       <nav>
+        <button id="menu-toggle" class="menu-btn" aria-expanded="false" aria-controls="mnav">☰ 메뉴</button>
+        <div class="links">
+          <a href="#hero" data-i="nav.home">소개</a>
+          <a href="#pricing" data-i="nav.pricing">요금</a>
+          <a href="#truck" data-i="nav.truck">트럭 크기</a>
+          <a href="#extras" data-i="nav.extras">추가요금</a>
+          <a href="#photos" data-i="nav.photos">운행 사진</a>
+          <a href="#faq">FAQ</a>
+          <a href="#contact" data-i="nav.contact">연락처</a>
+        </div>
+      </nav>
+
+      <div class="header-right">
+        <div class="badge" role="group" aria-label="language switch">
+          <button id="btn-kr" aria-pressed="true">KR</button>
+          <span aria-hidden="true">·</span>
+          <button id="btn-en" aria-pressed="false">EN</button>
+        </div>
+        <a class="btn primary" href="#quote" data-i="cta.quote">견적 요청하기</a>
+      </div>
+    </div>
+
+    <!-- mobile menu -->
+    <div id="mnav" class="mobile-menu" hidden>
+      <div class="wrap container">
         <a href="#hero" data-i="nav.home">소개</a>
         <a href="#pricing" data-i="nav.pricing">요금</a>
         <a href="#truck" data-i="nav.truck">트럭 크기</a>
@@ -77,13 +123,6 @@
         <a href="#photos" data-i="nav.photos">운행 사진</a>
         <a href="#faq">FAQ</a>
         <a href="#contact" data-i="nav.contact">연락처</a>
-      </nav>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="badge">
-          <button id="btn-kr" aria-pressed="true">KR</button> ·
-          <button id="btn-en" aria-pressed="false">EN</button>
-        </div>
-        <a class="btn primary" href="#quote" data-i="cta.quote">견적 요청하기</a>
       </div>
     </div>
   </header>
@@ -92,7 +131,7 @@
   <section id="hero">
     <div class="container grid grid-2">
       <div>
-        <h1 data-i="hero.title">💯 거품 뺀 견적 / 추가비 無 / 정직한 운송</h1>
+        <h1 data-i="hero.title">거품 뺀 견적 / 추가비 無 / 정직한 운송</h1>
         <p class="muted" data-i="hero.sub">사진 전송하면 1시간 내 견적. 수도권 중심 전국 운행.</p>
         <ul class="muted" style="margin:10px 0">
           <li data-i="hero.b1">1톤 더블캡 카고 탑차 – 적재함 1600×2300×1700mm</li>
@@ -245,7 +284,7 @@
     kr:{
       nav:{home:"소개",pricing:"요금",truck:"트럭 크기",extras:"추가요금",photos:"운행 사진",contact:"연락처"},
       cta:{quote:"견적 요청하기",pricing:"요금 보기"},
-      hero:{title:"💯 거품 뺀 견적 / 추가비 無 / 정직한 운송",sub:"사진 전송하면 1시간 내 견적. 수도권 중심 전국 운행.",b1:"1톤 더블캡 카고 탑차 – 적재함 1600×2300×1700mm",b2:"최대 1,200kg / 약 5.5㎥ / 파레트 2개",b3:"외국인 문의 가능 (영어 스픽 대화 지원)"},
+      hero:{title:"거품 뺀 견적 / 추가비 無 / 정직한 운송",sub:"사진 전송하면 1시간 내 견적. 수도권 중심 전국 운행.",b1:"1톤 더블캡 카고 탑차 – 적재함 1600×2300×1700mm",b2:"최대 1,200kg / 약 5.5㎥ / 파레트 2개",b3:"외국인 문의 가능 (영어 스픽 대화 지원)"},
       pricing:{title:"거리별 기본 요금",note:"아래 금액은 기본 운임입니다. 왕복 유류비 포함. 경유지·지역 접근성·교통 상황에 따라 추가요금이 발생할 수 있습니다.",dist:"거리",fuel:"* 왕복 유류비 포함",rows:[{km:"~10km",won:"₩40,000"},{km:"~30km",won:"₩60,000"},{km:"~50km",won:"₩70,000"},{km:"~70km",won:"₩80,000"},{km:"~100km",won:"₩90,000"},{km:"~200km",won:"₩140,000"},{km:"~300km",won:"₩200,000"},{km:"~400km",won:"₩230,000"}]},
       extras:{title:"추가 요금 가이드",items:[{label:"엘리베이터 없음(계단)",desc:"층당 10,000원(고정)"},{label:"상하차 도움(당일 통합)",desc:"30,000원"},{label:"사다리차 필요",desc:"120,000원~ (층수별 상이)"},{label:"야간/주말",desc:"기본요금의 10% 가산 (오후 7시 이후)"},{label:"동승 옵션",desc:"1인당 20,000원"}]},
       calc:{title:"간편 견적 계산기",sub:"거리 구간을 선택하고 필요한 옵션을 체크하면 예상 총액이 계산됩니다.",baseDist:"선택한 기본 거리",baseFare:"기본 운임",elevGuide:"엘리베이터가 없을 시 층수를 선택해주세요.",elevNote:"(출발지/도착지 각각)",origin:"출발지: 엘리베이터 없음",dest:"도착지: 엘리베이터 없음",floors:"층수",stairsFee:"계단 작업 비용",handling:"상하차 도움(당일 통합)",ladder:"사다리차 필요",night:"야간/주말 운행 시 선택 (기준: 오후 7시 이후)",ride:"동승 인원",total:"예상 총액"},
@@ -269,34 +308,34 @@
     en:{
       nav:{home:"Home",pricing:"Pricing",truck:"Truck Size",extras:"Extras",photos:"Run Photos",contact:"Contact"},
       cta:{quote:"Get a quote",pricing:"See pricing"},
-      hero:{title:"Easy. Honest. Affordable.",sub:"Send photos, get a quote within 1 hour. Nationwide from Seoul.",b1:"1‑ton double‑cab cargo — 1600×2300×1700mm",b2:"Max ~1,200kg / ~5.5m³ / 2 pallets",b3:"Foreigner‑friendly (English via Spik)"},
-      pricing:{title:"Distance‑based pricing",note:"Base fares. Fuel included round‑trip. Extra stops/access/traffic may add charges.",dist:"Distance",fuel:"* Fuel included",rows:[{km:"~10 km",won:"₩40,000"},{km:"~30 km",won:"₩60,000"},{km:"~50 km",won:"₩70,000"},{km:"~70 km",won:"₩80,000"},{km:"~100 km",won:"₩90,000"},{km:"~200 km",won:"₩140,000"},{km:"~300 km",won:"₩200,000"},{km:"~400 km",won:"₩230,000"}]},
-      extras:{title:"Extra charges guide",items:[{label:"No elevator (stairs)",desc:"₩10,000 per floor (fixed)"},{label:"Loading/Unloading help (daily)",desc:"₩30,000 flat"},{label:"Ladder truck",desc:"from ₩120,000 (by floor)"},{label:"Night/Weekend",desc:"+10% of base fare (after 7 PM)"},{label:"Ride‑along",desc:"₩20,000 per person"}]},
-      calc:{title:"Quick fare calculator",sub:"Pick a distance and options to estimate the total.",baseDist:"Selected base distance",baseFare:"Base fare",elevGuide:"If no elevator, choose floors.",elevNote:"(for origin/destination)",origin:"Origin: No elevator",dest:"Destination: No elevator",floors:"Floors",stairsFee:"Stair carry fee",handling:"Loading/Unloading help (daily)",ladder:"Ladder truck needed",night:"Select if night/weekend (after 7 PM)",ride:"Ride‑along count",total:"Estimated total"},
+      hero:{title:"Easy. Honest. Affordable.",sub:"Send photos, get a quote within 1 hour. Nationwide from Seoul.",b1:"1-ton double-cab cargo — 1600×2300×1700mm",b2:"Max ~1,200kg / ~5.5m³ / 2 pallets",b3:"Foreigner-friendly (English via Spik)"},
+      pricing:{title:"Distance-based pricing",note:"Base fares. Fuel included round-trip. Extra stops/access/traffic may add charges.",dist:"Distance",fuel:"* Fuel included",rows:[{km:"~10 km",won:"₩40,000"},{km:"~30 km",won:"₩60,000"},{km:"~50 km",won:"₩70,000"},{km:"~70 km",won:"₩80,000"},{km:"~100 km",won:"₩90,000"},{km:"~200 km",won:"₩140,000"},{km:"~300 km",won:"₩200,000"},{km:"~400 km",won:"₩230,000"}]},
+      extras:{title:"Extra charges guide",items:[{label:"No elevator (stairs)",desc:"₩10,000 per floor (fixed)"},{label:"Loading/Unloading help (daily)",desc:"₩30,000 flat"},{label:"Ladder truck",desc:"from ₩120,000 (by floor)"},{label:"Night/Weekend",desc:"+10% of base fare (after 7 PM)"},{label:"Ride-along",desc:"₩20,000 per person"}]},
+      calc:{title:"Quick fare calculator",sub:"Pick a distance and options to estimate the total.",baseDist:"Selected base distance",baseFare:"Base fare",elevGuide:"If no elevator, choose floors.",elevNote:"(for origin/destination)",origin:"Origin: No elevator",dest:"Destination: No elevator",floors:"Floors",stairsFee:"Stair carry fee",handling:"Loading/Unloading help (daily)",ladder:"Ladder truck needed",night:"Select if night/weekend (after 7 PM)",ride:"Ride-along count",total:"Estimated total"},
       sample:{title:"Run Photos"},
       form:{title:"Quick quote form",sub:"Submit via Google Form. We reply within 1 hour."},
-      truck:{title:"Truck size & spec",caption:"Cargo W1600 × L2300 × H1700mm / Max ~1,200kg / ~5.5m³ / 2 pallets",points:["Double‑cab cargo truck (enclosed)","Underground parking may be limited","No lift on truck — ladder truck booked separately","Tell us if doorway/ceiling is narrow/low"]},
+      truck:{title:"Truck size & spec",caption:"Cargo W1600 × L2300 × H1700mm / Max ~1,200kg / ~5.5m³ / 2 pallets",points:["Double-cab cargo truck (enclosed)","Underground parking may be limited","No lift on truck — ladder truck booked separately","Tell us if doorway/ceiling is narrow/low"]},
       faq:[
         {q:"Do you support English?",a:"Yes, English conversation via Spik."},
         {q:"Can I ride with the driver?",a:"Sometimes depending on schedule and space. Ask in advance."},
         {q:"Who books the ladder truck?",a:"A separate ladder truck is required when needed and is usually booked by the customer."},
-        {q:"How is stair‑only delivery charged?",a:"₩10,000 per floor (fixed) when no elevator is available."},
-        {q:"Long‑distance runs?",a:"Yes, nationwide in Korea."},
+        {q:"How is stair-only delivery charged?",a:"₩10,000 per floor (fixed) when no elevator is available."},
+        {q:"Long-distance runs?",a:"Yes, nationwide in Korea."},
         {q:"Time/Weather impact?",a:"Traffic or bad weather may delay arrival times."},
         {q:"Extra stops?",a:"Additional charge applies depending on the route."},
         {q:"Damage liability?",a:"Please pack fragile items. Internal content damage may not be covered."},
         {q:"Cancellation policy?",a:"Free until 6pm the day before; later changes may incur fees."},
         {q:"Business hours?",a:"08:00–20:00; night runs on request."}
       ],
-      footer:{tag:"Seoul‑based nationwide runs / Photo quotes / Foreigner‑friendly",contact:"Contact",notice:"Notice",notes:["Manual carry fees for stair‑only buildings","Pack fragile/expensive items well","Arrival time can vary due to traffic or restrictions"]}
+      footer:{tag:"Seoul-based nationwide runs / Photo quotes / Foreigner-friendly",contact:"Contact",notice:"Notice",notes:["Manual carry fees for stair-only buildings","Pack fragile/expensive items well","Arrival time can vary due to traffic or restrictions"]}
     }
   };
 
   // ===== Data (photos & forms) =====
   const FALLBACK_RUN=[
     {src:'https://via.placeholder.com/1200x800?text=Run+1',kr:'서울 관악→강동 / 12–15시',en:'Gwanak→Gangdong / 12–3 PM'},
-    {src:'https://via.placeholder.com/1200x800?text=Run+2',kr:'1톤 탑차 / 엘베 有',en:'1‑ton box / Elevator'},
-    {src:'https://via.placeholder.com/1200x800?text=Run+3',kr:'동승: 0 / 도움: 없음',en:'Ride‑along: 0 / No helper'}
+    {src:'https://via.placeholder.com/1200x800?text=Run+2',kr:'1톤 탑차 / 엘베 有',en:'1-ton box / Elevator'},
+    {src:'https://via.placeholder.com/1200x800?text=Run+3',kr:'동승: 0 / 도움: 없음',en:'Ride-along: 0 / No helper'}
   ];
 
   // ===== Helpers =====
@@ -310,7 +349,7 @@
   function renderFAQ(list){const g=document.getElementById('faq-grid');g.innerHTML='';((list)||[]).forEach(f=>{const c=document.createElement('div');c.className='card';c.innerHTML=`<div style="font-weight:700">${f.q}</div><div class="muted" style="margin-top:6px">${f.a}</div>`;g.appendChild(c);});}
 
   // ===== Slider =====
-  let auto=null,idx=0,items=[]; // items: [{src,cap}]
+  let auto=null,idx=0,items=[];
   function renderSlides(lang){
     const langKey=lang==='en'?'en':'kr';
     const srcArr=(Array.isArray(window.DD_RUN_ITEMS)&&window.DD_RUN_ITEMS.length?window.DD_RUN_ITEMS:FALLBACK_RUN)
@@ -363,8 +402,17 @@
     document.getElementById('btn-en').setAttribute('aria-pressed',lang==='en');
   }
 
-  // ===== Init =====
+  // ===== Init & Mobile menu =====
   function init(){
+    // mobile menu toggle
+    const btn=$('#menu-toggle'), panel=$('#mnav');
+    btn?.addEventListener('click',()=>{
+      const open=panel.classList.toggle('open');
+      panel.hidden=!open;
+      btn.setAttribute('aria-expanded',String(open));
+    });
+    panel?.addEventListener('click',(e)=>{ if(e.target.tagName==='A'){ panel.classList.remove('open'); panel.hidden=true; btn.setAttribute('aria-expanded','false'); }});
+
     bindCalc();
     const initLang= (new URL(location.href)).searchParams.get('lang')?.toLowerCase()==='en' ? 'en': (navigator.language||'ko').toLowerCase().startsWith('en')?'en':'kr';
     document.getElementById('btn-kr').addEventListener('click',()=>apply('kr'));
@@ -377,6 +425,6 @@
   </script>
 
   <noscript>JavaScript가 꺼져 있습니다. 가격표/슬라이더/언어 전환 기능을 사용하려면 브라우저에서 JavaScript를 켜주세요.</noscript>
- <script src="config.js"></script>
+  <script src="config.js"></script>
 </body>
 </html>
