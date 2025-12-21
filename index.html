@@ -6,62 +6,6 @@
 <title>디디운송 - 빠르고 안전한 운송</title>
 
 <style>
-
-    /* 메인 히어로 */
-.hero-card {
-  background: var(--card);
-  border-radius: 20px;
-  overflow: hidden;
-}
-
-.hero-image {
-  height: 180px;
-  background-image: url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7');
-  background-size: cover;
-  background-position: center;
-  position: relative;
-}
-
-.badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: #0ea5e9;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.hero-content {
-  padding: 16px;
-}
-
-.hero-content h1 {
-  margin: 0 0 6px;
-  font-size: 22px;
-}
-
-.hero-desc {
-  color: var(--sub);
-  font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 14px;
-}
-
-.hero-features {
-  display: flex;
-  gap: 10px;
-}
-
-.feature {
-  background: #020617;
-  border: 1px solid #1f2937;
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 12px;
-}
-
 :root {
   --bg:#0b1220;
   --card:#111827;
@@ -88,6 +32,32 @@ h2 { font-size:20px; margin-bottom:12px; }
   margin-bottom:12px;
 }
 .sub { color:var(--sub); font-size:14px; }
+
+/* 히어로 */
+.hero-card { background:var(--card); border-radius:20px; overflow:hidden; }
+.hero-image {
+  height:180px;
+  background:url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7') center/cover;
+  position:relative;
+}
+.badge {
+  position:absolute; top:12px; left:12px;
+  background:#0ea5e9;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px; font-weight:700;
+}
+.hero-content { padding:16px; }
+.hero-content h1 { margin:0 0 6px; font-size:22px; }
+.hero-desc { color:var(--sub); font-size:14px; line-height:1.5; margin-bottom:14px; }
+.hero-features { display:flex; gap:10px; }
+.feature {
+  background:#020617;
+  border:1px solid #1f2937;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+}
 
 /* 차량 */
 .vehicle {
@@ -134,37 +104,43 @@ h2 { font-size:20px; margin-bottom:12px; }
   font-weight:700;
   color:#fff;
   text-decoration:none;
-  box-sizing:border-box;
+  margin-bottom:10px;
 }
 
+/* 슬라이더 */
+input[type="range"] {
+  -webkit-appearance:none;
+  width:100%;
+  height:10px;
+  border-radius:999px;
+  background:#1f2937;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:26px; height:26px;
+  border-radius:50%;
+  background:#fff;
+  border:4px solid var(--accent);
+}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-    <!-- 메인 히어로 : 디디운송 소개 -->
+<!-- 히어로 -->
 <section class="section">
   <div class="hero-card">
-
-    <div class="hero-image">
-      <span class="badge">NO HIDDEN FEES</span>
-    </div>
-
+    <div class="hero-image"><span class="badge">NO HIDDEN FEES</span></div>
     <div class="hero-content">
       <h1>디디운송</h1>
-      <p class="hero-desc">
-        단거리·장거리 이사 전문<br>
-        정직한 요금, 깔끔한 운송
-      </p>
-
+      <p class="hero-desc">단거리·장거리 이사 전문<br>정직한 요금, 깔끔한 운송</p>
       <div class="hero-features">
         <div class="feature">🛡️ 전면 보험</div>
         <div class="feature">⏰ 24시간 상담</div>
         <div class="feature">🚚 카고 전문</div>
       </div>
     </div>
-
   </div>
 </section>
 
@@ -172,9 +148,9 @@ h2 { font-size:20px; margin-bottom:12px; }
 <section class="section">
 <h2>차량 선택</h2>
 <div class="card">
-  <div class="vehicle" data-vehicle="van">🛻 1톤 카고 더블캡<br><small class="sub">원룸 / 소형<br>무한 적재! 짐 많으신 분들께 추천!</small></div>
-  <div class="vehicle" data-vehicle="truck">🚚 1톤 저상탑<br><small class="sub">원룸 / 소형<br>안전한 운행! 깨끗한 운행! <br> 박스카 안 적재로 깔끔한 운송!</small></div>
-  <div class="vehicle" data-vehicle="lorry">🛻🚚 1톤 카고 + 저상탑<br><small class="sub">투룸 / 사무실<br>사업 확장, 사무실 정리! 전문적으로 도와드려요.</small></div>
+  <div class="vehicle" data-vehicle="van">🛻 1톤 카고 더블캡</div>
+  <div class="vehicle" data-vehicle="truck">🚚 1톤 저상탑</div>
+  <div class="vehicle" data-vehicle="lorry">🛻🚚 카고 + 저상탑</div>
 </div>
 </section>
 
@@ -192,79 +168,73 @@ h2 { font-size:20px; margin-bottom:12px; }
 <h2>추가 옵션</h2>
 <div class="card">
 
-  <div class="sub">엘리베이터 없음 (층당 7,000원)</div>
+<div class="sub">엘리베이터 없을 시 체크해주세요 (층당 7,000원)</div>
+<label class="option">출발지 <div><input type="checkbox" id="noFrom"><input type="number" id="fromFloor" value="1" min="1" max="5"></div></label>
+<label class="option">도착지 <div><input type="checkbox" id="noTo"><input type="number" id="toFloor" value="1" min="1" max="5"></div></label>
 
-  <label class="option">
-    출발지
-    <div>
-      <input type="checkbox" id="noFrom">
-      <input type="number" id="fromFloor" value="1" min="1" max="5">
-    </div>
-  </label>
+<hr>
 
-  <label class="option">
-    도착지
-    <div>
-      <input type="checkbox" id="noTo">
-      <input type="number" id="toFloor" value="1" min="1" max="5">
-    </div>
-  </label>
+<div class="sub">가구 크기 (중복 선택)</div>
+<label class="option">소형 (의자, 협탁 등) <input type="checkbox" class="furniture" value="small"></label>
+<label class="option">중형 (책상, 테이블, 미니 냉장고 등) <input type="checkbox" class="furniture" value="medium"></label>
+<label class="option">대형 (옷장, 대형 책장 등) <input type="checkbox" class="furniture" value="large"></label>
 
-  <hr>
+<hr>
 
-  <label class="option">
-    사다리차 필요 (+80,000원)
-    <input type="checkbox" id="ladder">
-  </label>
+<div class="sub">짐양 (5호 박스 기준)</div>
+<label class="option">1~5개 <input type="radio" name="load" value="1"></label>
+<label class="option">6~10개 <input type="radio" name="load" value="2"></label>
+<label class="option">11~15개 <input type="radio" name="load" value="3"></label>
+<label class="option">16~20개 <input type="radio" name="load" value="4"></label>
 
-  <label class="option">
-    야간 / 주말 <small class="sub">(현재 무료 서비스)</small>
-    <input type="checkbox" id="night">
-  </label>
+<hr>
 
-  <label class="option">
-    동승 인원
-    <input type="number" id="ride" value="0" min="0">
-  </label>
+<label class="option">사다리차 (+80,000원) <input type="checkbox" id="ladder"></label>
+<label class="option">야간/주말 (무료) <input type="checkbox" id="night"></label>
+<label class="option">동승 인원 <input type="number" id="ride" value="0" min="0"></label>
 
 </div>
 </section>
 
-<!-- 요약 -->
+<!-- 견적 -->
 <section class="section">
 <h2>예상 견적</h2>
+<div class="card summary" id="summary">조건을 선택하세요</div>
+<div class="card"><div class="price" id="price">₩0</div></div>
 
-<div class="card summary" id="summary">
-조건을 선택하면 자동 계산됩니다.
-</div>
-
-<div class="card">
-  <div class="price" id="price">₩0</div>
-</div>
-
-<a href="tel:01040941666" class="cta">
-  문의하기 / 상담 연결
-</a>
+<a href="#" class="cta" id="smsInquiry" style="background:#334155">📩 견적 캡처 후 문자 문의</a>
+<a href="tel:01040941666" class="cta">전화 문의하기</a>
+</section>
 
 <script>
+/* 문자 문의 */
+document.getElementById('smsInquiry').onclick = () => {
+  alert(`📸 '예상 견적' 영역을 캡처한 뒤\n문자창에서 이미지 붙여넣기 후 전송해주세요.`);
+  location.href = `sms:01040941666?body=${encodeURIComponent(
+    '디디운송 견적 문의드립니다.\n캡처 이미지 기준으로 상담 요청드립니다.'
+  )}`;
+};
+
+/* 상태 */
 const state = {
-  vehicle:null,
-  distance:10,
-  noFrom:false,
-  fromFloor:1,
-  noTo:false,
-  toFloor:1,
-  ladder:false,
-  night:false,
-  ride:0
+  vehicle:null, distance:10,
+  noFrom:false, fromFloor:1,
+  noTo:false, toFloor:1,
+  ladder:false, night:false,
+  ride:0, furniture:[], load:0
 };
 
 const base={van:30000,truck:40000,lorry:60000};
 const perKm={van:1000,truck:1200,lorry:1500};
+const furniturePrice={small:20000,medium:40000,large:70000};
+const loadPrice={1:10000,2:20000,3:30000,4:40000};
 
-const priceEl = document.getElementById('price');
-const summaryEl = document.getElementById('summary');
+const priceEl=document.getElementById('price');
+const summaryEl=document.getElementById('summary');
+const distanceEl=document.getElementById('distance');
+const distanceText=document.getElementById('distanceText');
 
+/* 차량 */
 document.querySelectorAll('.vehicle').forEach(v=>{
   v.onclick=()=>{
     document.querySelectorAll('.vehicle').forEach(x=>x.classList.remove('active'));
@@ -274,44 +244,60 @@ document.querySelectorAll('.vehicle').forEach(v=>{
   };
 });
 
-distance.oninput=e=>{
+/* 거리 */
+distanceEl.oninput=e=>{
   state.distance=+e.target.value;
   distanceText.innerText=`${state.distance}km`;
   calc();
 };
 
+/* 옵션 */
 noFrom.onchange=e=>{state.noFrom=e.target.checked;calc();}
 noTo.onchange=e=>{state.noTo=e.target.checked;calc();}
-fromFloor.oninput=e=>{state.fromFloor=Math.min(5,Math.max(1,+e.target.value));calc();}
-toFloor.oninput=e=>{state.toFloor=Math.min(5,Math.max(1,+e.target.value));calc();}
+fromFloor.oninput=e=>{state.fromFloor=+e.target.value;calc();}
+toFloor.oninput=e=>{state.toFloor=+e.target.value;calc();}
 ladder.onchange=e=>{state.ladder=e.target.checked;calc();}
 night.onchange=e=>{state.night=e.target.checked;calc();}
-ride.oninput=e=>{state.ride=Math.max(0,+e.target.value);calc();}
+ride.oninput=e=>{state.ride=+e.target.value;calc();}
 
+/* 가구 */
+document.querySelectorAll('.furniture').forEach(el=>{
+  el.onchange=e=>{
+    const v=e.target.value;
+    if(e.target.checked && !state.furniture.includes(v)) state.furniture.push(v);
+    if(!e.target.checked) state.furniture=state.furniture.filter(x=>x!==v);
+    calc();
+  };
+});
+
+/* 짐양 */
+document.querySelectorAll('input[name="load"]').forEach(el=>{
+  el.onchange=e=>{state.load=+e.target.value;calc();}
+});
+
+/* 계산 */
 function calc(){
   if(!state.vehicle) return;
 
-  let price = base[state.vehicle] + state.distance * perKm[state.vehicle];
+  let price=base[state.vehicle]+state.distance*perKm[state.vehicle];
+  let stair=((state.noFrom?state.fromFloor:0)+(state.noTo?state.toFloor:0))*7000;
+  price+=stair;
 
-  let stair = 0;
-  if(state.noFrom) stair += state.fromFloor * 7000;
-  if(state.noTo) stair += state.toFloor * 7000;
-  price += stair;
+  let fCost=state.furniture.reduce((a,v)=>a+furniturePrice[v],0);
+  let lCost=loadPrice[state.load]||0;
+  price+=fCost+lCost;
 
-  if(state.ladder) price += 80000;
-  price += state.ride * 20000;
+  if(state.ladder) price+=80000;
+  price+=state.ride*20000;
 
-  summaryEl.innerHTML = `
+  summaryEl.innerHTML=`
     차량: ${state.vehicle}<br>
     거리: ${state.distance}km<br>
-    계단 작업: ₩${stair.toLocaleString()}<br>
-    사다리차: ${state.ladder ? '적용 (+80,000원)' : '미적용'}<br>
-    야간/주말: ${state.night ? '무료 서비스' : '미적용'}<br>
-    동승: ${state.ride}명<br>
-    상하차 도움: 무료 제공
+    가구: ${state.furniture.join(', ')||'없음'}<br>
+    짐양: ${state.load||'미선택'}<br>
+    계단 작업: ₩${stair.toLocaleString()}
   `;
-
-  priceEl.innerText = `₩${price.toLocaleString()}`;
+  priceEl.innerText=`₩${price.toLocaleString()}`;
 }
 </script>
 
