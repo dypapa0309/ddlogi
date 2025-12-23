@@ -18,6 +18,16 @@ const TEXT = {
   }
 };
 
+// 페이지 로드 시 기본 차량 선택
+window.addEventListener("DOMContentLoaded", () => {
+  const firstVehicle = document.querySelector(".vehicle");
+  if (firstVehicle) {
+    firstVehicle.classList.add("active");
+    state.vehicle = firstVehicle.dataset.vehicle;
+    calc();
+  }
+});
+
 /* ===== 상태 ===== */
 const state = {
   vehicle:null,
