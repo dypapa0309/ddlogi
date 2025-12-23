@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 🔍 SEO -->
+  <title>DD Logistics | 1-Ton Cargo & Moving Service | Honest Pricing</title>
+  <meta name="description" content="DD Logistics provides 1-ton cargo, small moving, and delivery services. Check estimated prices instantly based on distance and options." />
+  <meta name="keywords" content="DD Logistics, cargo truck, 1-ton truck, moving service, small move" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://ddlogi.netlify.app/en/" />
+
+  <!-- OG -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="DD Logistics | Fast & Honest Cargo Service" />
+  <meta property="og:description" content="Instant moving estimates based on distance and options" />
+  <meta property="og:image" content="/assets/img/hero-truck.jpg" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- 인증 (공용이므로 그대로 유지) -->
+  <meta name="naver-site-verification" content="678161b38e6ea859e9e863da9807f759ce7e331e" />
+  <meta name="google-site-verification" content="2Ty8rFRVnpPuNKFrt7b8DAno9v7kEe1f7Pnr9_bRcsU" />
+
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+
+<body data-lang="en">
+
+<div class="container">
+
+  <!-- Language -->
+  <div class="lang-switch">
+    <a href="/">KR</a> | <strong>EN</strong>
+  </div>
+
+  <!-- Hero -->
+  <section class="section">
+    <div class="hero-card">
+      <div class="hero-image">
+        <span class="badge">NO HIDDEN FEES</span>
+      </div>
+      <div class="hero-content">
+        <h1>DD Logistics</h1>
+        <p class="hero-desc">
+          Short & Long Distance Moving<br>
+          Honest Pricing, Clean Delivery
+        </p>
+        <div class="hero-features">
+          <div class="feature">🛡️ Full Insurance</div>
+          <div class="feature">⏰ 24/7 Support</div>
+          <div class="feature">🚚 Cargo Specialist</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vehicle -->
+  <section class="section">
+    <h2>Select Vehicle</h2>
+    <div class="card">
+      <div class="vehicle" data-vehicle="van">🛻 1-Ton Cargo Double Cab</div>
+      <div class="vehicle" data-vehicle="truck">🚚 1-Ton Low-Top Truck</div>
+      <div class="vehicle" data-vehicle="lorry">🛻🚚 Cargo + Low-Top</div>
+    </div>
+  </section>
+
+  <!-- Distance -->
+  <section class="section">
+    <h2>Moving Distance</h2>
+    <div class="card">
+      <div class="sub">Estimated distance: <b id="distanceText">10 km</b></div>
+      <input type="range" id="distance" min="1" max="400" value="10">
+    </div>
+  </section>
+
+  <!-- Options -->
+  <section class="section">
+    <h2>Additional Options</h2>
+    <div class="card">
+
+      <div class="sub">No elevator (₩7,000 per floor)</div>
+
+      <div class="option">
+        Pickup location
+        <div class="option-controls">
+          <input type="checkbox" id="noFrom">
+          <input type="number" id="fromFloor" min="1" value="1">
+        </div>
+      </div>
+
+      <div class="option">
+        Drop-off location
+        <div class="option-controls">
+          <input type="checkbox" id="noTo">
+          <input type="number" id="toFloor" min="1" value="1">
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="sub">Furniture size (multiple selection)</div>
+      <div class="option">Small <input type="checkbox" class="furniture" value="small"></div>
+      <div class="option">Medium <input type="checkbox" class="furniture" value="medium"></div>
+      <div class="option">Large <input type="checkbox" class="furniture" value="large"></div>
+
+      <hr>
+
+      <div class="sub">Load volume (box count)</div>
+      <div class="option">1–5 boxes <input type="radio" name="load" value="1"></div>
+      <div class="option">6–10 boxes <input type="radio" name="load" value="2"></div>
+      <div class="option">11–15 boxes <input type="radio" name="load" value="3"></div>
+      <div class="option">16–20 boxes <input type="radio" name="load" value="4"></div>
+
+      <hr>
+
+      <div class="option">
+        Unable to carry items personally
+        <input type="checkbox" id="cantCarry">
+      </div>
+      <div class="sub">※ Additional labor cost will be 안내 during consultation</div>
+
+      <hr>
+
+      <div class="option">Ladder truck (+₩80,000) <input type="checkbox" id="ladder"></div>
+      <div class="option">Night / Weekend (Free) <input type="checkbox" id="night"></div>
+
+      <div class="option">
+        Passengers
+        <input type="number" id="ride" min="0" value="0">
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Estimate -->
+  <section class="section">
+    <h2>Estimated Price</h2>
+
+    <div class="card" id="summary">Please select conditions</div>
+    <div class="card price-card">
+      <div class="price" id="price">₩0</div>
+    </div>
+
+    <div class="cta-wrap">
+      <a href="#" class="cta sub" id="smsInquiry">📩 Capture estimate & send via SMS</a>
+      <a href="tel:01040941666" class="cta primary">Call for Inquiry</a>
+    </div>
+  </section>
+
+</div>
+
+<script src="/assets/js/app.js" defer></script>
+</body>
+</html>

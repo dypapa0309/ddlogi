@@ -1,0 +1,169 @@
+:root {
+  --bg:#0b1220;
+  --card:#111827;
+  --accent:#0ea5e9;
+  --sub:#94a3b8;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  background:var(--bg);
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,Pretendard,sans-serif;
+}
+
+.container {
+  max-width:420px;
+  margin:0 auto;
+  padding:20px 16px 140px;
+}
+
+.section { margin-bottom:32px; }
+
+h1 { font-size:32px; margin:0 0 10px; }
+h2 { font-size:20px; margin-bottom:12px; }
+
+.card {
+  background:var(--card);
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:12px;
+}
+
+.sub {
+  color:var(--sub);
+  font-size:14px;
+  margin-bottom:8px;
+}
+
+/* 언어 스위치 */
+.lang-switch {
+  text-align:right;
+  font-size:13px;
+  margin-bottom:10px;
+}
+.lang-switch a { color:#94a3b8; text-decoration:none; }
+
+/* 히어로 */
+.hero-card {
+  background:#020617;
+  border-radius:22px;
+  overflow:hidden;
+}
+
+.hero-image {
+  height:180px;
+  background:url("../img/hero-truck.jpg") center/cover no-repeat;
+  position:relative;
+}
+
+.badge {
+  position:absolute;
+  top:14px;
+  left:14px;
+  background:#000;
+  padding:6px 10px;
+  font-size:12px;
+  border-radius:999px;
+}
+
+.hero-content {
+  padding:18px;
+}
+
+.hero-desc {
+  color:#cbd5f5;
+  font-size:15px;
+  line-height:1.4;
+}
+
+.hero-features {
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
+.feature {
+  font-size:13px;
+  background:#020617;
+  padding:6px 10px;
+  border-radius:10px;
+}
+
+/* 옵션 */
+.option {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.option-controls {
+  display:flex;
+  gap:6px;
+}
+
+input[type="number"] {
+  width:56px;
+  background:#020617;
+  color:#fff;
+  border:1px solid #1f2937;
+  border-radius:8px;
+  padding:6px;
+  text-align:center;
+}
+
+input[type="range"] {
+  width:100%;
+}
+
+/* 차량 */
+.vehicle {
+  border:2px solid #1f2937;
+  border-radius:14px;
+  padding:14px;
+  margin-bottom:10px;
+  cursor:pointer;
+}
+
+.vehicle.active {
+  border-color:var(--accent);
+  background:#0f172a;
+}
+
+/* 가격 */
+.price-card {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.price {
+  font-size:30px;
+  font-weight:800;
+}
+
+/* CTA */
+.cta-wrap {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.cta {
+  width:100%;
+  padding:18px;
+  border-radius:18px;
+  font-size:17px;
+  font-weight:700;
+  text-align:center;
+  text-decoration:none;
+  color:#fff;
+}
+
+.cta.primary { background:var(--accent); }
+.cta.sub { background:#334155; }

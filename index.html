@@ -4,361 +4,159 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- 🔍 기본 SEO -->
+  <!-- 🔍 SEO -->
   <title>디디운송 | 1톤 카고·용달·이사 전문 | 정직한 견적</title>
-  <meta name="description" content="디디운송은 1톤 카고·용달·소형이사 전문 업체입니다. 거리·옵션별 예상 견적을 바로 확인하고 전화·문자 상담이 가능합니다." />
-  <meta name="keywords" content="디디운송, 용달, 1톤카고, 이사, 소형이사, 원룸이사, 카고이사, 용달이사, 운송업체" />
-  <meta name="author" content="디디운송" />
+  <meta name="description" content="디디운송은 1톤 카고·용달·소형이사 전문 업체입니다. 거리·옵션별 예상 견적을 바로 확인하세요." />
+  <meta name="keywords" content="디디운송, 용달, 1톤카고, 이사, 소형이사" />
   <meta name="robots" content="index, follow" />
-
-  <!-- 🌐 Canonical -->
   <link rel="canonical" href="https://ddlogi.netlify.app/" />
 
-  <!-- 📘 Open Graph (네이버 / 카카오 / 페이스북 공유용) -->
+  <!-- OG -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="디디운송 | 빠르고 정직한 1톤 카고·용달" />
-  <meta property="og:description" content="거리·옵션 선택만으로 예상 견적 확인. 전화·문자 상담 가능." />
-  <meta property="og:url" content="https://ddlogi.netlify.app/" />
-  <meta property="og:image" content="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7" />
-  <meta property="og:site_name" content="디디운송" />
+  <meta property="og:description" content="거리·옵션 선택만으로 예상 견적 확인" />
+  <meta property="og:image" content="/assets/img/hero-truck.jpg" />
   <meta property="og:locale" content="ko_KR" />
 
-  <!-- 🐦 Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="디디운송 | 1톤 카고·용달·이사 전문" />
-  <meta name="twitter:description" content="정직한 요금, 깔끔한 운송. 예상 견적 즉시 확인." />
-  <meta name="twitter:image" content="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7" />
-
-  <!-- ✅ 사이트 소유권 인증 (절대 수정 ❌) -->
+  <!-- 인증 -->
   <meta name="naver-site-verification" content="678161b38e6ea859e9e863da9807f759ce7e331e" />
   <meta name="google-site-verification" content="2Ty8rFRVnpPuNKFrt7b8DAno9v7kEe1f7Pnr9_bRcsU" />
 
-  <!-- 📊 구조화 데이터 (구글 SEO 핵심) -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "MovingCompany",
-    "name": "디디운송",
-    "url": "https://ddlogi.netlify.app/",
-    "telephone": "010-4094-1666",
-    "areaServed": "KR",
-    "description": "1톤 카고·용달·소형이사 전문 디디운송",
-    "priceRange": "₩₩",
-    "sameAs": []
-  }
-  </script>
-  
-<style>
-:root {
-  --bg:#0b1220;
-  --card:#111827;
-  --accent:#0ea5e9;
-  --sub:#94a3b8;
-}
-body {
-  margin:0;
-  background:var(--bg);
-  color:#fff;
-  font-family:-apple-system,BlinkMacSystemFont,Pretendard,sans-serif;
-}
-.container {
-  max-width:420px;
-  margin:0 auto;
-  padding:20px 16px 100px;
-}
-.section { margin-bottom:32px; }
-h2 { font-size:20px; margin-bottom:12px; }
-.card {
-  background:var(--card);
-  border-radius:18px;
-  padding:16px;
-  margin-bottom:12px;
-}
-.sub { color:var(--sub); font-size:14px; }
-
-/* 히어로 */
-.hero-card { background:var(--card); border-radius:20px; overflow:hidden; }
-.hero-image {
-  height:180px;
-  background:url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7') center/cover;
-  position:relative;
-}
-.badge {
-  position:absolute; top:12px; left:12px;
-  background:#0ea5e9;
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:12px; font-weight:700;
-}
-.hero-content { padding:16px; }
-.hero-content h1 { margin:0 0 6px; font-size:22px; }
-.hero-desc { color:var(--sub); font-size:14px; line-height:1.5; margin-bottom:14px; }
-.hero-features { display:flex; gap:10px; }
-.feature {
-  background:#020617;
-  border:1px solid #1f2937;
-  border-radius:999px;
-  padding:6px 10px;
-  font-size:12px;
-}
-
-/* 차량 */
-.vehicle {
-  border:2px solid #1f2937;
-  border-radius:14px;
-  padding:14px;
-  margin-bottom:10px;
-  cursor:pointer;
-}
-.vehicle.active {
-  border-color:var(--accent);
-  background:#0f172a;
-}
-
-/* 옵션 */
-.option {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:12px;
-}
-.option input[type="number"] {
-  width:60px;
-  background:#020617;
-  color:#fff;
-  border:1px solid #1f2937;
-  border-radius:8px;
-  padding:6px;
-}
-
-/* 요약 */
-.summary { line-height:1.8; font-size:15px; }
-.price { font-size:28px; font-weight:700; }
-
-/* CTA */
-.cta {
-  display:block;
-  width:100%;
-  background:var(--accent);
-  padding:18px;
-  border-radius:18px;
-  text-align:center;
-  font-size:18px;
-  font-weight:700;
-  color:#fff;
-  text-decoration:none;
-  margin-bottom:10px;
-}
-
-/* 슬라이더 */
-input[type="range"] {
-  -webkit-appearance:none;
-  width:100%;
-  height:10px;
-  border-radius:999px;
-  background:#1f2937;
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance:none;
-  width:26px; height:26px;
-  border-radius:50%;
-  background:#fff;
-  border:4px solid var(--accent);
-}
-</style>
+  <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
 
-<body>
+<body data-lang="ko">
+
 <div class="container">
 
-<!-- 히어로 -->
-<section class="section">
-  <div class="hero-card">
-    <div class="hero-image"><span class="badge">NO HIDDEN FEES</span></div>
-    <div class="hero-content">
-      <h1>디디운송</h1>
-      <p class="hero-desc">단거리·장거리 이사 전문<br>정직한 요금, 깔끔한 운송</p>
-      <div class="hero-features">
-        <div class="feature">🛡️ 전면 보험</div>
-        <div class="feature">⏰ 24시간 상담</div>
-        <div class="feature">🚚 카고 전문</div>
+  <!-- 언어 -->
+  <div class="lang-switch">
+    <strong>KR</strong> | <a href="/en/">EN</a>
+  </div>
+
+  <!-- 히어로 -->
+  <section class="section">
+    <div class="hero-card">
+      <div class="hero-image">
+        <span class="badge">NO HIDDEN FEES</span>
+      </div>
+      <div class="hero-content">
+        <h1>디디운송</h1>
+        <p class="hero-desc">
+          단거리·장거리 이사 전문<br>
+          정직한 요금, 깔끔한 운송
+        </p>
+        <div class="hero-features">
+          <div class="feature">🛡️ 전면 보험</div>
+          <div class="feature">⏰ 24시간 상담</div>
+          <div class="feature">🚚 카고 전문</div>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- 차량 -->
-<section class="section">
-<h2>차량 선택</h2>
-<div class="card">
-  <div class="vehicle" data-vehicle="van">🛻 1톤 카고 더블캡</div>
-  <div class="vehicle" data-vehicle="truck">🚚 1톤 저상탑</div>
-  <div class="vehicle" data-vehicle="lorry">🛻🚚 카고 + 저상탑</div>
-</div>
-</section>
+  <!-- 차량 -->
+  <section class="section">
+    <h2>차량 선택</h2>
+    <div class="card">
+      <div class="vehicle" data-vehicle="van">🛻 1톤 카고 더블캡</div>
+      <div class="vehicle" data-vehicle="truck">🚚 1톤 저상탑</div>
+      <div class="vehicle" data-vehicle="lorry">🛻🚚 카고 + 저상탑</div>
+    </div>
+  </section>
 
-<!-- 거리 -->
-<section class="section">
-<h2>이동 거리</h2>
-<div class="card">
-  <div class="sub">예상 거리: <b id="distanceText">10km</b></div>
-  <input type="range" id="distance" min="1" max="400" value="10">
-</div>
-</section>
+  <!-- 거리 -->
+  <section class="section">
+    <h2>이동 거리</h2>
+    <div class="card">
+      <div class="sub">예상 거리: <b id="distanceText">10km</b></div>
+      <input type="range" id="distance" min="1" max="400" value="10">
+    </div>
+  </section>
 
-<!-- 옵션 -->
-<section class="section">
-<h2>추가 옵션</h2>
-<div class="card">
+  <!-- 옵션 -->
+  <section class="section">
+    <h2>추가 옵션</h2>
+    <div class="card">
 
-<div class="sub">엘리베이터 없을 시 체크해주세요 (층당 7,000원)</div>
-<label class="option">출발지 <div><input type="checkbox" id="noFrom"><input type="number" id="fromFloor" value="1" min="1" max="5"></div></label>
-<label class="option">도착지 <div><input type="checkbox" id="noTo"><input type="number" id="toFloor" value="1" min="1" max="5"></div></label>
+      <div class="sub">엘리베이터 없을 경우 (층당 7,000원)</div>
 
-<hr>
+      <div class="option">
+        출발지
+        <div class="option-controls">
+          <input type="checkbox" id="noFrom">
+          <input type="number" id="fromFloor" min="1" value="1">
+        </div>
+      </div>
 
-<div class="sub">가구 크기 (중복 선택)</div>
-<label class="option">소형 (의자, 협탁 등) <input type="checkbox" class="furniture" value="small"></label>
-<label class="option">중형 (책상, 테이블, 미니 냉장고 등) <input type="checkbox" class="furniture" value="medium"></label>
-<label class="option">대형 (옷장, 대형 책장 등) <input type="checkbox" class="furniture" value="large"></label>
+      <div class="option">
+        도착지
+        <div class="option-controls">
+          <input type="checkbox" id="noTo">
+          <input type="number" id="toFloor" min="1" value="1">
+        </div>
+      </div>
 
-<hr>
+      <hr>
 
-<div class="sub">짐양 (5호 박스 기준)</div>
-<label class="option">1~5개 <input type="radio" name="load" value="1"></label>
-<label class="option">6~10개 <input type="radio" name="load" value="2"></label>
-<label class="option">11~15개 <input type="radio" name="load" value="3"></label>
-<label class="option">16~20개 <input type="radio" name="load" value="4"></label>
+      <div class="sub">가구 크기 (중복 선택)</div>
+      <div class="option">소형 (의자, 협탁 등) <input type="checkbox" class="furniture" value="small"></div>
+      <div class="option">중형 (테이블, 소형 냉장고 등)<input type="checkbox" class="furniture" value="medium"></div>
+      <div class="option">대형 (책장, 세탁기, 건조기 등)<input type="checkbox" class="furniture" value="large"></div>
 
-<hr>
+      <hr>
 
-<label class="option">
-  짐을 직접 나르기 어려울 시 체크해주세요
-  <input type="checkbox" id="cantCarry">
-</label>
+      <div class="sub">짐양 (5호 이사박스 기준)</div>
+      <div class="option">1~5개 <input type="radio" name="load" value="1"></div>
+      <div class="option">6~10개 <input type="radio" name="load" value="2"></div>
+      <div class="option">11~15개 <input type="radio" name="load" value="3"></div>
+      <div class="option">16~20개 <input type="radio" name="load" value="4"></div>
 
-<div class="sub" style="margin-top:-6px;font-size:13px;">
-  ※ 인부 추가가 필요할 수 있으며, 비용은 상담 시 안내드립니다.
-</div>
+      <hr>
 
-<hr>
-<label class="option">사다리차 (+80,000원) <input type="checkbox" id="ladder"></label>
-<label class="option">야간/주말 (무료) <input type="checkbox" id="night"></label>
-<label class="option">동승 인원 <input type="number" id="ride" value="0" min="0"></label>
+      <div class="option">
+        짐 직접 나르기 어려울 시 체크해주세요.
+        <input type="checkbox" id="cantCarry">
+      </div>
+      <div class="sub">※ 인부 추가 비용은 상담 시 안내</div>
 
-</div>
-</section>
+      <hr>
 
-<!-- 견적 -->
-<section class="section">
-<h2>예상 견적</h2>
-<div class="card summary" id="summary">조건을 선택하세요</div>
-<div class="card"><div class="price" id="price">₩0</div></div>
+      <div class="option">사다리차 (+80,000원) <input type="checkbox" id="ladder"></div>
+      <div class="option">야간/주말 (무료) <input type="checkbox" id="night"></div>
 
-<a href="#" class="cta" id="smsInquiry" style="background:#334155">📩 견적 캡처 후 문자 문의</a>
-<a href="tel:01040941666" class="cta">전화 문의하기</a>
+      <div class="option">
+        동승 인원 있을 시 체크해주세요<br>
+        (1인 이상 시 네고 문의)
+        <input type="number" id="ride" min="0" value="0">
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 견적 -->
+  <section class="section">
+    <h2>예상 견적</h2>
+
+    <div class="card" id="summary">조건을 선택하세요</div>
+    <div class="card price-card">
+      <div class="price" id="price">₩0</div>
+    </div>
+
+    <div class="cta-wrap">
+      <a href="#" class="cta sub" id="smsInquiry">📩 견적 캡처 후 문자 문의</a>
+      <a href="tel:01040941666" class="cta primary">전화 문의하기</a>
+    </div>
+  </section>
 <hr>
 사업자 번호: 876-28-01550<br>
-주소: 경기도 부천시 원미구 상동로 87, 803-102호 <br>워크네시아(상동, 가나베스트타운 쓰리)<br>
-대표자명: 이상빈<br>
-개인정보 보호 책임자: 이상빈<br>
-</section>
-
-<script>
-/* 문자 문의 */
-document.getElementById('smsInquiry').onclick = () => {
-  alert(`📸 '예상 견적' 영역을 캡처한 뒤\n문자창에서 이미지 붙여넣기 후 전송해주세요.`);
-  location.href = `sms:01040941666?body=${encodeURIComponent(
-    '디디운송 견적 문의드립니다.\n캡처 이미지 기준으로 상담 요청드립니다.'
-  )}`;
-};
+주소: 경기도 부천시 상동로 87, 803-102호 워크네시아<br>
+(상동, 가나베스트타운 쓰리)<br>
+개인정보 책임자, 대표자명: 이상빈
+</div>
 
 
-/* 상태 */
-const state = {
-  vehicle:null, distance:10,
-  noFrom:false, fromFloor:1,
-  noTo:false, toFloor:1,
-  ladder:false, night:false,
-  ride:0, furniture:[], load:0
-};
 
-const base={van:30000,truck:40000,lorry:60000};
-const perKm={van:1000,truck:1200,lorry:1500};
-const furniturePrice={small:20000,medium:40000,large:70000};
-const loadPrice={1:10000,2:20000,3:30000,4:40000};
-
-const priceEl=document.getElementById('price');
-const summaryEl=document.getElementById('summary');
-const distanceEl=document.getElementById('distance');
-const distanceText=document.getElementById('distanceText');
-
-/* 차량 */
-document.querySelectorAll('.vehicle').forEach(v=>{
-  v.onclick=()=>{
-    document.querySelectorAll('.vehicle').forEach(x=>x.classList.remove('active'));
-    v.classList.add('active');
-    state.vehicle=v.dataset.vehicle;
-    calc();
-  };
-});
-
-/* 거리 */
-distanceEl.oninput=e=>{
-  state.distance=+e.target.value;
-  distanceText.innerText=`${state.distance}km`;
-  calc();
-};
-
-/* 옵션 */
-noFrom.onchange=e=>{state.noFrom=e.target.checked;calc();}
-noTo.onchange=e=>{state.noTo=e.target.checked;calc();}
-fromFloor.oninput=e=>{state.fromFloor=+e.target.value;calc();}
-toFloor.oninput=e=>{state.toFloor=+e.target.value;calc();}
-ladder.onchange=e=>{state.ladder=e.target.checked;calc();}
-night.onchange=e=>{state.night=e.target.checked;calc();}
-ride.oninput=e=>{state.ride=+e.target.value;calc();}
-
-/* 가구 */
-document.querySelectorAll('.furniture').forEach(el=>{
-  el.onchange=e=>{
-    const v=e.target.value;
-    if(e.target.checked && !state.furniture.includes(v)) state.furniture.push(v);
-    if(!e.target.checked) state.furniture=state.furniture.filter(x=>x!==v);
-    calc();
-  };
-});
-
-/* 짐양 */
-document.querySelectorAll('input[name="load"]').forEach(el=>{
-  el.onchange=e=>{state.load=+e.target.value;calc();}
-});
-
-/* 계산 */
-function calc(){
-  if(!state.vehicle) return;
-
-  let price=base[state.vehicle]+state.distance*perKm[state.vehicle];
-  let stair=((state.noFrom?state.fromFloor:0)+(state.noTo?state.toFloor:0))*7000;
-  price+=stair;
-
-  let fCost=state.furniture.reduce((a,v)=>a+furniturePrice[v],0);
-  let lCost=loadPrice[state.load]||0;
-  price+=fCost+lCost;
-
-  if(state.ladder) price+=80000;
-  price+=state.ride*20000;
-
-  summaryEl.innerHTML=`
-    차량: ${state.vehicle}<br>
-    거리: ${state.distance}km<br>
-    가구: ${state.furniture.join(', ')||'없음'}<br>
-    짐양: ${state.load||'미선택'}<br>
-    계단 작업: ₩${stair.toLocaleString()}
-  `;
-  priceEl.innerText=`₩${price.toLocaleString()}`;
-}
-</script>
-
+<script src="/assets/js/app.js" defer></script>
 </body>
 </html>
