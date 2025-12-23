@@ -1,10 +1,10 @@
 /* ==================================================
-   DD Logistics Price Calculator - English Version
+   DD Logistics Price Calculator - Kakao Map Auto Distance
 ================================================== */
 
 const state = {
   vehicle: null,
-  distance: 10,
+  distance: 0,
   noFrom: false,
   fromFloor: 1,
   noTo: false,
@@ -54,17 +54,109 @@ const LOAD_MAP = {
 /* ===== DOM Elements ===== */
 const priceEl = document.getElementById("price");
 const summaryEl = document.getElementById("summary");
-const distanceInput = document.getElementById("distance");
 const distanceText = document.getElementById("distanceText");
+const startAddressInput = document.getElementById("startAddress");
+const endAddressInput = document.getElementById("endAddress");
+const calcDistanceBtn = document.getElementById("calcDistance");
 
-/* ===== Initialize Default Vehicle ===== */
+/* ===== Kakao Map Distance Calculation ===== */
+let geocoder;
+
 window.addEventListener("DOMContentLoaded", () => {
+  // Auto-select first vehicle
   const first = document.querySelector(".vehicle");
-  if (!first) return;
-  first.classList.add("active");
-  state.vehicle = first.dataset.vehicle;
-  calc();
+  if (first) {
+    first.classList.add("active");
+    state.vehicle = first.dataset.vehicle;
+    calc();
+  }
+
+  // Initialize Kakao Map Geocoder
+  if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services) {
+    geocoder = new kakao.maps.services.Geocoder();
+  } else {
+    console.error('Kakao Map API not loaded. Please check your API key.');
+  }
 });
+
+/* ===== Calculate Distance Button ===== */
+calcDistanceBtn.onclick = async () => {
+  const start = startAddressInput.value.trim();
+  const end = endAddressInput.value.trim();
+
+  if (!start || !end) {
+    alert("Please enter both pickup and drop-off addresses.");
+    return;
+  }
+
+  if (!geocoder) {
+    alert("Kakao Map API not loaded. Please refresh the page.");
+    return;
+  }
+
+  calcDistanceBtn.textContent = "Calculating...";
+  calcDistanceBtn.disabled = true;
+
+  try {
+    // Get pickup coordinates
+    const startCoord = await getCoordinates(start);
+    // Get drop-off coordinates
+    const endCoord = await getCoordinates(end);
+
+    // Calculate distance between two points (km)
+    const distance = calculateDistance(startCoord, endCoord);
+    
+    state.distance = Math.round(distance);
+    distanceText.textContent = `${state.distance} km`;
+    
+    calc();
+
+    calcDistanceBtn.textContent = "Calculate Distance";
+    calcDistanceBtn.disabled = false;
+
+  } catch (error) {
+    alert(error.message || "Address not found. Please enter a valid address.");
+    calcDistanceBtn.textContent = "Calculate Distance";
+    calcDistanceBtn.disabled = false;
+  }
+};
+
+/* ===== Address to Coordinates Conversion ===== */
+function getCoordinates(address) {
+  return new Promise((resolve, reject) => {
+    geocoder.addressSearch(address, (result, status) => {
+      if (status === kakao.maps.services.Status.OK) {
+        resolve({
+          lat: parseFloat(result[0].y),
+          lng: parseFloat(result[0].x)
+        });
+      } else {
+        reject(new Error(`Address "${address}" not found.`));
+      }
+    });
+  });
+}
+
+/* ===== Calculate Distance Between Two Coordinates (Haversine Formula) ===== */
+function calculateDistance(coord1, coord2) {
+  const R = 6371; // Earth radius (km)
+  const dLat = toRad(coord2.lat - coord1.lat);
+  const dLng = toRad(coord2.lng - coord1.lng);
+  
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(coord1.lat)) * Math.cos(toRad(coord2.lat)) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c;
+  
+  return distance;
+}
+
+function toRad(degrees) {
+  return degrees * (Math.PI / 180);
+}
 
 /* ===== Vehicle Selection ===== */
 document.querySelectorAll(".vehicle").forEach(v => {
@@ -76,14 +168,7 @@ document.querySelectorAll(".vehicle").forEach(v => {
   };
 });
 
-/* ===== Distance Slider ===== */
-distanceInput.oninput = e => {
-  state.distance = +e.target.value;
-  distanceText.innerText = `${state.distance} km`;
-  calc();
-};
-
-/* ===== Options ===== */
+/* ===== Option Events ===== */
 noFrom.onchange = e => { state.noFrom = e.target.checked; calc(); };
 noTo.onchange = e => { state.noTo = e.target.checked; calc(); };
 fromFloor.oninput = e => { state.fromFloor = +e.target.value; calc(); };
@@ -139,7 +224,7 @@ function calc() {
     <b>🚚 Moving Conditions Summary</b><br><br>
 
     ▪ Vehicle: ${state.vehicle}<br>
-    ▪ Distance: ${state.distance} km<br><br>
+    ▪ Distance: ${state.distance > 0 ? state.distance + ' km' : 'Not calculated'}<br><br>
 
     ▪ Stairs:<br>
     &nbsp;&nbsp;- Pickup: ${state.noFrom ? `${state.fromFloor} floor(s) (no elevator)` : "Elevator available"}<br>
@@ -154,7 +239,7 @@ function calc() {
     ▪ Load volume: ${state.load ? LOAD_MAP[state.load].label : "Not selected"}<br><br>
 
     ▪ Ladder truck: ${state.ladder ? "Yes" : "No"}<br>
-    ▪ Night / Weekend: ${state.night ? "Yes" : "No"}<br>
+    ▪ Night/Weekend: ${state.night ? "Yes" : "No"}<br>
     ▪ Passengers: ${state.ride > 0 ? `${state.ride} person(s)` : "None"}<br><br>
 
     ▪ Labor assistance: ${state.cantCarry ? "Required (to be confirmed)" : "Not required"}

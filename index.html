@@ -22,6 +22,9 @@
   <meta name="naver-site-verification" content="678161b38e6ea859e9e863da9807f759ce7e331e" />
   <meta name="google-site-verification" content="2Ty8rFRVnpPuNKFrt7b8DAno9v7kEe1f7Pnr9_bRcsU" />
 
+  <!-- 카카오맵 API -->
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=587ac08712307c1a3e9220bb848f9429"></script>
+
   <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
 
@@ -65,12 +68,21 @@
     </div>
   </section>
 
-  <!-- 거리 -->
+  <!-- 🆕 주소 입력으로 거리 자동 계산 -->
   <section class="section">
     <h2>이동 거리</h2>
     <div class="card">
-      <div class="sub">예상 거리: <b id="distanceText">10km</b></div>
-      <input type="range" id="distance" min="1" max="400" value="10">
+      <div class="sub">출발지 주소</div>
+      <input type="text" id="startAddress" class="address-input" placeholder="예: 서울특별시 강남구 테헤란로 152">
+      
+      <div class="sub" style="margin-top: 15px;">도착지 주소</div>
+      <input type="text" id="endAddress" class="address-input" placeholder="예: 경기도 부천시 상동로 87">
+      
+      <button id="calcDistance" class="calc-btn">거리 계산하기</button>
+      
+      <div id="distanceResult" class="distance-result">
+        <div class="sub">계산된 거리: <b id="distanceText">주소를 입력해주세요</b></div>
+      </div>
     </div>
   </section>
 
@@ -100,9 +112,9 @@
       <hr>
 
       <div class="sub">가구 크기 (중복 선택)</div>
-      <div class="option">소형 (의자, 협탁 등) <input type="checkbox" class="furniture" value="소형 (small)"></div>
-      <div class="option">중형 (테이블, 소형 냉장고 등)<input type="checkbox" class="furniture" value="중간 (medium)"></div>
-      <div class="option">대형 (책장, 세탁기, 건조기 등)<input type="checkbox" class="furniture" value="대형 (large)"></div>
+      <div class="option">소형 (의자, 협탁 등) <input type="checkbox" class="furniture" value="소형"></div>
+      <div class="option">중형 (테이블, 소형 냉장고 등)<input type="checkbox" class="furniture" value="중형"></div>
+      <div class="option">대형 (책장, 세탁기, 건조기 등)<input type="checkbox" class="furniture" value="대형"></div>
 
       <hr>
 
@@ -134,7 +146,7 @@
     </div>
   </section>
 
-    <!-- 견적 -->
+  <!-- 견적 -->
   <section class="section">
     <h2>예상 견적</h2>
 
