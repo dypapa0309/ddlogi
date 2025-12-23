@@ -1,5 +1,5 @@
 /* ==================================================
-   디디운송 견적 계산기 JS (한글 UI 유지 – 최종 완성본)
+   DD Logistics Price Calculator - English Version
 ================================================== */
 
 const state = {
@@ -17,11 +17,11 @@ const state = {
   load: null
 };
 
-/* ===== 차량 ===== */
+/* ===== Vehicle Types ===== */
 const VEHICLE_MAP = {
-  "1톤 카고": "truck",
-  "1톤 저상탑": "van",
-  "1톤 카고+저상탑": "lorry"
+  "1-Ton Cargo": "truck",
+  "1-Ton Low-Top": "van",
+  "Cargo+Low-Top": "lorry"
 };
 
 const BASE_PRICE = {
@@ -36,28 +36,28 @@ const PER_KM_PRICE = {
   lorry: 1500
 };
 
-/* ===== 가구 ===== */
+/* ===== Furniture Pricing ===== */
 const FURNITURE_PRICE = {
-  "소형 (small)": { label: "소형 (의자, 협탁 등)", price: 20000 },
-  "중간 (medium)": { label: "중형 (테이블, 소형 냉장고 등)", price: 40000 },
-  "대형 (large)": { label: "대형 (책장, 세탁기, 건조기 등)", price: 70000 }
+  "Small": { label: "Small (chairs, side tables)", price: 20000 },
+  "Medium": { label: "Medium (tables, small fridge)", price: 40000 },
+  "Large": { label: "Large (wardrobe, washer, dryer)", price: 70000 }
 };
 
-/* ===== 짐양 ===== */
+/* ===== Load Volume Pricing ===== */
 const LOAD_MAP = {
-  "1": { label: "1~5개", price: 10000 },
-  "2": { label: "6~10개", price: 20000 },
-  "3": { label: "11~15개", price: 30000 },
-  "4": { label: "16~20개", price: 40000 }
+  "1": { label: "1–5 boxes", price: 10000 },
+  "2": { label: "6–10 boxes", price: 20000 },
+  "3": { label: "11–15 boxes", price: 30000 },
+  "4": { label: "16–20 boxes", price: 40000 }
 };
 
-/* ===== DOM ===== */
+/* ===== DOM Elements ===== */
 const priceEl = document.getElementById("price");
 const summaryEl = document.getElementById("summary");
 const distanceInput = document.getElementById("distance");
 const distanceText = document.getElementById("distanceText");
 
-/* ===== 초기 차량 ===== */
+/* ===== Initialize Default Vehicle ===== */
 window.addEventListener("DOMContentLoaded", () => {
   const first = document.querySelector(".vehicle");
   if (!first) return;
@@ -66,7 +66,7 @@ window.addEventListener("DOMContentLoaded", () => {
   calc();
 });
 
-/* ===== 차량 선택 ===== */
+/* ===== Vehicle Selection ===== */
 document.querySelectorAll(".vehicle").forEach(v => {
   v.onclick = () => {
     document.querySelectorAll(".vehicle").forEach(x => x.classList.remove("active"));
@@ -76,14 +76,14 @@ document.querySelectorAll(".vehicle").forEach(v => {
   };
 });
 
-/* ===== 거리 ===== */
+/* ===== Distance Slider ===== */
 distanceInput.oninput = e => {
   state.distance = +e.target.value;
-  distanceText.innerText = `${state.distance}km`;
+  distanceText.innerText = `${state.distance} km`;
   calc();
 };
 
-/* ===== 옵션 ===== */
+/* ===== Options ===== */
 noFrom.onchange = e => { state.noFrom = e.target.checked; calc(); };
 noTo.onchange = e => { state.noTo = e.target.checked; calc(); };
 fromFloor.oninput = e => { state.fromFloor = +e.target.value; calc(); };
@@ -93,7 +93,7 @@ night.onchange = e => { state.night = e.target.checked; calc(); };
 cantCarry.onchange = e => { state.cantCarry = e.target.checked; calc(); };
 ride.oninput = e => { state.ride = +e.target.value; calc(); };
 
-/* ===== 가구 ===== */
+/* ===== Furniture Selection ===== */
 document.querySelectorAll(".furniture").forEach(el => {
   el.onchange = () => {
     state.furniture = [...document.querySelectorAll(".furniture:checked")]
@@ -102,7 +102,7 @@ document.querySelectorAll(".furniture").forEach(el => {
   };
 });
 
-/* ===== 짐양 ===== */
+/* ===== Load Volume Selection ===== */
 document.querySelectorAll("input[name='load']").forEach(el => {
   el.onchange = e => {
     state.load = e.target.value;
@@ -110,63 +110,66 @@ document.querySelectorAll("input[name='load']").forEach(el => {
   };
 });
 
-/* ===== 계산 ===== */
+/* ===== Price Calculation ===== */
 function calc() {
   if (!state.vehicle) return;
 
   const key = VEHICLE_MAP[state.vehicle];
   let price = BASE_PRICE[key] + state.distance * PER_KM_PRICE[key];
 
-  // 계단
+  // Stairs cost
   price += ((state.noFrom ? state.fromFloor : 0) +
             (state.noTo ? state.toFloor : 0)) * 7000;
 
-  // 가구
+  // Furniture cost
   price += state.furniture.reduce(
     (sum, v) => sum + (FURNITURE_PRICE[v]?.price || 0),
     0
   );
 
-  // 짐양
+  // Load volume cost
   if (state.load) price += LOAD_MAP[state.load].price;
 
-  // 기타
+  // Additional options
   if (state.ladder) price += 80000;
   price += state.ride * 20000;
 
-  /* ===== 요약 ===== */
+  /* ===== Summary Generation ===== */
   summaryEl.innerHTML = `
-    <b>🚚 운송 조건 요약</b><br><br>
+    <b>🚚 Moving Conditions Summary</b><br><br>
 
-    ▪ 차량: ${state.vehicle}<br>
-    ▪ 이동 거리: ${state.distance}km<br><br>
+    ▪ Vehicle: ${state.vehicle}<br>
+    ▪ Distance: ${state.distance} km<br><br>
 
-    ▪ 계단 이동:<br>
-    &nbsp;&nbsp;- 출발지: ${state.noFrom ? `${state.fromFloor}층 (엘베 없음)` : "엘리베이터 있음"}<br>
-    &nbsp;&nbsp;- 도착지: ${state.noTo ? `${state.toFloor}층 (엘베 없음)` : "엘리베이터 있음"}<br><br>
+    ▪ Stairs:<br>
+    &nbsp;&nbsp;- Pickup: ${state.noFrom ? `${state.fromFloor} floor(s) (no elevator)` : "Elevator available"}<br>
+    &nbsp;&nbsp;- Drop-off: ${state.noTo ? `${state.toFloor} floor(s) (no elevator)` : "Elevator available"}<br><br>
 
-    ▪ 가구: ${
+    ▪ Furniture: ${
       state.furniture.length
         ? state.furniture.map(v => FURNITURE_PRICE[v].label).join(", ")
-        : "없음"
+        : "None"
     }<br>
 
-    ▪ 짐양: ${state.load ? LOAD_MAP[state.load].label : "미선택"}<br><br>
+    ▪ Load volume: ${state.load ? LOAD_MAP[state.load].label : "Not selected"}<br><br>
 
-    ▪ 사다리차: ${state.ladder ? "이용함" : "이용 안 함"}<br>
-    ▪ 야간 / 주말: ${state.night ? "해당" : "해당 없음"}<br>
-    ▪ 동승 인원: ${state.ride > 0 ? `${state.ride}명` : "없음"}<br><br>
+    ▪ Ladder truck: ${state.ladder ? "Yes" : "No"}<br>
+    ▪ Night / Weekend: ${state.night ? "Yes" : "No"}<br>
+    ▪ Passengers: ${state.ride > 0 ? `${state.ride} person(s)` : "None"}<br><br>
 
-    ▪ 인부 도움 요청: ${state.cantCarry ? "필요 (상담 후 확정)" : "없음"}
+    ▪ Labor assistance: ${state.cantCarry ? "Required (to be confirmed)" : "Not required"}
   `;
 
   priceEl.innerText = `₩${price.toLocaleString()}`;
 }
 
-/* ===== 문자 ===== */
-smsInquiry.onclick = () => {
-  alert("견적 화면을 캡처해 문자로 보내주세요");
-  location.href =
-    "sms:01040941666?body=" +
-    encodeURIComponent("디디운송 견적 문의드립니다.\n캡처 기준 상담 요청드립니다.");
-};
+/* ===== SMS Inquiry ===== */
+if (document.getElementById("smsInquiry")) {
+  smsInquiry.onclick = (e) => {
+    e.preventDefault();
+    alert("Please capture the estimate screen and send it via SMS");
+    location.href =
+      "sms:01040941666?body=" +
+      encodeURIComponent("DD Logistics estimate inquiry.\nPlease provide consultation based on captured estimate.");
+  };
+}
