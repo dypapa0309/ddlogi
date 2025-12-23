@@ -27,12 +27,12 @@ const VEHICLE_MAP = {
 const BASE_PRICE = {
     truck: 50000,
     van: 50000,
-    lorry: 80000
+    lorry: 90000
 };
 
 const PER_KM_PRICE = {
-    truck: 1200,
-    van: 1000,
+    truck: 1500,
+    van: 1500,
     lorry: 1500
 };
 

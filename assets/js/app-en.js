@@ -31,8 +31,8 @@ const BASE_PRICE = {
 };
 
 const PER_KM_PRICE = {
-  truck: 1350,
-  van: 1350,
+  truck: 1500,
+  van: 1500,
   lorry: 1500
 };
 
