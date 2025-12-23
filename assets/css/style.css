@@ -54,10 +54,14 @@ h2 { font-size:20px; margin-bottom:12px; }
 }
 
 .hero-image {
-  height:180px;
-  background:url("../img/hero-truck.jpg") center/cover no-repeat;
-  position:relative;
+  height: 220px;
+  background-image: url('/assets/img/hero-truck.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 16px;
+  position: relative;
 }
+
 
 .badge {
   position:absolute;
