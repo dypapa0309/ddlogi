@@ -25,9 +25,9 @@ const VEHICLE_MAP = {
 };
 
 const BASE_PRICE = {
-    truck: 40000,
-    van: 30000,
-    lorry: 60000
+    truck: 50000,
+    van: 50000,
+    lorry: 80000
 };
 
 const PER_KM_PRICE = {
