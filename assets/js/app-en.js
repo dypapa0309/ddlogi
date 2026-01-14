@@ -1,5 +1,5 @@
 /* ==================================================
-   DD Logistics Price Calculator - Kakao Map Auto Distance
+   DD Logistics Price Calculator - Kakao Map Auto Distance (SMS Text + Disclaimer)
 ================================================== */
 
 const state = {
@@ -63,19 +63,25 @@ const calcDistanceBtn = document.getElementById("calcDistance");
 let geocoder;
 
 window.addEventListener("DOMContentLoaded", () => {
-  // Auto-select first vehicle
   const first = document.querySelector(".vehicle");
   if (first) {
     first.classList.add("active");
     state.vehicle = first.dataset.vehicle;
-    calc();
   }
 
-  // Initialize Kakao Map Geocoder
-  if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services) {
-    geocoder = new kakao.maps.services.Geocoder();
+  if (typeof kakao !== "undefined" && kakao.maps) {
+    kakao.maps.load(() => {
+      if (kakao.maps.services) {
+        geocoder = new kakao.maps.services.Geocoder();
+        calc();
+      } else {
+        console.error("Kakao Map services not loaded. Check libraries=services.");
+        calc();
+      }
+    });
   } else {
-    console.error('Kakao Map API not loaded. Please check your API key.');
+    console.error("Kakao Map API not loaded.");
+    calc();
   }
 });
 
@@ -98,22 +104,18 @@ calcDistanceBtn.onclick = async () => {
   calcDistanceBtn.disabled = true;
 
   try {
-    // Get pickup coordinates
     const startCoord = await getCoordinates(start);
-    // Get drop-off coordinates
     const endCoord = await getCoordinates(end);
 
-    // Calculate distance between two points (km)
     const distance = calculateDistance(startCoord, endCoord);
-    
+
     state.distance = Math.round(distance);
     distanceText.textContent = `${state.distance} km`;
-    
+
     calc();
 
     calcDistanceBtn.textContent = "Calculate Distance";
     calcDistanceBtn.disabled = false;
-
   } catch (error) {
     alert(error.message || "Address not found. Please enter a valid address.");
     calcDistanceBtn.textContent = "Calculate Distance";
@@ -139,19 +141,19 @@ function getCoordinates(address) {
 
 /* ===== Calculate Distance Between Two Coordinates (Haversine Formula) ===== */
 function calculateDistance(coord1, coord2) {
-  const R = 6371; // Earth radius (km)
+  const R = 6371;
   const dLat = toRad(coord2.lat - coord1.lat);
   const dLng = toRad(coord2.lng - coord1.lng);
-  
-  const a = 
+
+  const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(coord1.lat)) * Math.cos(toRad(coord2.lat)) *
-    Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  
+    Math.cos(toRad(coord1.lat)) *
+      Math.cos(toRad(coord2.lat)) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const distance = R * c;
-  
-  return distance;
+  return R * c;
 }
 
 function toRad(degrees) {
@@ -181,8 +183,7 @@ ride.oninput = e => { state.ride = +e.target.value; calc(); };
 /* ===== Furniture Selection ===== */
 document.querySelectorAll(".furniture").forEach(el => {
   el.onchange = () => {
-    state.furniture = [...document.querySelectorAll(".furniture:checked")]
-      .map(x => x.value);
+    state.furniture = [...document.querySelectorAll(".furniture:checked")].map(x => x.value);
     calc();
   };
 });
@@ -195,7 +196,58 @@ document.querySelectorAll("input[name='load']").forEach(el => {
   };
 });
 
+/* ===== Build SMS body from current state (with disclaimer) ===== */
+function buildSmsBody(priceNumber) {
+  const startAddr = startAddressInput?.value?.trim() || "";
+  const endAddr = endAddressInput?.value?.trim() || "";
+
+  const vehicleLabel = state.vehicle || "Not selected";
+
+  const stairsFrom = state.noFrom ? `${state.fromFloor} floor(s) (no elevator)` : "Elevator available";
+  const stairsTo = state.noTo ? `${state.toFloor} floor(s) (no elevator)` : "Elevator available";
+
+  const furnitureLabel = state.furniture.length
+    ? state.furniture.map(v => FURNITURE_PRICE[v]?.label || v).join(", ")
+    : "None";
+
+  const loadLabel = state.load ? (LOAD_MAP[state.load]?.label || "Not selected") : "Not selected";
+
+  const ladderLabel = state.ladder ? "Yes" : "No";
+  const nightLabel = state.night ? "Yes" : "No";
+  const rideLabel = state.ride > 0 ? `${state.ride} person(s)` : "None";
+  const laborLabel = state.cantCarry ? "Required (confirm)" : "Not required";
+
+  const distanceLabel = state.distance > 0 ? `${state.distance}km` : "Not calculated";
+
+  const disclaimer = "※ The estimated price may change depending on on-site conditions (load size, route, parking, extra work).";
+
+  const lines = [
+    "DD Logistics estimate inquiry.",
+    "",
+    `Vehicle: ${vehicleLabel}`,
+    `Distance: ${distanceLabel}`,
+    startAddr ? `Pickup: ${startAddr}` : null,
+    endAddr ? `Drop-off: ${endAddr}` : null,
+    `Stairs: Pickup ${stairsFrom} / Drop-off ${stairsTo}`,
+    `Furniture: ${furnitureLabel}`,
+    `Load: ${loadLabel}`,
+    `Ladder truck: ${ladderLabel}`,
+    `Night/Weekend: ${nightLabel}`,
+    `Passengers: ${rideLabel}`,
+    `Labor help: ${laborLabel}`,
+    "",
+    `Estimated price: ₩${Number(priceNumber).toLocaleString()}`,
+    disclaimer,
+    "",
+    "Please advise."
+  ].filter(Boolean);
+
+  return lines.join("\n");
+}
+
 /* ===== Price Calculation ===== */
+let lastPrice = 0;
+
 function calc() {
   if (!state.vehicle) return;
 
@@ -203,14 +255,10 @@ function calc() {
   let price = BASE_PRICE[key] + state.distance * PER_KM_PRICE[key];
 
   // Stairs cost
-  price += ((state.noFrom ? state.fromFloor : 0) +
-            (state.noTo ? state.toFloor : 0)) * 7000;
+  price += ((state.noFrom ? state.fromFloor : 0) + (state.noTo ? state.toFloor : 0)) * 7000;
 
   // Furniture cost
-  price += state.furniture.reduce(
-    (sum, v) => sum + (FURNITURE_PRICE[v]?.price || 0),
-    0
-  );
+  price += state.furniture.reduce((sum, v) => sum + (FURNITURE_PRICE[v]?.price || 0), 0);
 
   // Load volume cost
   if (state.load) price += LOAD_MAP[state.load].price;
@@ -218,6 +266,8 @@ function calc() {
   // Additional options
   if (state.ladder) price += 80000;
   price += state.ride * 20000;
+
+  lastPrice = price;
 
   /* ===== Summary Generation ===== */
   summaryEl.innerHTML = `
@@ -248,13 +298,18 @@ function calc() {
   priceEl.innerText = `₩${price.toLocaleString()}`;
 }
 
-/* ===== SMS Inquiry ===== */
-if (document.getElementById("smsInquiry")) {
-  smsInquiry.onclick = (e) => {
+/* ===== SMS Inquiry (Text + Disclaimer) ===== */
+const smsInquiryBtn = document.getElementById("smsInquiry");
+if (smsInquiryBtn) {
+  smsInquiryBtn.onclick = (e) => {
     e.preventDefault();
-    alert("Please capture the estimate screen and send it via SMS");
-    location.href =
-      "sms:01040941666?body=" +
-      encodeURIComponent("DD Logistics estimate inquiry.\nPlease provide consultation based on captured estimate.");
+
+    if (!state.vehicle) {
+      alert("Please select a vehicle first.");
+      return;
+    }
+
+    const body = buildSmsBody(lastPrice);
+    location.href = "sms:01040941666?body=" + encodeURIComponent(body);
   };
 }
