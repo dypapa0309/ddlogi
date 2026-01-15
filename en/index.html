@@ -168,12 +168,13 @@
   </section>
 
   <!-- Quote -->
-  <section class="section">
+  <section class="section" id="quoteSection">
     <h2>Estimated Quote</h2>
 
     <div class="card" id="summary">Please select conditions</div>
 
-    <div class="card price-card">
+    <!-- ✅ Static price card (original position) -->
+    <div class="card price-card" id="priceCardStatic">
       <div class="price" id="price">₩0</div>
     </div>
 
@@ -197,6 +198,11 @@
     </div>
   </section>
 
+</div>
+
+<!-- ✅ Floating price bar -->
+<div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
+  <div class="sticky-price" id="stickyPrice">₩0</div>
 </div>
 
 <script src="/assets/js/app-en.js" defer></script>

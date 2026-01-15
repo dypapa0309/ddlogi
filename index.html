@@ -68,7 +68,7 @@
     </div>
   </section>
 
-  <!-- 🆕 주소 입력으로 거리 자동 계산 -->
+  <!-- 주소 입력으로 거리 자동 계산 -->
   <section class="section">
     <h2>이동 거리</h2>
     <div class="card">
@@ -91,7 +91,7 @@
     <h2>추가 옵션</h2>
     <div class="card">
 
-      <!-- 🆕 이사 방식 -->
+      <!-- 이사 방식 -->
       <div class="sub">이사 방식</div>
 
       <div class="option">
@@ -172,12 +172,13 @@
   </section>
 
   <!-- 견적 -->
-  <section class="section">
+  <section class="section" id="quoteSection">
     <h2>예상 견적</h2>
 
     <div class="card" id="summary">조건을 선택하세요</div>
 
-    <div class="card price-card">
+    <!-- ✅ 여기 가격카드는 "원래 위치"용 (고정/정적) -->
+    <div class="card price-card" id="priceCardStatic">
       <div class="price" id="price">₩0</div>
     </div>
 
@@ -201,6 +202,11 @@
     </div>
   </section>
 
+</div>
+
+<!-- ✅ 하단 플로팅 가격바: 따라다니다가 예상견적 섹션 보이면 자동 숨김 -->
+<div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
+  <div class="sticky-price" id="stickyPrice">₩0</div>
 </div>
 
 <script src="/assets/js/app.js" defer></script>

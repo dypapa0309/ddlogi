@@ -17,7 +17,7 @@ body {
 .container {
   max-width:420px;
   margin:0 auto;
-  padding:20px 16px 140px;
+  padding:20px 16px 240px; /* ✅ 플로팅바 공간 확보 */
 }
 
 .section { margin-bottom:32px; }
@@ -72,9 +72,7 @@ h2 { font-size:20px; margin-bottom:12px; }
   border-radius:999px;
 }
 
-.hero-content {
-  padding:18px;
-}
+.hero-content { padding:18px; }
 
 .hero-desc {
   color:#cbd5f5;
@@ -120,10 +118,6 @@ input[type="number"] {
   text-align:center;
 }
 
-input[type="range"] {
-  width:100%;
-}
-
 /* 차량 */
 .vehicle {
   border:2px solid #1f2937;
@@ -134,9 +128,7 @@ input[type="range"] {
   transition:all 0.3s ease;
 }
 
-.vehicle:hover {
-  border-color:#334155;
-}
+.vehicle:hover { border-color:#334155; }
 
 .vehicle.active {
   border-color:var(--accent);
@@ -174,24 +166,13 @@ input[type="range"] {
   transition:all 0.3s ease;
 }
 
-.cta.primary { 
-  background:var(--accent);
-}
+.cta.primary { background:var(--accent); }
+.cta.primary:hover { background:#0284c7; transform:translateY(-2px); }
 
-.cta.primary:hover {
-  background:#0284c7;
-  transform:translateY(-2px);
-}
+.cta.sub { background:#334155; }
+.cta.sub:hover { background:#475569; }
 
-.cta.sub { 
-  background:#334155;
-}
-
-.cta.sub:hover {
-  background:#475569;
-}
-
-/* ===== 🆕 주소 입력 필드 (다크 테마) ===== */
+/* 주소 입력 */
 .address-input {
   width: 100%;
   padding: 12px 15px;
@@ -202,7 +183,6 @@ input[type="range"] {
   border-radius: 12px;
   margin-top: 8px;
   transition: all 0.3s ease;
-  box-sizing: border-box;
 }
 
 .address-input:focus {
@@ -217,7 +197,7 @@ input[type="range"] {
   font-size: 14px;
 }
 
-/* ===== 🆕 거리 계산 버튼 (다크 테마) ===== */
+/* 거리 계산 버튼 */
 .calc-btn {
   width: 100%;
   padding: 14px;
@@ -238,9 +218,7 @@ input[type="range"] {
   box-shadow: 0 6px 16px rgba(14, 165, 233, 0.35);
 }
 
-.calc-btn:active {
-  transform: translateY(0);
-}
+.calc-btn:active { transform: translateY(0); }
 
 .calc-btn:disabled {
   opacity: 0.6;
@@ -248,7 +226,7 @@ input[type="range"] {
   transform: none;
 }
 
-/* ===== 🆕 거리 결과 표시 (다크 테마) ===== */
+/* 거리 결과 표시 */
 .distance-result {
   margin-top: 15px;
   padding: 15px;
@@ -267,27 +245,37 @@ input[type="range"] {
   font-size: 18px;
 }
 
-/* ===== 반응형 ===== */
-@media (max-width: 768px) {
-  .container {
-    padding: 16px 12px 120px;
-  }
+/* ================================
+   ✅ 하단 플로팅 가격바 (센터 정렬 100% 안정)
+================================ */
+.sticky-pricebar{
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  max-width: 420px;
+  margin: 0 auto;
+  z-index: 999;
 
-  .address-input {
-    font-size: 14px;
-    padding: 10px 12px;
-  }
-  
-  .calc-btn {
-    font-size: 15px;
-    padding: 12px;
-  }
-  
-  .hero-image {
-    height: 180px;
-  }
-  
-  h1 {
-    font-size: 28px;
-  }
+  background: var(--card);
+  border-radius: 22px;
+  padding: 18px 16px;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  display: none; /* JS가 상황에 따라 on/off */
+}
+
+.sticky-price{
+  font-size: 34px;
+  font-weight: 900;
+  text-align: center;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .container { padding: 16px 12px 240px; }
+  .address-input { font-size: 14px; padding: 10px 12px; }
+  .calc-btn { font-size: 15px; padding: 12px; }
+  .hero-image { height: 180px; }
+  h1 { font-size: 28px; }
 }
