@@ -46,7 +46,7 @@
       <div class="hero-content">
         <h1>디디운송</h1>
         <p class="hero-desc">
-          견적 계산기를 사용하여 <br><bold>고객이 견적 내는 유일한 업체!</bold><br>
+          견적 계산기를 사용하여 고객이 견적 내는 유일한 업체!<br>
           투명한 가격으로 이사 하세요!
         </p>
         <div class="hero-features">
@@ -74,12 +74,12 @@
     <div class="card">
       <div class="sub">출발지 주소</div>
       <input type="text" id="startAddress" class="address-input" placeholder="예: 서울특별시 강남구 테헤란로 152">
-      
+
       <div class="sub" style="margin-top: 15px;">도착지 주소</div>
       <input type="text" id="endAddress" class="address-input" placeholder="예: 경기도 부천시 상동로 87">
-      
+
       <button id="calcDistance" class="calc-btn">거리 계산하기</button>
-      
+
       <div id="distanceResult" class="distance-result">
         <div class="sub">계산된 거리: <b id="distanceText">주소를 입력해주세요</b></div>
       </div>
@@ -90,6 +90,31 @@
   <section class="section">
     <h2>추가 옵션</h2>
     <div class="card">
+
+      <!-- 🆕 이사 방식 -->
+      <div class="sub">이사 방식</div>
+
+      <div class="option">
+        <div>
+          일반이사
+          <div class="sub" style="margin:6px 0 0;">
+            (고객님이 전부 박스포장 해놓으셔야 합니다.)
+          </div>
+        </div>
+        <input type="radio" name="moveType" value="general" checked>
+      </div>
+
+      <div class="option">
+        <div>
+          반포장 이사
+          <div class="sub" style="margin:6px 0 0;">
+            (웬만한 짐은 다 박스 포장 해놓으시고 당일까지 사용하실 짐을 포장하실 박스를 최대 5개까지 제공합니다.)
+          </div>
+        </div>
+        <input type="radio" name="moveType" value="half">
+      </div>
+
+      <hr>
 
       <div class="sub">엘리베이터 없을 경우 (층당 7,000원)</div>
 
@@ -176,7 +201,7 @@
     </div>
   </section>
 
-</div> <!-- container 끝 -->
+</div>
 
 <script src="/assets/js/app.js" defer></script>
 </body>

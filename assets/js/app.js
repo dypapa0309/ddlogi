@@ -1,10 +1,11 @@
 /* ==================================================
-    디디운송 견적 계산기 - 카카오맵 거리 자동계산 (SMS 텍스트 전송 + 면책 포함)
+    디디운송 견적 계산기 - 카카오맵 거리 자동계산 (이사방식/박스 추가금 분기 + SMS 텍스트 + 면책)
 ================================================== */
 
 const state = {
   vehicle: null,
   distance: 0,
+  moveType: "general", // 🆕 general | half
   noFrom: false,
   fromFloor: 1,
   noTo: false,
@@ -43,13 +44,32 @@ const FURNITURE_PRICE = {
   "대형": { label: "대형 (책장, 세탁기, 건조기 등)", price: 70000 }
 };
 
-/* ===== 짐양 가격 ===== */
-const LOAD_MAP = {
+/* ===== 짐양(박스) 가격: 일반/반포장 분리 ===== */
+const LOAD_MAP_GENERAL = {
   "1": { label: "1~5개", price: 10000 },
   "2": { label: "6~10개", price: 20000 },
   "3": { label: "11~15개", price: 30000 },
   "4": { label: "16~20개", price: 40000 }
 };
+
+// 🆕 반포장: 박스 구간별 추가금 다르게(일반보다 높게)
+const LOAD_MAP_HALF = {
+  "1": { label: "1~5개", price: 20000 },
+  "2": { label: "6~10개", price: 35000 },
+  "3": { label: "11~15개", price: 50000 },
+  "4": { label: "16~20개", price: 65000 }
+};
+
+function getLoadMap() {
+  return state.moveType === "half" ? LOAD_MAP_HALF : LOAD_MAP_GENERAL;
+}
+
+function moveTypeLabel() {
+  if (state.moveType === "half") {
+    return `반포장 이사 (웬만한 짐은 다 박스 포장 해놓으시고 당일까지 사용하실 짐을 포장하실 박스를 최대 5개까지 제공합니다.)`;
+  }
+  return `일반이사 (고객님이 전부 박스포장 해놓으셔야 합니다.)`;
+}
 
 /* ===== DOM 요소 ===== */
 const priceEl = document.getElementById("price");
@@ -70,12 +90,20 @@ window.addEventListener("DOMContentLoaded", () => {
     state.vehicle = first.dataset.vehicle;
   }
 
+  // 🆕 이사 방식(라디오) 이벤트
+  document.querySelectorAll("input[name='moveType']").forEach(el => {
+    el.onchange = (e) => {
+      state.moveType = e.target.value; // general | half
+      calc();
+    };
+  });
+
   // Kakao API 로드 후 Geocoder 초기화
   if (typeof kakao !== "undefined" && kakao.maps) {
     kakao.maps.load(() => {
       if (kakao.maps.services) {
         geocoder = new kakao.maps.services.Geocoder();
-        calc(); // 초기 렌더
+        calc();
       } else {
         console.error("Kakao Map services 라이브러리가 로드되지 않았습니다. libraries=services 확인 필요");
         calc();
@@ -204,6 +232,7 @@ function buildSmsBody(priceNumber) {
   const endAddr = endAddressInput?.value?.trim() || "";
 
   const vehicleLabel = state.vehicle || "미선택";
+  const moveLabel = moveTypeLabel();
 
   const stairsFrom = state.noFrom ? `${state.fromFloor}층(엘베없음)` : "엘베있음";
   const stairsTo = state.noTo ? `${state.toFloor}층(엘베없음)` : "엘베있음";
@@ -212,7 +241,8 @@ function buildSmsBody(priceNumber) {
     ? state.furniture.map(v => FURNITURE_PRICE[v]?.label || v).join(", ")
     : "없음";
 
-  const loadLabel = state.load ? (LOAD_MAP[state.load]?.label || "미선택") : "미선택";
+  const loadMap = getLoadMap();
+  const loadLabel = state.load ? (loadMap[state.load]?.label || "미선택") : "미선택";
 
   const ladderLabel = state.ladder ? "필요" : "불필요";
   const nightLabel = state.night ? "해당" : "미해당";
@@ -226,6 +256,7 @@ function buildSmsBody(priceNumber) {
   const lines = [
     "디디운송 예상견적 문의드립니다.",
     "",
+    `이사 방식: ${moveLabel}`,
     `차량: ${vehicleLabel}`,
     `거리: ${distanceLabel}`,
     startAddr ? `출발지: ${startAddr}` : null,
@@ -233,6 +264,7 @@ function buildSmsBody(priceNumber) {
     `계단: 출발 ${stairsFrom} / 도착 ${stairsTo}`,
     `가구: ${furnitureLabel}`,
     `짐양(박스): ${loadLabel}`,
+    "",
     `사다리차: ${ladderLabel}`,
     `야간/주말: ${nightLabel}`,
     `동승: ${rideLabel}`,
@@ -262,8 +294,9 @@ function calc() {
   // 가구 비용
   price += state.furniture.reduce((sum, v) => sum + (FURNITURE_PRICE[v]?.price || 0), 0);
 
-  // 짐양 비용
-  if (state.load) price += LOAD_MAP[state.load].price;
+  // 짐양(박스) 비용 (일반/반포장 분기)
+  const loadMap = getLoadMap();
+  if (state.load) price += loadMap[state.load].price;
 
   // 추가 옵션
   if (state.ladder) price += 80000;
@@ -274,6 +307,8 @@ function calc() {
   /* ===== 견적 요약 ===== */
   summaryEl.innerHTML = `
     <b>🚚 이사 조건 요약</b><br><br>
+
+    ▪ 이사 방식: ${moveTypeLabel()}<br><br>
 
     ▪ 차량: ${state.vehicle}<br>
     ▪ 거리: ${state.distance > 0 ? state.distance + ' km' : '미계산'}<br><br>
@@ -288,7 +323,7 @@ function calc() {
         : "없음"
     }<br>
 
-    ▪ 짐양: ${state.load ? LOAD_MAP[state.load].label : "미선택"}<br><br>
+    ▪ 짐양: ${state.load ? loadMap[state.load].label : "미선택"}<br><br>
 
     ▪ 사다리차: ${state.ladder ? "필요" : "불필요"}<br>
     ▪ 야간/주말: ${state.night ? "해당" : "미해당"}<br>

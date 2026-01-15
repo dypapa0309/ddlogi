@@ -1,10 +1,11 @@
 /* ==================================================
-   DD Logistics Price Calculator - Kakao Map Auto Distance (SMS Text + Disclaimer)
+   DD Logistics Price Calculator - Kakao Map Auto Distance (Move type + Load pricing split + SMS + Disclaimer)
 ================================================== */
 
 const state = {
   vehicle: null,
   distance: 0,
+  moveType: "general", // general | half
   noFrom: false,
   fromFloor: 1,
   noTo: false,
@@ -43,13 +44,31 @@ const FURNITURE_PRICE = {
   "Large": { label: "Large (wardrobe, washer, dryer)", price: 70000 }
 };
 
-/* ===== Load Volume Pricing ===== */
-const LOAD_MAP = {
+/* ===== Load Pricing: General vs Semi-Packing ===== */
+const LOAD_MAP_GENERAL = {
   "1": { label: "1–5 boxes", price: 10000 },
   "2": { label: "6–10 boxes", price: 20000 },
   "3": { label: "11–15 boxes", price: 30000 },
   "4": { label: "16–20 boxes", price: 40000 }
 };
+
+const LOAD_MAP_HALF = {
+  "1": { label: "1–5 boxes", price: 20000 },
+  "2": { label: "6–10 boxes", price: 35000 },
+  "3": { label: "11–15 boxes", price: 50000 },
+  "4": { label: "16–20 boxes", price: 65000 }
+};
+
+function getLoadMap() {
+  return state.moveType === "half" ? LOAD_MAP_HALF : LOAD_MAP_GENERAL;
+}
+
+function moveTypeLabel() {
+  if (state.moveType === "half") {
+    return `Semi-Packing Move (Please pack most items. We provide up to 5 boxes for items you use until moving day.)`;
+  }
+  return `General Move (You must pack all items into boxes in advance.)`;
+}
 
 /* ===== DOM Elements ===== */
 const priceEl = document.getElementById("price");
@@ -68,6 +87,14 @@ window.addEventListener("DOMContentLoaded", () => {
     first.classList.add("active");
     state.vehicle = first.dataset.vehicle;
   }
+
+  // Move type radio events
+  document.querySelectorAll("input[name='moveType']").forEach(el => {
+    el.onchange = (e) => {
+      state.moveType = e.target.value; // general | half
+      calc();
+    };
+  });
 
   if (typeof kakao !== "undefined" && kakao.maps) {
     kakao.maps.load(() => {
@@ -139,7 +166,7 @@ function getCoordinates(address) {
   });
 }
 
-/* ===== Calculate Distance Between Two Coordinates (Haversine Formula) ===== */
+/* ===== Haversine ===== */
 function calculateDistance(coord1, coord2) {
   const R = 6371;
   const dLat = toRad(coord2.lat - coord1.lat);
@@ -196,12 +223,13 @@ document.querySelectorAll("input[name='load']").forEach(el => {
   };
 });
 
-/* ===== Build SMS body from current state (with disclaimer) ===== */
+/* ===== Build SMS body (with disclaimer) ===== */
 function buildSmsBody(priceNumber) {
   const startAddr = startAddressInput?.value?.trim() || "";
   const endAddr = endAddressInput?.value?.trim() || "";
 
   const vehicleLabel = state.vehicle || "Not selected";
+  const moveLabel = moveTypeLabel();
 
   const stairsFrom = state.noFrom ? `${state.fromFloor} floor(s) (no elevator)` : "Elevator available";
   const stairsTo = state.noTo ? `${state.toFloor} floor(s) (no elevator)` : "Elevator available";
@@ -210,7 +238,8 @@ function buildSmsBody(priceNumber) {
     ? state.furniture.map(v => FURNITURE_PRICE[v]?.label || v).join(", ")
     : "None";
 
-  const loadLabel = state.load ? (LOAD_MAP[state.load]?.label || "Not selected") : "Not selected";
+  const loadMap = getLoadMap();
+  const loadLabel = state.load ? (loadMap[state.load]?.label || "Not selected") : "Not selected";
 
   const ladderLabel = state.ladder ? "Yes" : "No";
   const nightLabel = state.night ? "Yes" : "No";
@@ -224,6 +253,7 @@ function buildSmsBody(priceNumber) {
   const lines = [
     "DD Logistics estimate inquiry.",
     "",
+    `Move type: ${moveLabel}`,
     `Vehicle: ${vehicleLabel}`,
     `Distance: ${distanceLabel}`,
     startAddr ? `Pickup: ${startAddr}` : null,
@@ -231,6 +261,7 @@ function buildSmsBody(priceNumber) {
     `Stairs: Pickup ${stairsFrom} / Drop-off ${stairsTo}`,
     `Furniture: ${furnitureLabel}`,
     `Load: ${loadLabel}`,
+    "",
     `Ladder truck: ${ladderLabel}`,
     `Night/Weekend: ${nightLabel}`,
     `Passengers: ${rideLabel}`,
@@ -254,24 +285,22 @@ function calc() {
   const key = VEHICLE_MAP[state.vehicle];
   let price = BASE_PRICE[key] + state.distance * PER_KM_PRICE[key];
 
-  // Stairs cost
   price += ((state.noFrom ? state.fromFloor : 0) + (state.noTo ? state.toFloor : 0)) * 7000;
 
-  // Furniture cost
   price += state.furniture.reduce((sum, v) => sum + (FURNITURE_PRICE[v]?.price || 0), 0);
 
-  // Load volume cost
-  if (state.load) price += LOAD_MAP[state.load].price;
+  const loadMap = getLoadMap();
+  if (state.load) price += loadMap[state.load].price;
 
-  // Additional options
   if (state.ladder) price += 80000;
   price += state.ride * 20000;
 
   lastPrice = price;
 
-  /* ===== Summary Generation ===== */
   summaryEl.innerHTML = `
     <b>🚚 Moving Conditions Summary</b><br><br>
+
+    ▪ Move type: ${moveTypeLabel()}<br><br>
 
     ▪ Vehicle: ${state.vehicle}<br>
     ▪ Distance: ${state.distance > 0 ? state.distance + ' km' : 'Not calculated'}<br><br>
@@ -286,7 +315,7 @@ function calc() {
         : "None"
     }<br>
 
-    ▪ Load volume: ${state.load ? LOAD_MAP[state.load].label : "Not selected"}<br><br>
+    ▪ Load volume: ${state.load ? loadMap[state.load].label : "Not selected"}<br><br>
 
     ▪ Ladder truck: ${state.ladder ? "Yes" : "No"}<br>
     ▪ Night/Weekend: ${state.night ? "Yes" : "No"}<br>
@@ -298,7 +327,7 @@ function calc() {
   priceEl.innerText = `₩${price.toLocaleString()}`;
 }
 
-/* ===== SMS Inquiry (Text + Disclaimer) ===== */
+/* ===== SMS Inquiry ===== */
 const smsInquiryBtn = document.getElementById("smsInquiry");
 if (smsInquiryBtn) {
   smsInquiryBtn.onclick = (e) => {
