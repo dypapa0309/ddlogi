@@ -5,7 +5,8 @@
   --sub:#94a3b8;
 }
 
-* { box-sizing:border-box; }
+/* ✅ 전역: 모바일 튐/폭 계산 문제 방지 */
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   margin:0;
@@ -13,8 +14,6 @@ body {
   color:#fff;
   font-family:-apple-system,BlinkMacSystemFont,Pretendard,sans-serif;
 }
-
-*, *::before, *::after { box-sizing: border-box; }
 
 .container {
   max-width:420px;
@@ -32,6 +31,7 @@ h2 { font-size:20px; margin-bottom:12px; }
   border-radius:18px;
   padding:16px;
   margin-bottom:12px;
+  overflow: hidden; /* ✅ 라운드 카드 내부 요소가 튀어나오는 것 방지 */
 }
 
 .sub {
@@ -174,15 +174,24 @@ input[type="number"] {
 .cta.sub { background:#334155; }
 .cta.sub:hover { background:#475569; }
 
-/* 주소 입력 */
+/* ==================================================
+   ✅ 입력 공통 스타일 (주소/날짜 모두 동일 룩)
+================================================== */
+
+/* 주소 input */
 .address-input {
   width: 100%;
+  max-width: 100%;
+  display: block;
+
   padding: 12px 15px;
   font-size: 15px;
   background: #020617;
   color: #fff;
+
   border: 2px solid #1f2937;
   border-radius: 12px;
+
   margin-top: 8px;
   transition: all 0.3s ease;
 }
@@ -197,6 +206,75 @@ input[type="number"] {
 .address-input::placeholder {
   color: #64748b;
   font-size: 14px;
+}
+
+/* ==================================================
+   ✅ 날짜 input: 박스 전체 클릭 + 모바일 폭 튐 방지(최종 안정판)
+================================================== */
+
+.date-wrap{
+  position: relative;
+  margin-top: 8px;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* date input은 address-input 룩을 그대로 재사용 */
+.date-input{
+  /* address-input과 동일 룩 */
+  width: 100%;
+  max-width: 100%;
+  display: block;
+
+  padding: 12px 15px;
+  padding-right: 52px; /* 아이콘 자리 */
+
+  font-size: 15px;
+  background: #020617;
+  color: #fff;
+
+  border: 2px solid #1f2937;
+  border-radius: 12px;
+
+  margin-top: 0 !important;
+  transition: all 0.3s ease;
+
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* 포커스 룩도 통일 */
+.date-input:focus{
+  outline: none;
+  border-color: var(--accent);
+  background: #0f172a;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+/* ✅ iOS/크롬: 달력 선택 영역을 input 전체로 확장 */
+.date-input::-webkit-calendar-picker-indicator{
+  position: absolute;
+  inset: 0;               /* top/left/right/bottom = 0 */
+  width: 100%;
+  height: 100%;
+
+  opacity: 0 !important;  /* 기본 아이콘 숨김 */
+  cursor: pointer;
+}
+
+/* ✅ 커스텀 흰색 달력 아이콘(보이기만 하고 클릭은 input이 받음) */
+.date-icon{
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  opacity: 0.95;
+  z-index: 2;
+
+  background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm13 8H4v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9ZM5 6a1 1 0 0 0-1 1v1h16V7a1 1 0 0 0-1-1H5Z'/%3E%3C/svg%3E");
 }
 
 /* 거리 계산 버튼 */
@@ -276,52 +354,9 @@ input[type="number"] {
 /* 반응형 */
 @media (max-width: 768px) {
   .container { padding: 16px 12px 240px; }
-  .address-input { font-size: 14px; padding: 10px 12px; }
+  .address-input, .date-input { font-size: 14px; padding: 10px 12px; }
+  .date-input { padding-right: 48px; } /* 모바일에서 아이콘 자리 약간 줄임 */
   .calc-btn { font-size: 15px; padding: 12px; }
   .hero-image { height: 180px; }
   h1 { font-size: 28px; }
-}
-
-
-
-/* ==================================================
-   ✅ date input: 박스 어디를 눌러도 달력 열리게 (최종)
-================================================== */
-
-.date-wrap{
-  position: relative;
-  margin-top: 8px;
-}
-
-/* input 자체 */
-.date-input{
-  padding-right: 52px;   /* 아이콘 자리 */
-  margin-top: 0 !important;
-}
-
-/* ✅ 달력 열리는 클릭 영역을 "input 전체"로 확장 */
-.date-input::-webkit-calendar-picker-indicator{
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-
-  opacity: 0 !important;   /* 기본 아이콘 숨김 */
-  cursor: pointer;
-}
-
-/* ✅ 커스텀 흰색 달력 아이콘 */
-.date-icon{
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  pointer-events: none; /* 클릭은 input이 받게 */
-  opacity: 0.95;
-  z-index: 2;
-
-  background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm13 8H4v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9ZM5 6a1 1 0 0 0-1 1v1h16V7a1 1 0 0 0-1-1H5Z'/%3E%3C/svg%3E");
 }
