@@ -86,6 +86,40 @@
     </div>
   </section>
 
+  <!-- 예약 정보 (A안: 거리 아래) -->
+  <section class="section">
+    <h2>예약 정보</h2>
+    <div class="card">
+
+      <div class="sub">이사 날짜</div>
+      <input type="date" id="moveDate" class="address-input">
+
+      <hr style="margin: 16px 0; border: none; border-top: 1px solid #1f2937;">
+
+      <div class="sub">희망 시간대 (필수)</div>
+
+      <label class="option" style="cursor:pointer;">
+        <div>오전 9시 이전</div>
+        <input type="radio" name="timeSlot" value="before9">
+      </label>
+
+      <label class="option" style="cursor:pointer;">
+        <div>오전 9~12시</div>
+        <input type="radio" name="timeSlot" value="9to12">
+      </label>
+
+      <label class="option" style="cursor:pointer;">
+        <div>오후 12~3시</div>
+        <input type="radio" name="timeSlot" value="12to15">
+      </label>
+
+      <div class="sub" style="margin-top: 10px;">
+        ※ 배차 상황에 따라 확정 시간은 상담 후 안내됩니다.
+      </div>
+
+    </div>
+  </section>
+
   <!-- 옵션 -->
   <section class="section">
     <h2>추가 옵션</h2>
@@ -137,9 +171,9 @@
       <hr>
 
       <div class="sub">가구 크기 (중복 선택)</div>
-      <div class="option">소형 (의자, 협탁 등) <input type="checkbox" class="furniture" value="소형"></div>
-      <div class="option">중형 (테이블, 소형 냉장고 등)<input type="checkbox" class="furniture" value="중형"></div>
-      <div class="option">대형 (책장, 세탁기, 건조기 등)<input type="checkbox" class="furniture" value="대형"></div>
+      <div class="option">소형 (전자레인지, 제습기, 의자 등) <input type="checkbox" class="furniture" value="소형"></div>
+      <div class="option">중형 (협탁, 테이블, 소형 냉장고 등)<input type="checkbox" class="furniture" value="중형"></div>
+      <div class="option">대형 (침대, 책장, 세탁기, 건조기 등)<input type="checkbox" class="furniture" value="대형"></div>
 
       <hr>
 

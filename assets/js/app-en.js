@@ -1,11 +1,18 @@
 /* ==================================================
-   DD Logistics Price Calculator - Auto Distance + MoveType/Load Split + SMS Disclaimer + Floating Price Bar
+   DD Logistics Price Calculator - Auto Distance + MoveType/Load Split
+   + SMS Disclaimer + Floating Price Bar
+   + Reservation (date/time slot) required
 ================================================== */
 
 const state = {
   vehicle: null,
   distance: 0,
   moveType: "general", // general | half
+
+  // ✅ Reservation
+  moveDate: "",
+  timeSlot: "",
+
   noFrom: false,
   fromFloor: 1,
   noTo: false,
@@ -61,6 +68,15 @@ function moveTypeLabel() {
   return `General Move (You must pack all items into boxes in advance.)`;
 }
 
+/* ✅ Time slot label */
+function formatTimeSlotEN(v) {
+  if (!v) return "Not selected";
+  if (v === "before9") return "Before 9 AM";
+  if (v === "9to12") return "9 AM – 12 PM";
+  if (v === "12to15") return "12 PM – 3 PM";
+  return "Not selected";
+}
+
 /* ===== DOM ===== */
 const priceEl = document.getElementById("price");
 const summaryEl = document.getElementById("summary");
@@ -73,6 +89,10 @@ const distanceText = document.getElementById("distanceText");
 const startAddressInput = document.getElementById("startAddress");
 const endAddressInput = document.getElementById("endAddress");
 const calcDistanceBtn = document.getElementById("calcDistance");
+
+// ✅ Reservation DOM
+const moveDateEl = document.getElementById("moveDate");
+const timeSlotEls = document.querySelectorAll("input[name='timeSlot']");
 
 const noFromEl = document.getElementById("noFrom");
 const noToEl = document.getElementById("noTo");
@@ -108,6 +128,23 @@ window.addEventListener("DOMContentLoaded", () => {
       calc();
     });
   });
+
+  // ✅ Reservation events
+  if (moveDateEl) {
+    moveDateEl.addEventListener("change", (e) => {
+      state.moveDate = e.target.value || "";
+      calc();
+    });
+  }
+
+  if (timeSlotEls && timeSlotEls.length) {
+    timeSlotEls.forEach(el => {
+      el.addEventListener("change", (e) => {
+        state.timeSlot = e.target.value || "";
+        calc();
+      });
+    });
+  }
 
   if (noFromEl) noFromEl.addEventListener("change", e => { state.noFrom = e.target.checked; calc(); });
   if (noToEl) noToEl.addEventListener("change", e => { state.noTo = e.target.checked; calc(); });
@@ -256,6 +293,9 @@ function buildSmsBody(priceNumber) {
 
   const distanceLabel = state.distance > 0 ? `${state.distance}km` : "Not calculated";
 
+  const scheduleLabel = state.moveDate ? state.moveDate : "Not selected";
+  const timeSlotLabel = formatTimeSlotEN(state.timeSlot);
+
   const disclaimer = "※ The estimated price may change depending on on-site conditions (load size, route, parking, extra work).";
 
   const lines = [
@@ -264,6 +304,8 @@ function buildSmsBody(priceNumber) {
     `Move type: ${moveLabel}`,
     `Vehicle: ${vehicleLabel}`,
     `Distance: ${distanceLabel}`,
+    `Date: ${scheduleLabel}`,
+    `Preferred time slot: ${timeSlotLabel}`,
     startAddr ? `Pickup: ${startAddr}` : null,
     endAddr ? `Drop-off: ${endAddr}` : null,
     `Stairs: Pickup ${stairsFrom} / Drop-off ${stairsTo}`,
@@ -311,6 +353,9 @@ function calc() {
       ▪ Vehicle: ${state.vehicle}<br>
       ▪ Distance: ${state.distance > 0 ? state.distance + ' km' : 'Not calculated'}<br><br>
 
+      ▪ Date: ${state.moveDate ? state.moveDate : "Not selected"}<br>
+      ▪ Preferred time slot: ${formatTimeSlotEN(state.timeSlot)}<br><br>
+
       ▪ Stairs:<br>
       &nbsp;&nbsp;- Pickup: ${state.noFrom ? `${state.fromFloor} floor(s) (no elevator)` : "Elevator available"}<br>
       &nbsp;&nbsp;- Drop-off: ${state.noTo ? `${state.toFloor} floor(s) (no elevator)` : "Elevator available"}<br><br>
@@ -350,6 +395,17 @@ if (smsInquiryBtn) {
 
     if (!state.vehicle) {
       alert("Please select a vehicle first.");
+      return;
+    }
+
+    // ✅ Reservation required
+    if (!state.moveDate) {
+      alert("Please select the moving date.");
+      return;
+    }
+
+    if (!state.timeSlot) {
+      alert("Please select the preferred time slot.");
       return;
     }
 

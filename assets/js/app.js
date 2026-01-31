@@ -1,11 +1,17 @@
 /* ==================================================
    디디운송 견적 계산기 - 거리 자동계산 + 이사방식/박스 분기 + SMS 면책 + 플로팅 가격바
+   + 예약정보(날짜/시간대) 필수
 ================================================== */
 
 const state = {
   vehicle: null,
   distance: 0,
   moveType: "general", // general | half
+
+  // ✅ 예약 정보
+  moveDate: "",
+  timeSlot: "",
+
   noFrom: false,
   fromFloor: 1,
   noTo: false,
@@ -62,6 +68,15 @@ function moveTypeLabel() {
   return `일반이사 (고객님이 전부 박스포장 해놓으셔야 합니다.)`;
 }
 
+/* ✅ 시간대 라벨 */
+function formatTimeSlotKR(v) {
+  if (!v) return "미선택";
+  if (v === "before9") return "9시 이전";
+  if (v === "9to12") return "9~12시";
+  if (v === "12to15") return "12~3시";
+  return "미선택";
+}
+
 /* ===== DOM 요소 ===== */
 const priceEl = document.getElementById("price");
 const summaryEl = document.getElementById("summary");
@@ -74,6 +89,10 @@ const distanceText = document.getElementById("distanceText");
 const startAddressInput = document.getElementById("startAddress");
 const endAddressInput = document.getElementById("endAddress");
 const calcDistanceBtn = document.getElementById("calcDistance");
+
+// ✅ 예약 정보 DOM
+const moveDateEl = document.getElementById("moveDate");
+const timeSlotEls = document.querySelectorAll("input[name='timeSlot']");
 
 const noFromEl = document.getElementById("noFrom");
 const noToEl = document.getElementById("noTo");
@@ -112,6 +131,23 @@ window.addEventListener("DOMContentLoaded", () => {
       calc();
     });
   });
+
+  // ✅ 예약 정보(날짜/시간대)
+  if (moveDateEl) {
+    moveDateEl.addEventListener("change", (e) => {
+      state.moveDate = e.target.value || "";
+      calc();
+    });
+  }
+
+  if (timeSlotEls && timeSlotEls.length) {
+    timeSlotEls.forEach(el => {
+      el.addEventListener("change", (e) => {
+        state.timeSlot = e.target.value || "";
+        calc();
+      });
+    });
+  }
 
   // 옵션 이벤트
   if (noFromEl) noFromEl.addEventListener("change", e => { state.noFrom = e.target.checked; calc(); });
@@ -266,6 +302,9 @@ function buildSmsBody(priceNumber) {
 
   const distanceLabel = state.distance > 0 ? `${state.distance}km` : "미계산";
 
+  const scheduleLabel = state.moveDate ? state.moveDate : "미선택";
+  const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
+
   const disclaimer = "※ 안내된 예상금액은 현장 상황(짐량/동선/주차/추가 작업)에 따라 변동될 수 있습니다.";
 
   const lines = [
@@ -274,6 +313,8 @@ function buildSmsBody(priceNumber) {
     `이사 방식: ${moveLabel}`,
     `차량: ${vehicleLabel}`,
     `거리: ${distanceLabel}`,
+    `일정: ${scheduleLabel}`,
+    `희망 시간대: ${timeSlotLabel}`,
     startAddr ? `출발지: ${startAddr}` : null,
     endAddr ? `도착지: ${endAddr}` : null,
     `계단: 출발 ${stairsFrom} / 도착 ${stairsTo}`,
@@ -327,6 +368,9 @@ function calc() {
       ▪ 차량: ${state.vehicle}<br>
       ▪ 거리: ${state.distance > 0 ? state.distance + ' km' : '미계산'}<br><br>
 
+      ▪ 일정: ${state.moveDate ? state.moveDate : "미선택"}<br>
+      ▪ 희망 시간대: ${formatTimeSlotKR(state.timeSlot)}<br><br>
+
       ▪ 계단:<br>
       &nbsp;&nbsp;- 출발지: ${state.noFrom ? `${state.fromFloor}층 (엘베 없음)` : "엘베 있음"}<br>
       &nbsp;&nbsp;- 도착지: ${state.noTo ? `${state.toFloor}층 (엘베 없음)` : "엘베 있음"}<br><br>
@@ -368,6 +412,17 @@ if (smsInquiryBtn) {
 
     if (!state.vehicle) {
       alert("차량을 먼저 선택해주세요.");
+      return;
+    }
+
+    // ✅ 예약정보 필수
+    if (!state.moveDate) {
+      alert("이사 날짜를 선택해주세요.");
+      return;
+    }
+
+    if (!state.timeSlot) {
+      alert("희망 시간대를 선택해주세요.");
       return;
     }
 
