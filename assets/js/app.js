@@ -69,6 +69,8 @@
     toFloor: 1,
     ladder: false,
     night: false,
+
+    // ✅ 작업/인부
     cantCarryFrom: false,
     cantCarryTo: false,
     helperFrom: false,
@@ -154,6 +156,26 @@
     return '미선택';
   }
 
+  function toNumberSafe(v, fallback = 0) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
+  function getSelectedFurnitureLabels() {
+    const arr = (state.furniture || []).filter(Boolean);
+    if (!arr.length) return '없음';
+    return arr.map(v => FURNITURE_PRICE[v]?.label || v).join(', ');
+  }
+
+  function buildLaborLabel() {
+    const parts = [];
+    if (state.cantCarryFrom) parts.push('출발지 기사 혼자 나르기 어려움(+3만)');
+    if (state.cantCarryTo)   parts.push('도착지 기사 혼자 나르기 어려움(+3만)');
+    if (state.helperFrom)    parts.push('출발지 인부 추가(+4만)');
+    if (state.helperTo)      parts.push('도착지 인부 추가(+4만)');
+    return parts.length ? parts.join(', ') : '없음';
+  }
+
   /* =========================
      DOM 요소
   ========================= */
@@ -177,28 +199,17 @@
   const toFloorEl   = document.getElementById('toFloor');
   const ladderEl    = document.getElementById('ladder');
   const nightEl     = document.getElementById('night');
+
   const cantCarryFromEl = document.getElementById('cantCarryFrom');
   const cantCarryToEl   = document.getElementById('cantCarryTo');
   const helperFromEl    = document.getElementById('helperFrom');
   const helperToEl      = document.getElementById('helperTo');
 
   const rideEl      = document.getElementById('ride');
-
   const smsInquiryBtn = document.getElementById('smsInquiry');
 
   let geocoder = null;
   let lastPrice = 0;
-
-  function toNumberSafe(v, fallback = 0) {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : fallback;
-  }
-
-  function getSelectedFurnitureLabels() {
-    const arr = (state.furniture || []).filter(Boolean);
-    if (!arr.length) return '없음';
-    return arr.map(v => FURNITURE_PRICE[v]?.label || v).join(', ');
-  }
 
   /* =========================
      초기화
@@ -235,9 +246,7 @@
         state.moveDate = e.target.value || '';
 
         const confirmed = await fetchConfirmedSlots(state.moveDate);
-        ['before9', '9to12', '12to15'].forEach(slot => {
-          setTimeSlotDisabled(slot, confirmed.has(slot));
-        });
+        ['before9', '9to12', '12to15'].forEach(slot => setTimeSlotDisabled(slot, confirmed.has(slot)));
 
         // state.timeSlot 동기화
         const checked = document.querySelector('input[name="timeSlot"]:checked');
@@ -259,15 +268,17 @@
 
     // 6) 옵션 이벤트
     if (noFromEl)  noFromEl.addEventListener('change', e => { state.noFrom = e.target.checked; calc(); });
-    if (noToEl)    noToEl.addEventListener('change',   e => { state.noTo   = e.target.checked; calc(); });
+    if (noToEl)    noToEl.addEventListener('change', e => { state.noTo   = e.target.checked; calc(); });
     if (fromFloorEl) fromFloorEl.addEventListener('input', e => { state.fromFloor = Math.max(1, toNumberSafe(e.target.value, 1)); calc(); });
-    if (toFloorEl)   toFloorEl.addEventListener('input',   e => { state.toFloor   = Math.max(1, toNumberSafe(e.target.value, 1)); calc(); });
+    if (toFloorEl)   toFloorEl.addEventListener('input', e => { state.toFloor   = Math.max(1, toNumberSafe(e.target.value, 1)); calc(); });
+
     if (ladderEl) ladderEl.addEventListener('change', e => { state.ladder = e.target.checked; calc(); });
     if (nightEl)  nightEl.addEventListener('change',  e => { state.night  = e.target.checked; calc(); });
+
     if (cantCarryFromEl) cantCarryFromEl.addEventListener('change', e => { state.cantCarryFrom = e.target.checked; calc(); });
     if (cantCarryToEl)   cantCarryToEl  .addEventListener('change', e => { state.cantCarryTo   = e.target.checked; calc(); });
-    if (helperFromEl) helperFromEl.addEventListener('change', e => { state.helperFrom = e.target.checked; calc(); });
-    if (helperToEl)   helperToEl  .addEventListener('change', e => { state.helperTo   = e.target.checked; calc(); });
+    if (helperFromEl)    helperFromEl   .addEventListener('change', e => { state.helperFrom    = e.target.checked; calc(); });
+    if (helperToEl)      helperToEl     .addEventListener('change', e => { state.helperTo      = e.target.checked; calc(); });
 
     if (rideEl) rideEl.addEventListener('input', e => { state.ride = Math.max(0, toNumberSafe(e.target.value, 0)); calc(); });
 
@@ -395,76 +406,63 @@
   }
 
   /* =========================
-   SMS 바디 생성 (완성본)
-========================= */
-function buildSmsBody(priceNumber) {
-  const startAddr = (startAddressInput?.value || '').trim();
-  const endAddr   = (endAddressInput?.value || '').trim();
+     SMS 바디 생성
+  ========================= */
+  function buildSmsBody(priceNumber) {
+    const startAddr = (startAddressInput?.value || '').trim();
+    const endAddr   = (endAddressInput?.value || '').trim();
 
-  const vehicleLabel = state.vehicle || '미선택';
-  const moveLabel    = moveTypeLabel();
+    const vehicleLabel = state.vehicle || '미선택';
+    const moveLabel    = moveTypeLabel();
 
-  const stairsFrom = state.noFrom ? `${state.fromFloor}층(엘베없음)` : '엘베있음';
-  const stairsTo   = state.noTo ? `${state.toFloor}층(엘베없음)` : '엘베있음';
+    const stairsFrom = state.noFrom ? `${state.fromFloor}층(엘베없음)` : '엘베있음';
+    const stairsTo   = state.noTo ? `${state.toFloor}층(엘베없음)` : '엘베있음';
 
-  const itemsLabel = getSelectedFurnitureLabels();
+    const itemsLabel = getSelectedFurnitureLabels();
 
-  const loadMap = getLoadMap();
-  const loadLabel =
-    state.load && loadMap[state.load] ? loadMap[state.load].label : '미선택';
+    const loadMap = getLoadMap();
+    const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : '미선택';
 
-  const ladderLabel = state.ladder ? '필요' : '불필요';
-  const nightLabel  = state.night  ? '해당' : '미해당';
-  const rideLabel   = state.ride > 0 ? `${state.ride}명` : '없음';
-  const distanceLabel = state.distance > 0 ? `${state.distance}km` : '미계산';
+    const ladderLabel = state.ladder ? '필요' : '불필요';
+    const nightLabel  = state.night  ? '해당' : '미해당';
+    const rideLabel   = state.ride > 0 ? `${state.ride}명` : '없음';
+    const distanceLabel = state.distance > 0 ? `${state.distance}km` : '미계산';
 
-  const scheduleLabel = state.moveDate || '미선택';
-  const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
+    const scheduleLabel = state.moveDate || '미선택';
+    const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
 
-  /* ===== 인부/작업 관련 정리 ===== */
-  const laborParts = [];
+    const laborLabel = buildLaborLabel();
 
-  // 기사 혼자 나르기 어려움
-  if (state.cantCarryFrom) laborParts.push('출발지 기사 혼자 나르기 어려움(+3만)');
-  if (state.cantCarryTo)   laborParts.push('도착지 기사 혼자 나르기 어려움(+3만)');
+    const disclaimer =
+      '※ 안내된 예상금액은 현장 상황(짐량/동선/주차/추가 작업)에 따라 변동될 수 있습니다.';
 
-  // 인부 추가
-  if (state.helperFrom) laborParts.push('출발지 인부 추가(+4만)');
-  if (state.helperTo)   laborParts.push('도착지 인부 추가(+4만)');
+    const lines = [
+      '디디운송 예상견적 문의드립니다.',
+      '',
+      `이사 방식: ${moveLabel}`,
+      `차량: ${vehicleLabel}`,
+      `거리: ${distanceLabel}`,
+      `일정: ${scheduleLabel}`,
+      `희망 시간대: ${timeSlotLabel}`,
+      startAddr ? `출발지: ${startAddr}` : null,
+      endAddr ? `도착지: ${endAddr}` : null,
+      `계단: 출발 ${stairsFrom} / 도착 ${stairsTo}`,
+      `가구·가전: ${itemsLabel}`,
+      `짐양(박스): ${loadLabel}`,
+      '',
+      `사다리차: ${ladderLabel}`,
+      `야간/주말: ${nightLabel}`,
+      `동승: ${rideLabel}`,
+      `인부/작업: ${laborLabel}`,
+      '',
+      `예상금액: ₩${Number(priceNumber).toLocaleString()}`,
+      disclaimer,
+      '',
+      '상담 부탁드립니다.'
+    ].filter(Boolean);
 
-  const laborLabel = laborParts.length ? laborParts.join(', ') : '없음';
-
-  const disclaimer =
-    '※ 안내된 예상금액은 현장 상황(짐량/동선/주차/추가 작업)에 따라 변동될 수 있습니다.';
-
-  const lines = [
-    '디디운송 예상견적 문의드립니다.',
-    '',
-    `이사 방식: ${moveLabel}`,
-    `차량: ${vehicleLabel}`,
-    `거리: ${distanceLabel}`,
-    `일정: ${scheduleLabel}`,
-    `희망 시간대: ${timeSlotLabel}`,
-    startAddr ? `출발지: ${startAddr}` : null,
-    endAddr ? `도착지: ${endAddr}` : null,
-    `계단: 출발 ${stairsFrom} / 도착 ${stairsTo}`,
-    `가구·가전: ${itemsLabel}`,
-    `짐양(박스): ${loadLabel}`,
-    '',
-    `사다리차: ${ladderLabel}`,
-    `야간/주말: ${nightLabel}`,
-    `동승: ${rideLabel}`,
-    `인부/작업: ${laborLabel}`,
-    '',
-    `예상금액: ₩${Number(priceNumber).toLocaleString()}`,
-    disclaimer,
-    '',
-    '상담 부탁드립니다.'
-  ].filter(Boolean);
-
-  return lines.join('\n');
-}
-
+    return lines.join('\n');
+  }
 
   /* =========================
      가격 계산
@@ -494,29 +492,31 @@ function buildSmsBody(priceNumber) {
     const loadMap = getLoadMap();
     if (state.load && loadMap[state.load]) price += loadMap[state.load].price;
 
-        // 추가 옵션
+    // 추가 옵션
     if (state.ladder) price += 80000;
     price += toNumberSafe(state.ride, 0) * 20000;
 
-    // ✅ 반포장이사 1.2배 적용 (최종금액 기준)
+    // ✅ 직접 나르기 어려움 (출발/도착 각각 30,000원)
+    if (state.cantCarryFrom) price += 30000;
+    if (state.cantCarryTo)   price += 30000;
+
+    // ✅ 인부 추가 (출발/도착 각각 40,000원)
+    if (state.helperFrom) price += 40000;
+    if (state.helperTo)   price += 40000;
+
+    // ✅ 반포장이사 1.2배 적용 (모든 합산 후 '진짜 최종금액'에 적용)
     if (state.moveType === 'half') {
       price = Math.round(price * 1.2);
     }
 
+    // ✅ 문자로 나가는 금액 = 화면 표시 금액
     lastPrice = price;
-    // ✅ 직접 나르기 어려움 (출발/도착 각각 30,000원)
-   if (state.cantCarryFrom) price += 30000;
-   if (state.cantCarryTo)   price += 30000;
-
-  // ✅ 인부 추가 (출발/도착 각각 40,000원)
-   if (state.helperFrom) price += 40000;
-   if (state.helperTo)   price += 40000;
-
 
     // 요약
     if (summaryEl) {
       const itemsLabel = getSelectedFurnitureLabels();
       const loadLabel  = state.load && loadMap[state.load] ? loadMap[state.load].label : '미선택';
+      const laborLabel = buildLaborLabel();
 
       summaryEl.innerHTML = `
         <b>🚚 이사 조건 요약</b><br><br>
@@ -540,7 +540,7 @@ function buildSmsBody(priceNumber) {
         ▪ 야간/주말: ${state.night ? '해당' : '미해당'}<br>
         ▪ 동승 인원: ${state.ride > 0 ? `${state.ride}명` : '없음'}<br><br>
 
-        ▪ 인부 지원: ${state.cantCarry ? '필요 (상담 시 확인)' : '불필요'}
+        ▪ 인부/작업: ${laborLabel}
       `;
     }
 
