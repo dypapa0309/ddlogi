@@ -1,9 +1,9 @@
+<!-- /index.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <!-- 🔍 SEO -->
   <title>디디운송 | 1톤 카고·용달·이사 전문 | 정직한 견적</title>
   <meta name="description" content="디디운송은 1톤 카고·용달·소형이사 전문 업체입니다. 거리·옵션별 예상 견적을 바로 확인하세요." />
@@ -11,347 +11,253 @@
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://ddlogi.netlify.app/" />
 
-  <!-- OG -->
+  <!-- OG metadata -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="디디운송 | 빠르고 정직한 1톤 카고·용달" />
   <meta property="og:description" content="거리·옵션 선택만으로 예상 견적 확인" />
   <meta property="og:image" content="/assets/img/hero-truck.jpg" />
   <meta property="og:locale" content="ko_KR" />
 
-  <!-- 인증 -->
+  <!-- Verification tags (optional) -->
   <meta name="naver-site-verification" content="678161b38e6ea859e9e863da9807f759ce7e331e" />
   <meta name="google-site-verification" content="2Ty8rFRVnpPuNKFrt7b8DAno9v7kEe1f7Pnr9_bRcsU" />
 
-  <!-- 카카오맵 API -->
-  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e72755495282830e0006d49708dabe5b&libraries=services"></script>
+  <!-- ✅ Kakao Map API (중요: autoload=false) -->
+  <script
+    type="text/javascript"
+    src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e72755495282830e0006d49708dabe5b&libraries=services&autoload=false">
+  </script>
 
   <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
-
 <body data-lang="ko">
+  <div class="container">
 
-<div class="container">
+    <!-- (영문버전 제거) -->
 
-  <!-- 언어 -->
-  <div class="lang-switch">
-    <strong>KR</strong> | <a href="/en/">EN</a>
+    <!-- 히어로 섹션 -->
+    <section class="section">
+      <div class="hero-card">
+        <div class="hero-image">
+          <span class="badge">NO HIDDEN FEES</span>
+        </div>
+        <div class="hero-content">
+          <h1>디디운송</h1>
+          <p class="hero-desc">
+            견적 계산기를 사용하여 고객이 견적 내는 유일한 업체!<br />
+            투명한 가격으로 이사 하세요!
+          </p>
+          <div class="hero-features">
+            <div class="feature">🛡️ 전면 보험</div>
+            <div class="feature">⏰ 24시간 상담</div>
+            <div class="feature">🚚 카고 전문</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 차량 선택 -->
+    <section class="section">
+      <h2>차량 선택</h2>
+      <div class="card">
+        <div class="vehicle" data-vehicle="1톤 카고">🛻 1톤 카고 더블캡</div>
+        <div class="vehicle" data-vehicle="1톤 저상탑">🚚 1톤 저상탑</div>
+        <div class="vehicle" data-vehicle="1톤 카고+저상탑">🛻🚚 카고 + 저상탑</div>
+      </div>
+    </section>
+
+    <!-- 거리 입력 -->
+    <section class="section">
+      <h2>이동 거리</h2>
+      <div class="card">
+        <div class="sub">출발지 주소</div>
+        <input type="text" id="startAddress" class="address-input" placeholder="예: 서울특별시 강남구 테헤란로 152" />
+        <div class="sub" style="margin-top: 15px;">도착지 주소</div>
+        <input type="text" id="endAddress" class="address-input" placeholder="예: 경기도 부천시 상동로 87" />
+        <button id="calcDistance" class="calc-btn">거리 계산하기</button>
+        <div id="distanceResult" class="distance-result">
+          <div class="sub">계산된 거리: <b id="distanceText">주소를 입력해주세요</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 예약 정보 -->
+    <section class="section">
+      <h2>예약 정보</h2>
+      <div class="card">
+        <div class="sub">이사 날짜</div>
+        <div class="date-wrap">
+          <input type="date" id="moveDate" class="address-input date-input" required />
+          <span class="date-icon" aria-hidden="true"></span>
+        </div>
+
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;" />
+
+        <div class="sub">희망 시간대 (필수)</div>
+
+        <label class="option" style="cursor:pointer;">
+          <div>오전 9시 이전</div>
+          <input type="radio" name="timeSlot" value="before9" />
+        </label>
+
+        <label class="option" style="cursor:pointer;">
+          <div>오전 9~12시</div>
+          <input type="radio" name="timeSlot" value="9to12" />
+        </label>
+
+        <label class="option" style="cursor:pointer;">
+          <div>오후 12~3시</div>
+          <input type="radio" name="timeSlot" value="12to15" />
+        </label>
+
+        <div class="sub" style="margin-top: 10px;">
+          ※ 배차 상황에 따라 확정 시간은 상담 후 안내됩니다.
+        </div>
+      </div>
+    </section>
+
+    <!-- 추가 옵션 -->
+    <section class="section">
+      <h2>추가 옵션</h2>
+      <div class="card">
+
+        <!-- 이사 방식 -->
+        <div class="sub">이사 방식</div>
+
+        <div class="option">
+          <div>
+            일반이사
+            <div class="sub" style="margin:6px 0 0;">
+              (고객님이 전부 박스포장 해놓으셔야 합니다.)
+            </div>
+          </div>
+          <input type="radio" name="moveType" value="general" checked />
+        </div>
+
+        <div class="option">
+          <div>
+            반포장 이사
+            <div class="sub" style="margin:6px 0 0;">
+              (웬만한 짐은 다 박스 포장 해놓으시고 당일까지 사용하실 짐을 포장하실 박스를 최대 5개까지 제공합니다.)
+            </div>
+          </div>
+          <input type="radio" name="moveType" value="half" />
+        </div>
+
+        <hr />
+
+        <div class="sub">엘리베이터 없을 경우 (층당 7,000원)</div>
+        <div class="option">
+          출발지
+          <div class="option-controls">
+            <input type="checkbox" id="noFrom" />
+            <input type="number" id="fromFloor" min="1" value="1" />
+          </div>
+        </div>
+        <div class="option">
+          도착지
+          <div class="option-controls">
+            <input type="checkbox" id="noTo" />
+            <input type="number" id="toFloor" min="1" value="1" />
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="sub">가구·가전 (중복 선택)</div>
+
+        <div class="sub" style="margin-top:10px;">가전</div>
+        <label class="option" style="cursor:pointer;"><div>전자레인지</div><input type="checkbox" class="furniture" value="전자레인지" /></label>
+        <label class="option" style="cursor:pointer;"><div>공기청정기</div><input type="checkbox" class="furniture" value="공기청정기" /></label>
+        <label class="option" style="cursor:pointer;"><div>청소기</div><input type="checkbox" class="furniture" value="청소기" /></label>
+        <label class="option" style="cursor:pointer;"><div>TV/모니터</div><input type="checkbox" class="furniture" value="TV/모니터" /></label>
+        <label class="option" style="cursor:pointer;"><div>정수기 (분해, 설치 시 상담)</div><input type="checkbox" class="furniture" value="정수기(이동만)" /></label>
+        <label class="option" style="cursor:pointer;"><div>세탁기 (12kg 이하)</div><input type="checkbox" class="furniture" value="세탁기(12kg이하)" /></label>
+        <label class="option" style="cursor:pointer;"><div>건조기 (12kg 이하)</div><input type="checkbox" class="furniture" value="건조기(12kg이하)" /></label>
+        <label class="option" style="cursor:pointer;"><div>냉장고 (380L 이하)</div><input type="checkbox" class="furniture" value="냉장고(380L이하)" /></label>
+
+        <hr />
+
+        <div class="sub">가구</div>
+        <label class="option" style="cursor:pointer;"><div>의자</div><input type="checkbox" class="furniture" value="의자" /></label>
+        <label class="option" style="cursor:pointer;"><div>행거</div><input type="checkbox" class="furniture" value="행거" /></label>
+        <label class="option" style="cursor:pointer;"><div>협탁/사이드테이블(소형)</div><input type="checkbox" class="furniture" value="협탁/사이드테이블(소형)" /></label>
+        <label class="option" style="cursor:pointer;"><div>화장대(소형)</div><input type="checkbox" class="furniture" value="화장대(소형)" /></label>
+        <label class="option" style="cursor:pointer;"><div>책상/테이블(일반)</div><input type="checkbox" class="furniture" value="책상/테이블(일반)" /></label>
+        <label class="option" style="cursor:pointer;"><div>서랍장(3~5단)</div><input type="checkbox" class="furniture" value="서랍장(3~5단)" /></label>
+        <label class="option" style="cursor:pointer;"><div>책장(일반)</div><input type="checkbox" class="furniture" value="책장(일반)" /></label>
+        <label class="option" style="cursor:pointer;"><div>수납장/TV장(일반)</div><input type="checkbox" class="furniture" value="수납장/TV장(일반)" /></label>
+        <label class="option" style="cursor:pointer;"><div>소파 (2~3인)</div><input type="checkbox" class="furniture" value="소파(2~3인)" /></label>
+        <label class="option" style="cursor:pointer;"><div>침대 매트리스 (킹 제외)</div><input type="checkbox" class="furniture" value="침대매트리스(킹제외)" /></label>
+        <label class="option" style="cursor:pointer;"><div>침대 프레임 분해/조립</div><input type="checkbox" class="furniture" value="침대프레임(분해/조립)" /></label>
+
+        <div class="sub" style="margin-top:10px;">
+          ※ 대형·특수 가전/가구 및 분해·조립·설치 작업은 상담 후 확정됩니다.
+        </div>
+
+        <hr />
+
+        <div class="sub">짐양 (5호 이사박스 기준)</div>
+        <div class="option">1~5개 <input type="radio" name="load" value="1" /></div>
+        <div class="option">6~10개 <input type="radio" name="load" value="2" /></div>
+        <div class="option">11~15개 <input type="radio" name="load" value="3" /></div>
+        <div class="option">16~20개 <input type="radio" name="load" value="4" /></div>
+
+        <hr />
+
+        <div class="option">
+          짐 직접 나르기 어려울 시 체크해주세요.
+          <input type="checkbox" id="cantCarry" />
+        </div>
+        <div class="sub">※ 인부 추가 비용은 상담 시 안내</div>
+
+        <hr />
+
+        <div class="option">사다리차 (+80,000원) <input type="checkbox" id="ladder" /></div>
+        <div class="option">야간/주말 (무료) <input type="checkbox" id="night" /></div>
+
+        <div class="option">
+          동승 인원 있을 시 체크해주세요<br />
+          (1인 이상 시 네고 문의)
+          <input type="number" id="ride" min="0" value="0" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 견적 -->
+    <section class="section" id="quoteSection">
+      <h2>예상 견적</h2>
+      <div class="card" id="summary">조건을 선택하세요</div>
+
+      <div class="card price-card" id="priceCardStatic">
+        <div class="price" id="price">₩0</div>
+      </div>
+
+      <div class="cta-wrap">
+        <a href="#" class="cta sub" id="smsInquiry">📩 버튼을 눌러 예상견적 문자 보내기</a>
+        <a href="tel:01040941666" class="cta primary">전화 문의하기</a>
+      </div>
+    </section>
+
+    <!-- 푸터 -->
+    <section class="section">
+      <div class="card sub">
+        사업자 번호: 876-28-01550<br />
+        주소: 경기도 부천시 상동로 87, 803-102호 워크네시아<br />
+        (상동, 가나베스트타운 쓰리)<br />
+        개인정보 책임자, 대표자명: 이상빈
+      </div>
+    </section>
   </div>
 
-  <!-- 히어로 -->
-  <section class="section">
-    <div class="hero-card">
-      <div class="hero-image">
-        <span class="badge">NO HIDDEN FEES</span>
-      </div>
-      <div class="hero-content">
-        <h1>디디운송</h1>
-        <p class="hero-desc">
-          견적 계산기를 사용하여 고객이 견적 내는 유일한 업체!<br>
-          투명한 가격으로 이사 하세요!
-        </p>
-        <div class="hero-features">
-          <div class="feature">🛡️ 전면 보험</div>
-          <div class="feature">⏰ 24시간 상담</div>
-          <div class="feature">🚚 카고 전문</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 차량 -->
-  <section class="section">
-    <h2>차량 선택</h2>
-    <div class="card">
-      <div class="vehicle" data-vehicle="1톤 카고">🛻 1톤 카고 더블캡</div>
-      <div class="vehicle" data-vehicle="1톤 저상탑">🚚 1톤 저상탑</div>
-      <div class="vehicle" data-vehicle="1톤 카고+저상탑">🛻🚚 카고 + 저상탑</div>
-    </div>
-  </section>
-
-  <!-- 주소 입력으로 거리 자동 계산 -->
-  <section class="section">
-    <h2>이동 거리</h2>
-    <div class="card">
-      <div class="sub">출발지 주소</div>
-      <input type="text" id="startAddress" class="address-input" placeholder="예: 서울특별시 강남구 테헤란로 152">
-
-      <div class="sub" style="margin-top: 15px;">도착지 주소</div>
-      <input type="text" id="endAddress" class="address-input" placeholder="예: 경기도 부천시 상동로 87">
-
-      <button id="calcDistance" class="calc-btn">거리 계산하기</button>
-
-      <div id="distanceResult" class="distance-result">
-        <div class="sub">계산된 거리: <b id="distanceText">주소를 입력해주세요</b></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 예약 정보 (A안: 거리 아래) -->
-  <section class="section">
-    <h2>예약 정보</h2>
-    <div class="card">
-
-      <div class="sub">이사 날짜</div>
-
-<div class="date-wrap">
-  <input type="date" id="moveDate" class="address-input date-input" required>
-  <span class="date-icon" aria-hidden="true"></span>
-</div>
-
-      <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;">
-
-      <div class="sub">희망 시간대 (필수)</div>
-
-      <label class="option" style="cursor:pointer;">
-        <div>오전 9시 이전</div>
-        <input type="radio" name="timeSlot" value="before9">
-      </label>
-
-      <label class="option" style="cursor:pointer;">
-        <div>오전 9~12시</div>
-        <input type="radio" name="timeSlot" value="9to12">
-      </label>
-
-      <label class="option" style="cursor:pointer;">
-        <div>오후 12~3시</div>
-        <input type="radio" name="timeSlot" value="12to15">
-      </label>
-
-      <div class="sub" style="margin-top: 10px;">
-        ※ 배차 상황에 따라 확정 시간은 상담 후 안내됩니다.
-      </div>
-
-    </div>
-  </section>
-
-  <!-- 옵션 -->
-  <section class="section">
-    <h2>추가 옵션</h2>
-    <div class="card">
-
-      <!-- 이사 방식 -->
-      <div class="sub">이사 방식</div>
-
-      <div class="option">
-        <div>
-          일반이사
-          <div class="sub" style="margin:6px 0 0;">
-            (고객님이 전부 박스포장 해놓으셔야 합니다.)
-          </div>
-        </div>
-        <input type="radio" name="moveType" value="general" checked>
-      </div>
-
-      <div class="option">
-        <div>
-          반포장 이사
-          <div class="sub" style="margin:6px 0 0;">
-            (웬만한 짐은 다 박스 포장 해놓으시고 당일까지 사용하실 짐을 포장하실 박스를 최대 5개까지 제공합니다.)
-          </div>
-        </div>
-        <input type="radio" name="moveType" value="half">
-      </div>
-
-      <hr>
-
-      <div class="sub">엘리베이터 없을 경우 (층당 7,000원)</div>
-
-      <div class="option">
-        출발지
-        <div class="option-controls">
-          <input type="checkbox" id="noFrom">
-          <input type="number" id="fromFloor" min="1" value="1">
-        </div>
-      </div>
-
-      <div class="option">
-        도착지
-        <div class="option-controls">
-          <input type="checkbox" id="noTo">
-          <input type="number" id="toFloor" min="1" value="1">
-        </div>
-      </div>
-
-      <hr>
-
-<div class="sub">가구·가전 (중복 선택)</div>
-
-<!-- ✅ 가전 -->
-<div class="sub" style="margin-top:10px;">가전</div>
-
-<label class="option" style="cursor:pointer;">
-  <div>전자레인지</div>
-  <input type="checkbox" class="furniture" value="전자레인지">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>공기청정기</div>
-  <input type="checkbox" class="furniture" value="공기청정기">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>청소기</div>
-  <input type="checkbox" class="furniture" value="청소기">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>TV/모니터</div>
-  <input type="checkbox" class="furniture" value="TV/모니터">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>정수기 (분해, 설치 시 상담)</div>
-  <input type="checkbox" class="furniture" value="정수기(이동만)">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>세탁기 (12kg 이하)</div>
-  <input type="checkbox" class="furniture" value="세탁기(12kg이하)">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>건조기 (12kg 이하)</div>
-  <input type="checkbox" class="furniture" value="건조기(12kg이하)">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>냉장고 (380L 이하)</div>
-  <input type="checkbox" class="furniture" value="냉장고(380L이하)">
-</label>
-
-<hr>
-
-<!-- ✅ 가구 -->
-<div class="sub">가구</div>
-
-<label class="option" style="cursor:pointer;">
-  <div>의자</div>
-  <input type="checkbox" class="furniture" value="의자">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>행거</div>
-  <input type="checkbox" class="furniture" value="행거">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>협탁/사이드테이블(소형)</div>
-  <input type="checkbox" class="furniture" value="협탁/사이드테이블(소형)">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>화장대(소형)</div>
-  <input type="checkbox" class="furniture" value="화장대(소형)">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>책상/테이블(일반)</div>
-  <input type="checkbox" class="furniture" value="책상/테이블(일반)">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>서랍장(3~5단)</div>
-  <input type="checkbox" class="furniture" value="서랍장(3~5단)">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>책장(일반)</div>
-  <input type="checkbox" class="furniture" value="책장(일반)">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>수납장/TV장(일반)</div>
-  <input type="checkbox" class="furniture" value="수납장/TV장(일반)">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>소파 (2~3인)</div>
-  <input type="checkbox" class="furniture" value="소파(2~3인)">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>침대 매트리스 (킹 제외)</div>
-  <input type="checkbox" class="furniture" value="침대매트리스(킹제외)">
-</label>
-
-<label class="option" style="cursor:pointer;">
-  <div>침대 프레임 분해/조립</div>
-  <input type="checkbox" class="furniture" value="침대프레임(분해/조립)">
-</label>
-
-<div class="sub" style="margin-top:10px;">
-  ※ 대형·특수 가전/가구 및 분해·조립·설치 작업은 상담 후 확정됩니다.
-</div>
-
-
-      <hr>
-
-      <div class="sub">짐양 (5호 이사박스 기준)</div>
-      <div class="option">1~5개 <input type="radio" name="load" value="1"></div>
-      <div class="option">6~10개 <input type="radio" name="load" value="2"></div>
-      <div class="option">11~15개 <input type="radio" name="load" value="3"></div>
-      <div class="option">16~20개 <input type="radio" name="load" value="4"></div>
-
-      <hr>
-
-      <div class="option">
-        짐 직접 나르기 어려울 시 체크해주세요.
-        <input type="checkbox" id="cantCarry">
-      </div>
-      <div class="sub">※ 인부 추가 비용은 상담 시 안내</div>
-
-      <hr>
-
-      <div class="option">사다리차 (+80,000원) <input type="checkbox" id="ladder"></div>
-      <div class="option">야간/주말 (무료) <input type="checkbox" id="night"></div>
-
-      <div class="option">
-        동승 인원 있을 시 체크해주세요<br>
-        (1인 이상 시 네고 문의)
-        <input type="number" id="ride" min="0" value="0">
-      </div>
-
-    </div>
-  </section>
-
-  <!-- 견적 -->
-  <section class="section" id="quoteSection">
-    <h2>예상 견적</h2>
-
-    <div class="card" id="summary">조건을 선택하세요</div>
-
-    <!-- ✅ 여기 가격카드는 "원래 위치"용 (고정/정적) -->
-    <div class="card price-card" id="priceCardStatic">
-      <div class="price" id="price">₩0</div>
-    </div>
-
-    <div class="cta-wrap">
-      <a href="#" class="cta sub" id="smsInquiry">
-        📩 버튼을 눌러 예상견적 문자 보내기
-      </a>
-      <a href="tel:01040941666" class="cta primary">
-        전화 문의하기
-      </a>
-    </div>
-  </section>
-
-  <!-- 푸터 -->
-  <section class="section">
-    <div class="card sub">
-      사업자 번호: 876-28-01550<br>
-      주소: 경기도 부천시 상동로 87, 803-102호 워크네시아<br>
-      (상동, 가나베스트타운 쓰리)<br>
-      개인정보 책임자, 대표자명: 이상빈
-    </div>
-  </section>
-
-</div>
-
-<!-- ✅ 하단 플로팅 가격바: 따라다니다가 예상견적 섹션 보이면 자동 숨김 -->
-<div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
-  <div class="sticky-price" id="stickyPrice">₩0</div>
-</div>
-
-<script src="/assets/js/app.js" defer></script>
+  <!-- 하단 플로팅 가격바 -->
+  <div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
+    <div class="sticky-price" id="stickyPrice">₩0</div>
+  </div>
+
+  <!-- Load Supabase, config, and app script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/config.js"></script>
+  <script src="/assets/js/app.js" defer></script>
 </body>
 </html>

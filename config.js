@@ -1,12 +1,15 @@
-// config.js (루트에 생성)
-window.DD_RUN_ITEMS = [
-  { src: "https://example.com/run1.jpg", kr: "서울 관악→강동 / 12–15시", en: "Gwanak→Gangdong / 12–3 PM" },
-  { src: "https://example.com/run2.jpg", kr: "1톤 탑차 / 엘베 有",        en: "1-ton box / Elevator" },
-  { src: "https://example.com/run3.jpg", kr: "동승 0 / 도움 없음",        en: "Ride-along 0 / No helper" }
-];
+// /config.js
+// ✅ 배포/로컬 공통 설정
+// ⚠️ 로컬 테스트(5500): 카카오 개발자센터 Web 플랫폼에
+//    http://127.0.0.1:5500, http://localhost:5500 등록 필요
 
-// 한국어 폼
-window.DD_GFORM_URL_KR = "https://docs.google.com/forms/d/e/<KR_FORM_ID>/viewform?embedded=true";
+window.DDLOGI_CONFIG = {
+  supabaseUrl: "https://hsgoaqhqwesfhxehyokb.supabase.co",
+  supabaseKey: "sb_publishable_DbJF69dpT9Qly2w5LHKqhQ_xS9NAAfZ",
 
-// 영어 폼
-window.DD_GFORM_URL_EN = "https://docs.google.com/forms/d/e/15gyFFaHJKfuQaJ6z4sFu3KzFB832Qj9rP0PnkG_UIy0/viewform?embedded=true";
+  timeSlots: [
+    { value: "before9", labelKR: "9시 이전" },
+    { value: "9to12",   labelKR: "9~12시" },
+    { value: "12to15",  labelKR: "12~3시" }
+  ]
+};

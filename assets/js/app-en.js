@@ -4,15 +4,13 @@
    + Reservation (date/time slot) required
 ================================================== */
 
+// Calculator state
 const state = {
   vehicle: null,
   distance: 0,
-  moveType: "general", // general | half
-
-  // ✅ Reservation
-  moveDate: "",
-  timeSlot: "",
-
+  moveType: 'general',
+  moveDate: '',
+  timeSlot: '',
   noFrom: false,
   fromFloor: 1,
   noTo: false,
@@ -25,211 +23,220 @@ const state = {
   load: null
 };
 
-/* ===== Vehicle Types ===== */
+/* ===== Vehicle types ===== */
 const VEHICLE_MAP = {
-  "1-Ton Cargo": "truck",
-  "1-Ton Low-Top": "van",
-  "Cargo+Low-Top": "lorry"
+  '1-Ton Cargo': 'truck',
+  '1-Ton Low-Top': 'van',
+  'Cargo+Low-Top': 'lorry'
 };
 
-const BASE_PRICE = { truck: 50000, van: 50000, lorry: 90000 };
-const PER_KM_PRICE = { truck: 1500, van: 1500, lorry: 1500 };
+const BASE_PRICE   = { truck: 50000, van: 50000, lorry: 90000 };
+const PER_KM_PRICE = { truck: 1500,  van: 1500,  lorry: 1500 };
 
-/* ===== Furniture Pricing ===== */
+/* ===== Furniture pricing (calculation only) ===== */
 const FURNITURE_PRICE = {
-  "Small": { label: "Small (chairs, side tables)", price: 20000 },
-  "Medium": { label: "Medium (tables, small fridge)", price: 40000 },
-  "Large": { label: "Large (wardrobe, washer, dryer)", price: 70000 }
+  Small:  { label: 'Small (chairs, side tables)',        price: 20000 },
+  Medium: { label: 'Medium (tables, small fridge)',       price: 40000 },
+  Large:  { label: 'Large (wardrobe, washer, dryer)',     price: 70000 }
 };
 
-/* ===== Load Pricing: General vs Semi-Packing ===== */
+/* ===== Load volume pricing ===== */
 const LOAD_MAP_GENERAL = {
-  "1": { label: "1–5 boxes", price: 10000 },
-  "2": { label: "6–10 boxes", price: 20000 },
-  "3": { label: "11–15 boxes", price: 30000 },
-  "4": { label: "16–20 boxes", price: 40000 }
+  '1': { label: '1–5 boxes',  price: 10000 },
+  '2': { label: '6–10 boxes', price: 20000 },
+  '3': { label: '11–15 boxes',price: 30000 },
+  '4': { label: '16–20 boxes',price: 40000 }
 };
 
 const LOAD_MAP_HALF = {
-  "1": { label: "1–5 boxes", price: 20000 },
-  "2": { label: "6–10 boxes", price: 35000 },
-  "3": { label: "11–15 boxes", price: 50000 },
-  "4": { label: "16–20 boxes", price: 65000 }
+  '1': { label: '1–5 boxes',  price: 20000 },
+  '2': { label: '6–10 boxes', price: 35000 },
+  '3': { label: '11–15 boxes',price: 50000 },
+  '4': { label: '16–20 boxes',price: 65000 }
 };
 
 function getLoadMap() {
-  return state.moveType === "half" ? LOAD_MAP_HALF : LOAD_MAP_GENERAL;
+  return state.moveType === 'half' ? LOAD_MAP_HALF : LOAD_MAP_GENERAL;
 }
 
 function moveTypeLabel() {
-  if (state.moveType === "half") {
-    return `Semi-Packing Move (Please pack most items. We provide up to 5 boxes for items you use until moving day.)`;
+  if (state.moveType === 'half') {
+    return 'Semi-Packing Move (Please pack most items; we provide up to 5 boxes for items you use until moving day.)';
   }
-  return `General Move (You must pack all items into boxes in advance.)`;
+  return 'General Move (You must pack all items into boxes in advance.)';
 }
 
 /* ✅ Time slot label */
 function formatTimeSlotEN(v) {
-  if (!v) return "Not selected";
-  if (v === "before9") return "Before 9 AM";
-  if (v === "9to12") return "9 AM – 12 PM";
-  if (v === "12to15") return "12 PM – 3 PM";
-  return "Not selected";
+  if (!v) return 'Not selected';
+  if (v === 'before9') return 'Before 9 AM';
+  if (v === '9to12')   return '9 AM – 12 PM';
+  if (v === '12to15')  return '12 PM – 3 PM';
+  return 'Not selected';
 }
 
-/* ===== DOM ===== */
-const priceEl = document.getElementById("price");
-const summaryEl = document.getElementById("summary");
+/* ===== DOM elements ===== */
+const priceEl      = document.getElementById('price');
+const summaryEl    = document.getElementById('summary');
+const stickyBarEl  = document.getElementById('stickyPriceBar');
+const stickyPriceEl= document.getElementById('stickyPrice');
+const quoteSection = document.getElementById('quoteSection');
 
-const stickyBarEl = document.getElementById("stickyPriceBar");
-const stickyPriceEl = document.getElementById("stickyPrice");
-const quoteSectionEl = document.getElementById("quoteSection");
+const distanceText = document.getElementById('distanceText');
+const startAddress = document.getElementById('startAddress');
+const endAddress   = document.getElementById('endAddress');
+const calcDistanceBtn = document.getElementById('calcDistance');
 
-const distanceText = document.getElementById("distanceText");
-const startAddressInput = document.getElementById("startAddress");
-const endAddressInput = document.getElementById("endAddress");
-const calcDistanceBtn = document.getElementById("calcDistance");
+const moveDateEl   = document.getElementById('moveDate');
+const timeSlotEls  = document.querySelectorAll('input[name="timeSlot"]');
 
-// ✅ Reservation DOM
-const moveDateEl = document.getElementById("moveDate");
-const timeSlotEls = document.querySelectorAll("input[name='timeSlot']");
-
-const noFromEl = document.getElementById("noFrom");
-const noToEl = document.getElementById("noTo");
-const fromFloorEl = document.getElementById("fromFloor");
-const toFloorEl = document.getElementById("toFloor");
-const ladderEl = document.getElementById("ladder");
-const nightEl = document.getElementById("night");
-const cantCarryEl = document.getElementById("cantCarry");
-const rideEl = document.getElementById("ride");
+const noFromEl     = document.getElementById('noFrom');
+const noToEl       = document.getElementById('noTo');
+const fromFloorEl  = document.getElementById('fromFloor');
+const toFloorEl    = document.getElementById('toFloor');
+const ladderEl     = document.getElementById('ladder');
+const nightEl      = document.getElementById('night');
+const cantCarryEl  = document.getElementById('cantCarry');
+const rideEl       = document.getElementById('ride');
 
 let geocoder;
 let lastPrice = 0;
 
-window.addEventListener("DOMContentLoaded", () => {
-  const first = document.querySelector(".vehicle");
-  if (first) {
-    first.classList.add("active");
-    state.vehicle = first.dataset.vehicle;
+/* ===== Utility ===== */
+function toNumberSafe(v, fallback = 0) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function getSelectedFurnitureLabels() {
+  if (!state.furniture.length) return 'None';
+  return state.furniture.map(v => FURNITURE_PRICE[v]?.label || v).join(', ');
+}
+
+/* =========================
+   DOM initialization
+========================= */
+window.addEventListener('DOMContentLoaded', () => {
+  // Auto select first vehicle
+  const firstVehicle = document.querySelector('.vehicle');
+  if (firstVehicle) {
+    firstVehicle.classList.add('active');
+    state.vehicle = firstVehicle.dataset.vehicle;
   }
 
-  document.querySelectorAll("input[name='moveType']").forEach(el => {
-    el.addEventListener("change", (e) => {
+  document.querySelectorAll('input[name="moveType"]').forEach(el => {
+    el.addEventListener('change', e => {
       state.moveType = e.target.value;
       calc();
     });
   });
 
-  document.querySelectorAll(".vehicle").forEach(v => {
-    v.addEventListener("click", () => {
-      document.querySelectorAll(".vehicle").forEach(x => x.classList.remove("active"));
-      v.classList.add("active");
+  document.querySelectorAll('.vehicle').forEach(v => {
+    v.addEventListener('click', () => {
+      document.querySelectorAll('.vehicle').forEach(x => x.classList.remove('active'));
+      v.classList.add('active');
       state.vehicle = v.dataset.vehicle;
       calc();
     });
   });
 
-  // ✅ Reservation events
   if (moveDateEl) {
-    moveDateEl.addEventListener("change", (e) => {
-      state.moveDate = e.target.value || "";
+    moveDateEl.addEventListener('change', e => {
+      state.moveDate = e.target.value || '';
       calc();
     });
   }
 
   if (timeSlotEls && timeSlotEls.length) {
     timeSlotEls.forEach(el => {
-      el.addEventListener("change", (e) => {
-        state.timeSlot = e.target.value || "";
+      el.addEventListener('change', e => {
+        state.timeSlot = e.target.value || '';
         calc();
       });
     });
   }
 
-  if (noFromEl) noFromEl.addEventListener("change", e => { state.noFrom = e.target.checked; calc(); });
-  if (noToEl) noToEl.addEventListener("change", e => { state.noTo = e.target.checked; calc(); });
-  if (fromFloorEl) fromFloorEl.addEventListener("input", e => { state.fromFloor = +e.target.value || 1; calc(); });
-  if (toFloorEl) toFloorEl.addEventListener("input", e => { state.toFloor = +e.target.value || 1; calc(); });
-  if (ladderEl) ladderEl.addEventListener("change", e => { state.ladder = e.target.checked; calc(); });
-  if (nightEl) nightEl.addEventListener("change", e => { state.night = e.target.checked; calc(); });
-  if (cantCarryEl) cantCarryEl.addEventListener("change", e => { state.cantCarry = e.target.checked; calc(); });
-  if (rideEl) rideEl.addEventListener("input", e => { state.ride = +e.target.value || 0; calc(); });
+  if (noFromEl) noFromEl.addEventListener('change', e => { state.noFrom = e.target.checked; calc(); });
+  if (noToEl)   noToEl.addEventListener('change',   e => { state.noTo   = e.target.checked; calc(); });
+  if (fromFloorEl) fromFloorEl.addEventListener('input', e => { state.fromFloor = toNumberSafe(e.target.value,1) || 1; calc(); });
+  if (toFloorEl)   toFloorEl.addEventListener('input',   e => { state.toFloor   = toNumberSafe(e.target.value,1) || 1; calc(); });
+  if (ladderEl)    ladderEl.addEventListener('change',   e => { state.ladder = e.target.checked; calc(); });
+  if (nightEl)     nightEl.addEventListener('change',    e => { state.night  = e.target.checked; calc(); });
+  if (cantCarryEl) cantCarryEl.addEventListener('change',e => { state.cantCarry = e.target.checked; calc(); });
+  if (rideEl)      rideEl.addEventListener('input',      e => { state.ride   = toNumberSafe(e.target.value,0); calc(); });
 
-  document.querySelectorAll(".furniture").forEach(el => {
-    el.addEventListener("change", () => {
-      state.furniture = [...document.querySelectorAll(".furniture:checked")].map(x => x.value);
+  document.querySelectorAll('.furniture').forEach(el => {
+    el.addEventListener('change', e => {
+      state.furniture = [...document.querySelectorAll('.furniture:checked')].map(x => x.value);
       calc();
     });
   });
 
-  document.querySelectorAll("input[name='load']").forEach(el => {
-    el.addEventListener("change", e => {
+  document.querySelectorAll('input[name="load"]').forEach(el => {
+    el.addEventListener('change', e => {
       state.load = e.target.value;
       calc();
     });
   });
 
-  // Floating bar hide/show
-  if (quoteSectionEl && stickyBarEl) {
-    const io = new IntersectionObserver((entries) => {
+  if (quoteSection && stickyBarEl) {
+    const io = new IntersectionObserver(entries => {
       const entry = entries[0];
       if (entry.isIntersecting) {
-        stickyBarEl.style.display = "none";
+        stickyBarEl.style.display = 'none';
       } else {
-        if (state.vehicle) stickyBarEl.style.display = "block";
+        if (state.vehicle) stickyBarEl.style.display = 'block';
       }
     }, { threshold: 0.12 });
-
-    io.observe(quoteSectionEl);
+    io.observe(quoteSection);
   }
 
-  if (typeof kakao !== "undefined" && kakao.maps) {
+  if (typeof kakao !== 'undefined' && kakao.maps) {
     kakao.maps.load(() => {
       if (kakao.maps.services) {
         geocoder = new kakao.maps.services.Geocoder();
         calc();
       } else {
-        console.error("Kakao Map services not loaded. Check libraries=services.");
+        console.error('Kakao Map services not loaded. Check libraries=services.');
         calc();
       }
     });
   } else {
-    console.error("Kakao Map API not loaded.");
+    console.error('Kakao Map API not loaded.');
     calc();
   }
 });
 
-/* ===== Distance Button ===== */
+/* =========================
+   Distance calculation button
+========================= */
 if (calcDistanceBtn) {
-  calcDistanceBtn.addEventListener("click", async () => {
-    const start = (startAddressInput?.value || "").trim();
-    const end = (endAddressInput?.value || "").trim();
-
+  calcDistanceBtn.addEventListener('click', async () => {
+    const start = (startAddress?.value || '').trim();
+    const end   = (endAddress?.value   || '').trim();
     if (!start || !end) {
-      alert("Please enter both pickup and drop-off addresses.");
+      alert('Please enter both pickup and drop-off addresses.');
       return;
     }
     if (!geocoder) {
-      alert("Kakao Map API not loaded. Please refresh the page.");
+      alert('Kakao Map API not loaded. Please refresh.');
       return;
     }
 
-    calcDistanceBtn.textContent = "Calculating...";
+    calcDistanceBtn.textContent = 'Calculating...';
     calcDistanceBtn.disabled = true;
 
     try {
       const startCoord = await getCoordinates(start);
-      const endCoord = await getCoordinates(end);
-
-      const distance = calculateDistance(startCoord, endCoord);
-      state.distance = Math.round(distance);
-
+      const endCoord   = await getCoordinates(end);
+      const distance   = calculateDistance(startCoord, endCoord);
+      state.distance   = Math.round(distance);
       if (distanceText) distanceText.textContent = `${state.distance} km`;
       calc();
-    } catch (error) {
-      alert(error.message || "Address not found. Please enter a valid address.");
+    } catch (err) {
+      alert(err.message || 'Address not found. Please enter a valid address.');
     } finally {
-      calcDistanceBtn.textContent = "Calculate Distance";
+      calcDistanceBtn.textContent = 'Calculate Distance';
       calcDistanceBtn.disabled = false;
     }
   });
@@ -254,53 +261,49 @@ function calculateDistance(coord1, coord2) {
   const R = 6371;
   const dLat = toRad(coord2.lat - coord1.lat);
   const dLng = toRad(coord2.lng - coord1.lng);
-
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(coord1.lat)) *
-    Math.cos(toRad(coord2.lat)) *
-    Math.sin(dLng / 2) *
-    Math.sin(dLng / 2);
-
+    Math.cos(toRad(coord1.lat)) * Math.cos(toRad(coord2.lat)) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
 
-function toRad(deg) { return deg * (Math.PI / 180); }
+function toRad(deg) {
+  return deg * (Math.PI / 180);
+}
 
 /* ===== SMS body ===== */
 function buildSmsBody(priceNumber) {
-  const startAddr = (startAddressInput?.value || "").trim();
-  const endAddr = (endAddressInput?.value || "").trim();
+  const startAddr = (startAddress?.value || '').trim();
+  const endAddr   = (endAddress?.value   || '').trim();
 
-  const vehicleLabel = state.vehicle || "Not selected";
-  const moveLabel = moveTypeLabel();
+  const vehicleLabel = state.vehicle || 'Not selected';
+  const moveLabel    = moveTypeLabel();
 
-  const stairsFrom = state.noFrom ? `${state.fromFloor} floor(s) (no elevator)` : "Elevator available";
-  const stairsTo = state.noTo ? `${state.toFloor} floor(s) (no elevator)` : "Elevator available";
+  const stairsFrom = state.noFrom ? `${state.fromFloor} floor(s) (no elevator)` : 'Elevator available';
+  const stairsTo   = state.noTo   ? `${state.toFloor} floor(s) (no elevator)`   : 'Elevator available';
 
-  const furnitureLabel = state.furniture.length
-    ? state.furniture.map(v => FURNITURE_PRICE[v]?.label || v).join(", ")
-    : "None";
+  const furnitureLabel = state.furniture.length ? getSelectedFurnitureLabels() : 'None';
 
-  const loadMap = getLoadMap();
-  const loadLabel = state.load ? (loadMap[state.load]?.label || "Not selected") : "Not selected";
+  const loadMap  = getLoadMap();
+  const loadLabel= state.load && loadMap[state.load] ? loadMap[state.load].label : 'Not selected';
 
-  const ladderLabel = state.ladder ? "Yes" : "No";
-  const nightLabel = state.night ? "Yes" : "No";
-  const rideLabel = state.ride > 0 ? `${state.ride} person(s)` : "None";
-  const laborLabel = state.cantCarry ? "Required (confirm)" : "Not required";
+  const ladderLabel = state.ladder ? 'Yes' : 'No';
+  const nightLabel  = state.night  ? 'Yes' : 'No';
+  const rideLabel   = state.ride > 0 ? `${state.ride} person(s)` : 'None';
+  const laborLabel  = state.cantCarry ? 'Required (confirm)' : 'Not required';
 
-  const distanceLabel = state.distance > 0 ? `${state.distance}km` : "Not calculated";
+  const distanceLabel = state.distance > 0 ? `${state.distance}km` : 'Not calculated';
 
-  const scheduleLabel = state.moveDate ? state.moveDate : "Not selected";
+  const scheduleLabel = state.moveDate || 'Not selected';
   const timeSlotLabel = formatTimeSlotEN(state.timeSlot);
 
-  const disclaimer = "※ The estimated price may change depending on on-site conditions (load size, route, parking, extra work).";
+  const disclaimer = '※ The estimated price may change depending on on-site conditions (load size, route, parking, extra work).';
 
   const lines = [
-    "DD Logistics estimate inquiry.",
-    "",
+    'DD Logistics estimate inquiry.',
+    '',
     `Move type: ${moveLabel}`,
     `Vehicle: ${vehicleLabel}`,
     `Distance: ${distanceLabel}`,
@@ -311,40 +314,42 @@ function buildSmsBody(priceNumber) {
     `Stairs: Pickup ${stairsFrom} / Drop-off ${stairsTo}`,
     `Furniture: ${furnitureLabel}`,
     `Load: ${loadLabel}`,
-    "",
+    '',
     `Ladder truck: ${ladderLabel}`,
     `Night/Weekend: ${nightLabel}`,
     `Passengers: ${rideLabel}`,
     `Labor help: ${laborLabel}`,
-    "",
+    '',
     `Estimated price: ₩${Number(priceNumber).toLocaleString()}`,
     disclaimer,
-    "",
-    "Please advise."
+    '',
+    'Please advise.'
   ].filter(Boolean);
 
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
-/* ===== Calc ===== */
+/* ===== Calculation ===== */
 function calc() {
   if (!state.vehicle) return;
-
   const key = VEHICLE_MAP[state.vehicle];
-  let price = BASE_PRICE[key] + (state.distance * PER_KM_PRICE[key]);
+  if (!key) return;
 
+  let price  = BASE_PRICE[key] + state.distance * PER_KM_PRICE[key];
   price += ((state.noFrom ? state.fromFloor : 0) + (state.noTo ? state.toFloor : 0)) * 7000;
   price += state.furniture.reduce((sum, v) => sum + (FURNITURE_PRICE[v]?.price || 0), 0);
 
   const loadMap = getLoadMap();
   if (state.load) price += loadMap[state.load].price;
-
   if (state.ladder) price += 80000;
-  price += (state.ride * 20000);
+  price += state.ride * 20000;
 
   lastPrice = price;
 
   if (summaryEl) {
+    const furnitureLabel = state.furniture.length ? getSelectedFurnitureLabels() : 'None';
+    const loadLabel = state.load ? (loadMap[state.load]?.label || 'Not selected') : 'Not selected';
+
     summaryEl.innerHTML = `
       <b>🚚 Moving Conditions Summary</b><br><br>
 
@@ -353,63 +358,48 @@ function calc() {
       ▪ Vehicle: ${state.vehicle}<br>
       ▪ Distance: ${state.distance > 0 ? state.distance + ' km' : 'Not calculated'}<br><br>
 
-      ▪ Date: ${state.moveDate ? state.moveDate : "Not selected"}<br>
+      ▪ Date: ${state.moveDate ? state.moveDate : 'Not selected'}<br>
       ▪ Preferred time slot: ${formatTimeSlotEN(state.timeSlot)}<br><br>
 
       ▪ Stairs:<br>
-      &nbsp;&nbsp;- Pickup: ${state.noFrom ? `${state.fromFloor} floor(s) (no elevator)` : "Elevator available"}<br>
-      &nbsp;&nbsp;- Drop-off: ${state.noTo ? `${state.toFloor} floor(s) (no elevator)` : "Elevator available"}<br><br>
+      &nbsp;&nbsp;- Pickup: ${state.noFrom ? `${state.fromFloor} floor(s) (no elevator)` : 'Elevator available'}<br>
+      &nbsp;&nbsp;- Drop-off: ${state.noTo ? `${state.toFloor} floor(s) (no elevator)` : 'Elevator available'}<br><br>
 
-      ▪ Furniture: ${
-        state.furniture.length
-          ? state.furniture.map(v => (FURNITURE_PRICE[v]?.label || v)).join(", ")
-          : "None"
-      }<br>
+      ▪ Furniture: ${furnitureLabel}<br>
+      ▪ Load volume: ${loadLabel}<br><br>
 
-      ▪ Load volume: ${state.load ? (loadMap[state.load]?.label || "Not selected") : "Not selected"}<br><br>
+      ▪ Ladder truck: ${state.ladder ? 'Yes' : 'No'}<br>
+      ▪ Night/Weekend: ${state.night ? 'Yes' : 'No'}<br>
+      ▪ Passengers: ${state.ride > 0 ? `${state.ride} person(s)` : 'None'}<br><br>
 
-      ▪ Ladder truck: ${state.ladder ? "Yes" : "No"}<br>
-      ▪ Night/Weekend: ${state.night ? "Yes" : "No"}<br>
-      ▪ Passengers: ${state.ride > 0 ? `${state.ride} person(s)` : "None"}<br><br>
-
-      ▪ Labor assistance: ${state.cantCarry ? "Required (to be confirmed)" : "Not required"}
+      ▪ Labor assistance: ${state.cantCarry ? 'Required (to be confirmed)' : 'Not required'}
     `;
   }
 
   const formatted = `₩${price.toLocaleString()}`;
   if (priceEl) priceEl.innerText = formatted;
   if (stickyPriceEl) stickyPriceEl.innerText = formatted;
-
-  if (stickyBarEl && quoteSectionEl) {
-    const rect = quoteSectionEl.getBoundingClientRect();
+  if (stickyBarEl && quoteSection) {
+    const rect = quoteSection.getBoundingClientRect();
     const quoteVisible = rect.top < window.innerHeight * 0.88 && rect.bottom > 0;
-    stickyBarEl.style.display = quoteVisible ? "none" : "block";
+    stickyBarEl.style.display = quoteVisible ? 'none' : 'block';
   }
 }
 
 /* ===== SMS ===== */
-const smsInquiryBtn = document.getElementById("smsInquiry");
+const smsInquiryBtn = document.getElementById('smsInquiry');
 if (smsInquiryBtn) {
-  smsInquiryBtn.addEventListener("click", (e) => {
+  smsInquiryBtn.addEventListener('click', e => {
     e.preventDefault();
-
-    if (!state.vehicle) {
-      alert("Please select a vehicle first.");
-      return;
-    }
-
-    // ✅ Reservation required
     if (!state.moveDate) {
-      alert("Please select the moving date.");
+      alert('Please select the moving date.');
       return;
     }
-
     if (!state.timeSlot) {
-      alert("Please select the preferred time slot.");
+      alert('Please select the preferred time slot.');
       return;
     }
-
     const body = buildSmsBody(lastPrice);
-    location.href = "sms:01040941666?body=" + encodeURIComponent(body);
+    location.href = 'sms:01040941666?body=' + encodeURIComponent(body);
   });
 }

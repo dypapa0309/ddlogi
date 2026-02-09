@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>디디운송 | 확정 슬롯 관리자</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body data-lang="ko">
+  <div class="container">
+    <section class="section">
+      <div class="hero-card">
+        <div class="hero-content">
+          <h1>확정 슬롯 관리자</h1>
+          <p class="hero-desc">날짜/시간대 확정 등록 및 취소 관리</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 로그인 카드 -->
+    <section class="section" id="loginSection">
+      <h2>관리자 로그인</h2>
+      <div class="card">
+        <div class="sub">이메일</div>
+        <input type="email" id="adminEmail" class="address-input" placeholder="admin@email.com" />
+
+        <div class="sub" style="margin-top: 12px;">비밀번호</div>
+        <input type="password" id="adminPassword" class="address-input" placeholder="••••••••" />
+
+        <button id="loginBtn" class="calc-btn" style="margin-top: 14px;">로그인</button>
+        <div class="sub" id="loginMsg" style="margin-top: 10px;"></div>
+      </div>
+    </section>
+
+    <!-- 관리자 패널 -->
+    <section class="section" id="adminSection" style="display:none;">
+      <h2>확정 등록</h2>
+      <div class="card">
+        <div class="sub">날짜 선택</div>
+        <div class="date-wrap">
+          <input type="date" id="adminDate" class="address-input date-input" />
+          <span class="date-icon" aria-hidden="true"></span>
+        </div>
+
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;" />
+
+        <div class="sub">시간대 선택</div>
+        <div class="option">
+          <div id="toggle_before9">9시 이전</div>
+          <button class="cta sub" type="button" id="btn_before9" style="padding:12px; border-radius:12px;">선택</button>
+        </div>
+        <div class="option">
+          <div id="toggle_9to12">9~12시</div>
+          <button class="cta sub" type="button" id="btn_9to12" style="padding:12px; border-radius:12px;">선택</button>
+        </div>
+        <div class="option">
+          <div id="toggle_12to15">12~3시</div>
+          <button class="cta sub" type="button" id="btn_12to15" style="padding:12px; border-radius:12px;">선택</button>
+        </div>
+        <!-- 선택된 시간대 표시 -->
+        <div id="selectedSlotInfo" class="sub" style="margin:12px 0; font-weight:700;"></div>
+
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;" />
+
+        <div class="sub">메모(선택)</div>
+        <input type="text" id="adminMemo" class="address-input" placeholder="예: 김OO / 강남→부천 / 반포장" />
+
+        <button id="confirmBtn" class="calc-btn" style="margin-top: 14px;">확정 등록</button>
+        <button id="logoutBtn" class="cta sub" style="margin-top: 10px; padding:14px; border-radius:14px;">로그아웃</button>
+      </div>
+
+      <h2>확정 목록</h2>
+      <div class="card">
+        <div class="option">
+          <button class="cta primary" type="button" id="tabToday" style="padding:12px; border-radius:14px;">오늘</button>
+          <button class="cta sub" type="button" id="tabTomorrow" style="padding:12px; border-radius:14px;">내일</button>
+        </div>
+
+        <div class="sub" id="listTitle" style="margin-top: 10px;">오늘 확정 목록</div>
+        <div id="slotList" class="sub" style="margin-top: 10px;">불러오는 중...</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Load Supabase SDK and configuration before admin script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/config.js"></script>
+  <script src="/admin/admin.js" defer></script>
+</body>
+</html>

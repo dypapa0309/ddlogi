@@ -3,32 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <!-- 🔍 SEO -->
   <title>DD Logistics | 1-Ton Cargo·Moving Specialist | Fair Quotes</title>
   <meta name="description" content="DD Logistics specializes in 1-ton cargo and small moves. Check estimated quotes by distance and options." />
   <meta name="keywords" content="DD Logistics, moving, 1-ton cargo, small move, Korea" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://ddlogi.netlify.app/en/" />
-
-  <!-- OG -->
+  <!-- OG metadata -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="DD Logistics | Fast & Fair 1-Ton Cargo" />
   <meta property="og:description" content="Check estimated quotes by distance and options" />
   <meta property="og:image" content="/assets/img/hero-truck.jpg" />
   <meta property="og:locale" content="en_US" />
-
   <!-- Kakao Map API -->
   <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e72755495282830e0006d49708dabe5b&libraries=services"></script>
-
   <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
-
 <body data-lang="en">
 
 <div class="container">
-
-  <!-- Language Switch -->
+  <!-- Language switch -->
   <div class="lang-switch">
     <a href="/">KR</a> | <strong>EN</strong>
   </div>
@@ -42,7 +36,7 @@
       <div class="hero-content">
         <h1>DD Logistics</h1>
         <p class="hero-desc">
-          The only moving company where customers can calculate quotes!<br>
+          The only moving company where customers can calculate quotes!<br />
           Move with transparent pricing.
         </p>
         <div class="hero-features">
@@ -54,7 +48,7 @@
     </div>
   </section>
 
-  <!-- Vehicle Selection -->
+  <!-- Vehicle selection -->
   <section class="section">
     <h2>Select Vehicle</h2>
     <div class="card">
@@ -64,67 +58,53 @@
     </div>
   </section>
 
-  <!-- Distance Calculation -->
+  <!-- Distance -->
   <section class="section">
     <h2>Moving Distance</h2>
     <div class="card">
       <div class="sub">Pickup Address</div>
-      <input type="text" id="startAddress" class="address-input" placeholder="e.g., 152 Teheran-ro, Gangnam-gu, Seoul">
-
+      <input type="text" id="startAddress" class="address-input" placeholder="e.g., 152 Teheran-ro, Gangnam-gu, Seoul" />
       <div class="sub" style="margin-top: 15px;">Drop-off Address</div>
-      <input type="text" id="endAddress" class="address-input" placeholder="e.g., 87 Sangdong-ro, Bucheon-si, Gyeonggi-do">
-
+      <input type="text" id="endAddress" class="address-input" placeholder="e.g., 87 Sangdong-ro, Bucheon-si, Gyeonggi-do" />
       <button id="calcDistance" class="calc-btn">Calculate Distance</button>
-
       <div id="distanceResult" class="distance-result">
         <div class="sub">Calculated Distance: <b id="distanceText">Please enter addresses</b></div>
       </div>
     </div>
   </section>
 
-    <!-- Reservation -->
+  <!-- Reservation -->
   <section class="section">
     <h2>Reservation</h2>
     <div class="card">
-
       <div class="sub">Moving Date</div>
-      <input type="date" id="moveDate" class="address-input">
-
-      <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;">
-
+      <input type="date" id="moveDate" class="address-input" />
+      <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;" />
       <div class="sub">Preferred Time Slot (Required)</div>
-
       <label class="option" style="cursor:pointer;">
         <div>Before 9 AM</div>
-        <input type="radio" name="timeSlot" value="before9">
+        <input type="radio" name="timeSlot" value="before9" />
       </label>
-
       <label class="option" style="cursor:pointer;">
         <div>9 AM – 12 PM</div>
-        <input type="radio" name="timeSlot" value="9to12">
+        <input type="radio" name="timeSlot" value="9to12" />
       </label>
-
       <label class="option" style="cursor:pointer;">
         <div>12 PM – 3 PM</div>
-        <input type="radio" name="timeSlot" value="12to15">
+        <input type="radio" name="timeSlot" value="12to15" />
       </label>
-
       <div class="sub" style="margin-top: 10px;">
         ※ Final schedule will be confirmed after consultation.
       </div>
-
     </div>
   </section>
-
 
   <!-- Options -->
   <section class="section">
     <h2>Additional Options</h2>
     <div class="card">
-
       <!-- Move Type -->
       <div class="sub">Move Type</div>
-
       <div class="option">
         <div>
           General Move
@@ -132,9 +112,8 @@
             (You must pack all items into boxes in advance.)
           </div>
         </div>
-        <input type="radio" name="moveType" value="general" checked>
+        <input type="radio" name="moveType" value="general" checked />
       </div>
-
       <div class="option">
         <div>
           Semi-Packing Move
@@ -142,104 +121,83 @@
             (Please pack most items. We provide up to 5 boxes for items you use until moving day.)
           </div>
         </div>
-        <input type="radio" name="moveType" value="half">
+        <input type="radio" name="moveType" value="half" />
       </div>
-
-      <hr>
-
+      <hr />
       <div class="sub">No Elevator (₩7,000 per floor)</div>
-
       <div class="option">
         Pickup
         <div class="option-controls">
-          <input type="checkbox" id="noFrom">
-          <input type="number" id="fromFloor" min="1" value="1">
+          <input type="checkbox" id="noFrom" />
+          <input type="number" id="fromFloor" min="1" value="1" />
         </div>
       </div>
-
       <div class="option">
         Drop-off
         <div class="option-controls">
-          <input type="checkbox" id="noTo">
-          <input type="number" id="toFloor" min="1" value="1">
+          <input type="checkbox" id="noTo" />
+          <input type="number" id="toFloor" min="1" value="1" />
         </div>
       </div>
-
-      <hr>
-
+      <hr />
       <div class="sub">Furniture Size (Multiple selection)</div>
-      <div class="option">Small (chairs, side tables) <input type="checkbox" class="furniture" value="Small"></div>
-      <div class="option">Medium (tables, small fridge)<input type="checkbox" class="furniture" value="Medium"></div>
-      <div class="option">Large (wardrobe, washer, dryer)<input type="checkbox" class="furniture" value="Large"></div>
-
-      <hr>
-
+      <div class="option">Small (chairs, side tables) <input type="checkbox" class="furniture" value="Small" /></div>
+      <div class="option">Medium (tables, small fridge) <input type="checkbox" class="furniture" value="Medium" /></div>
+      <div class="option">Large (wardrobe, washer, dryer) <input type="checkbox" class="furniture" value="Large" /></div>
+      <hr />
       <div class="sub">Load Volume (Based on size 5 moving boxes)</div>
-      <div class="option">1–5 boxes <input type="radio" name="load" value="1"></div>
-      <div class="option">6–10 boxes <input type="radio" name="load" value="2"></div>
-      <div class="option">11–15 boxes <input type="radio" name="load" value="3"></div>
-      <div class="option">16–20 boxes <input type="radio" name="load" value="4"></div>
-
-      <hr>
-
+      <div class="option">1–5 boxes <input type="radio" name="load" value="1" /></div>
+      <div class="option">6–10 boxes <input type="radio" name="load" value="2" /></div>
+      <div class="option">11–15 boxes <input type="radio" name="load" value="3" /></div>
+      <div class="option">16–20 boxes <input type="radio" name="load" value="4" /></div>
+      <hr />
       <div class="option">
         Check if you need help carrying items
-        <input type="checkbox" id="cantCarry">
+        <input type="checkbox" id="cantCarry" />
       </div>
       <div class="sub">※ Labor costs will be confirmed during consultation</div>
-
-      <hr>
-
-      <div class="option">Ladder Truck (+₩80,000) <input type="checkbox" id="ladder"></div>
-      <div class="option">Night/Weekend (Free) <input type="checkbox" id="night"></div>
-
+      <hr />
+      <div class="option">Ladder Truck (+₩80,000) <input type="checkbox" id="ladder" /></div>
+      <div class="option">Night/Weekend (Free) <input type="checkbox" id="night" /></div>
       <div class="option">
-        Number of passengers<br>
+        Number of passengers<br />
         (Negotiation required for 1+ person)
-        <input type="number" id="ride" min="0" value="0">
+        <input type="number" id="ride" min="0" value="0" />
       </div>
-
     </div>
   </section>
+
 
   <!-- Quote -->
   <section class="section" id="quoteSection">
     <h2>Estimated Quote</h2>
-
     <div class="card" id="summary">Please select conditions</div>
-
-    <!-- ✅ Static price card (original position) -->
     <div class="card price-card" id="priceCardStatic">
       <div class="price" id="price">₩0</div>
     </div>
-
     <div class="cta-wrap">
-      <a href="#" class="cta sub" id="smsInquiry">
-        📩 Text for Estimated Quote
-      </a>
-      <a href="tel:01040941666" class="cta primary">
-        Call for Inquiry
-      </a>
+      <a href="#" class="cta sub" id="smsInquiry">📩 Text for Estimated Quote</a>
+      <a href="tel:01040941666" class="cta primary">Call for Inquiry</a>
     </div>
   </section>
 
   <!-- Footer -->
   <section class="section">
     <div class="card sub">
-      Business Registration: 876-28-01550<br>
-      Address: 803-102, 87 Sangdong-ro, Bucheon-si, Gyeonggi-do, Worknesia<br>
-      (Sangdong, Gana Best Town Three)<br>
+      Business Registration: 876-28-01550<br />
+      Address: 803-102, 87 Sangdong-ro, Bucheon-si, Gyeonggi-do, Worknesia<br />
+      (Sangdong, Gana Best Town Three)<br />
       Privacy Officer, CEO: Lee Sang-bin
     </div>
   </section>
-
 </div>
 
-<!-- ✅ Floating price bar -->
+<!-- Sticky price bar -->
 <div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
   <div class="sticky-price" id="stickyPrice">₩0</div>
 </div>
 
+<!-- Load app script (English version) -->
 <script src="/assets/js/app-en.js" defer></script>
 </body>
 </html>
