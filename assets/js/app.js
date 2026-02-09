@@ -69,7 +69,11 @@
     toFloor: 1,
     ladder: false,
     night: false,
-    cantCarry: false,
+    cantCarryFrom: false,
+    cantCarryTo: false,
+    helperFrom: false,
+    helperTo: false,
+
     ride: 0,
     furniture: [],
     load: null
@@ -173,7 +177,11 @@
   const toFloorEl   = document.getElementById('toFloor');
   const ladderEl    = document.getElementById('ladder');
   const nightEl     = document.getElementById('night');
-  const cantCarryEl = document.getElementById('cantCarry');
+  const cantCarryFromEl = document.getElementById('cantCarryFrom');
+  const cantCarryToEl   = document.getElementById('cantCarryTo');
+  const helperFromEl    = document.getElementById('helperFrom');
+  const helperToEl      = document.getElementById('helperTo');
+
   const rideEl      = document.getElementById('ride');
 
   const smsInquiryBtn = document.getElementById('smsInquiry');
@@ -256,7 +264,11 @@
     if (toFloorEl)   toFloorEl.addEventListener('input',   e => { state.toFloor   = Math.max(1, toNumberSafe(e.target.value, 1)); calc(); });
     if (ladderEl) ladderEl.addEventListener('change', e => { state.ladder = e.target.checked; calc(); });
     if (nightEl)  nightEl.addEventListener('change',  e => { state.night  = e.target.checked; calc(); });
-    if (cantCarryEl) cantCarryEl.addEventListener('change', e => { state.cantCarry = e.target.checked; calc(); });
+    if (cantCarryFromEl) cantCarryFromEl.addEventListener('change', e => { state.cantCarryFrom = e.target.checked; calc(); });
+    if (cantCarryToEl)   cantCarryToEl  .addEventListener('change', e => { state.cantCarryTo   = e.target.checked; calc(); });
+    if (helperFromEl) helperFromEl.addEventListener('change', e => { state.helperFrom = e.target.checked; calc(); });
+    if (helperToEl)   helperToEl  .addEventListener('change', e => { state.helperTo   = e.target.checked; calc(); });
+
     if (rideEl) rideEl.addEventListener('input', e => { state.ride = Math.max(0, toNumberSafe(e.target.value, 0)); calc(); });
 
     // 7) 가구/가전
@@ -477,6 +489,13 @@
     }
 
     lastPrice = price;
+    // ✅ 직접 나르기 어려움 (출발/도착 각각 30,000원)
+   if (state.cantCarryFrom) price += 30000;
+   if (state.cantCarryTo)   price += 30000;
+
+  // ✅ 인부 추가 (출발/도착 각각 40,000원)
+   if (state.helperFrom) price += 40000;
+   if (state.helperTo)   price += 40000;
 
 
     // 요약
