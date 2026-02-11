@@ -312,15 +312,6 @@ input[type="number"] {
   text-align:center;
 }
 
-/* 반응형 */
-@media (max-width: 768px) {
-  .container { padding:16px 12px 240px; }
-  .address-input, .date-input { font-size:14px; padding:10px 12px; }
-  .date-input { padding-right:48px; }
-  .calc-btn { font-size:15px; padding:12px; }
-  .hero-image { height:180px; }
-  h1 { font-size:28px; }
-}
 /* =========================
    ✅ 숫자 입력 UX 개선 (모바일 줌/스텝퍼)
 ========================= */
@@ -372,7 +363,7 @@ input[type="number"]{
 
 /* 스텝퍼 input */
 .stepper input[type="number"]{
-  width:64px;             /* 기존 56보다 살짝 */
+  width:64px;
   height:38px;
   padding:6px 8px;
   border-radius:10px;
@@ -380,9 +371,517 @@ input[type="number"]{
   background:#020617;
   color:#fff;
   text-align:center;
-
-  /* 모바일 키보드/입력 불편 최소화 */
   caret-color:transparent; /* 커서 깜빡임 줄이기(원하면 제거) */
 }
 
-/* 숫자를 직접 치고 싶으면 caret-color만 지우면 됨 */
+/* =========================
+   ✅ "버려주세요!" 섹션(throw) UI
+   - 토글 + 출발/도착 2열(모바일은 1열)
+========================= */
+
+.throw-card {
+  background:#0b162a; /* 기존 카드보다 살짝 다른 톤 */
+  border:1px solid #1f2937;
+  border-radius:18px;
+  padding:16px;
+}
+
+.throw-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.throw-title {
+  font-size:16px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.throw-title .pill {
+  font-size:12px;
+  font-weight:800;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#020617;
+  border:1px solid #1f2937;
+  color:#cbd5f5;
+}
+
+.throw-desc {
+  margin-top:8px;
+  color:#cbd5e1;
+  font-size:13px;
+  line-height:1.45;
+}
+
+/* 토글 스위치 */
+.switch {
+  position:relative;
+  width:52px;
+  height:30px;
+  flex:0 0 auto;
+}
+.switch input {
+  opacity:0;
+  width:0;
+  height:0;
+}
+.slider {
+  position:absolute;
+  inset:0;
+  background:#1f2937;
+  border-radius:999px;
+  transition:all .2s ease;
+  border:1px solid #334155;
+}
+.slider:before {
+  content:"";
+  position:absolute;
+  width:24px;
+  height:24px;
+  left:3px;
+  top:50%;
+  transform:translateY(-50%);
+  background:#fff;
+  border-radius:999px;
+  transition:all .2s ease;
+}
+.switch input:checked + .slider {
+  background:rgba(14,165,233,0.35);
+  border-color:rgba(14,165,233,0.55);
+}
+.switch input:checked + .slider:before {
+  transform:translateY(-50%) translateX(22px);
+}
+
+/* 토글 바디 */
+#throwBody {
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+
+/* 출발/도착 작업 체크 */
+.throw-work {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.throw-work label {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:#020617;
+  border:1px solid #1f2937;
+  padding:10px 12px;
+  border-radius:14px;
+  cursor:pointer;
+}
+.throw-work input[type="checkbox"]{
+  width:18px;
+  height:18px;
+  accent-color: var(--accent);
+}
+
+/* 출발/도착 2열 */
+.throw-grid {
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:12px;
+}
+
+.throw-col {
+  background:#020617;
+  border:1px solid #1f2937;
+  border-radius:16px;
+  padding:12px;
+}
+
+.throw-col h3 {
+  margin:0 0 10px;
+  font-size:14px;
+  color:#e2e8f0;
+  letter-spacing:0.2px;
+}
+
+/* 품목 라인 */
+.throw-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 0;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+.throw-row:first-of-type { border-top:none; }
+.throw-row .label {
+  font-size:14px;
+  color:#e2e8f0;
+  line-height:1.2;
+}
+
+/* throw 수량 input: 기존 stepper와 동일 톤 */
+.throw-row .stepper {
+  gap:6px;
+}
+.throw-row .stepper-btn {
+  width:34px;
+  height:34px;
+  border-radius:10px;
+}
+.throw-row .stepper input[type="number"]{
+  width:56px;
+  height:34px;
+  border-radius:10px;
+}
+
+/* 체크박스/라디오 기본 accent */
+input[type="checkbox"], input[type="radio"]{
+  accent-color: var(--accent);
+}
+
+/* =========================
+   반응형
+========================= */
+@media (max-width: 768px) {
+  .container { padding:16px 12px 240px; }
+  .address-input, .date-input { font-size:14px; padding:10px 12px; }
+  .date-input { padding-right:48px; }
+  .calc-btn { font-size:15px; padding:12px; }
+  .hero-image { height:180px; }
+  h1 { font-size:28px; }
+
+  /* throw: 모바일은 1열 */
+  .throw-grid { grid-template-columns: 1fr; }
+}
+
+#throwBody {
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* ==================================================
+   ✅ 버려주세요(throwSection) UI 정리
+   - 카드 잘림(overflow) 해결
+   - 체크/스위치 정렬
+   - 품목 라벨/스텝퍼 레이아웃 안정화
+================================================== */
+
+/* 1) 이 섹션 카드만 overflow 풀기 (스텝퍼가 잘리는 현상 방지) */
+#throwSection .card{
+  overflow: visible;
+}
+
+/* 2) 토글 헤더(한 줄 정렬) */
+#throwSection .option{
+  align-items: center;
+  gap: 14px;
+}
+
+/* 3) throwBody 전체 간격 */
+#throwBody{
+  margin-top: 14px;
+}
+
+/* 4) 출발/도착 작업여부 체크 2개를 버튼처럼 보이게 */
+#throwBody .work-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+#throwBody .work-pill{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 14px 14px;
+  border-radius: 18px;
+  border: 1px solid #1f2937;
+  background: #020617;
+}
+
+#throwBody .work-pill b{
+  font-size: 16px;
+  letter-spacing: -0.2px;
+}
+
+/* 5) 출발지/도착지 짐(수량) 2컬럼 카드 */
+#throwBody .throw-cols{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+#throwBody .throw-col{
+  background: #020617;
+  border: 1px solid #1f2937;
+  border-radius: 18px;
+  padding: 14px;
+}
+
+#throwBody .throw-col .col-title{
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+/* 6) 품목 row를 '라벨 + 스텝퍼'로 안정적으로 배치 */
+#throwBody .item-qty-row{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 0;
+  margin: 0;
+  border-bottom: 1px solid rgba(148,163,184,0.12);
+}
+#throwBody .item-qty-row:last-child{
+  border-bottom: none;
+}
+
+/* 라벨(줄바꿈 최소화 + 가독성) */
+#throwBody .item-qty-row > div:first-child{
+  font-size: 14px;
+  line-height: 1.25;
+  color: #e5e7eb;
+  letter-spacing: -0.2px;
+  word-break: keep-all;
+}
+
+/* 7) throw 전용 스텝퍼 폭/정렬 */
+#throwBody .stepper{
+  gap: 8px;
+}
+#throwBody .stepper-btn{
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+#throwBody input.throwQty{
+  width: 72px;
+  height: 40px;
+  border-radius: 12px;
+  font-size: 16px;
+  caret-color: auto; /* 숫자 직접 입력도 자연스럽게 */
+}
+
+/* 8) 작은 안내문 */
+#throwBody .throw-note{
+  margin-top: 10px;
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+/* 9) 모바일(폭 좁을 때) 1컬럼으로 자동 전환 */
+@media (max-width: 420px){
+  #throwBody .throw-cols{
+    grid-template-columns: 1fr;
+  }
+  #throwBody .work-grid{
+    grid-template-columns: 1fr;
+  }
+}
+/* ==================================================
+   ✅ 토글 스위치(throwToggle) 비주얼 업그레이드
+   - 기존 .switch 구조 유지 (input + .slider)
+================================================== */
+
+.switch{
+  position: relative;
+  width: 58px;
+  height: 34px;
+  flex: 0 0 auto;
+}
+
+.switch input{
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* 트랙 */
+.slider{
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+
+  /* 고급스러운 다크 톤 */
+  background: linear-gradient(180deg, #0b1220 0%, #0a1020 100%);
+  border: 1px solid rgba(148,163,184,0.22);
+
+  /* 살짝 안으로 들어가는 느낌 */
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 10px 18px rgba(0,0,0,0.45);
+
+  transition: all 0.22s ease;
+}
+
+/* 썸(손잡이) */
+.slider:before{
+  content:"";
+  position:absolute;
+  width: 28px;
+  height: 28px;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff 0%, #dbeafe 100%);
+
+  /* 썸 입체감 */
+  box-shadow:
+    0 10px 20px rgba(0,0,0,0.45),
+    inset 0 0 0 1px rgba(0,0,0,0.08);
+
+  transition: all 0.22s cubic-bezier(.2,.8,.2,1);
+}
+
+/* hover/press 피드백 */
+.switch:hover .slider{
+  border-color: rgba(148,163,184,0.34);
+  transform: translateY(-0.5px);
+}
+
+.switch:active .slider{
+  transform: translateY(0.5px);
+}
+
+/* ON 상태 */
+.switch input:checked + .slider{
+  background: linear-gradient(135deg, rgba(14,165,233,0.45) 0%, rgba(2,132,199,0.55) 100%);
+  border-color: rgba(14,165,233,0.55);
+
+  /* 글로우 */
+  box-shadow:
+    0 10px 26px rgba(14,165,233,0.20),
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    inset 0 10px 18px rgba(0,0,0,0.35);
+}
+
+.switch input:checked + .slider:before{
+  transform: translateY(-50%) translateX(24px);
+  background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%);
+}
+
+/* 접근성: 키보드 포커스 링 */
+.switch input:focus-visible + .slider{
+  outline: none;
+  box-shadow:
+    0 0 0 4px rgba(14,165,233,0.22),
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    inset 0 10px 18px rgba(0,0,0,0.35);
+}
+/* ==================================================
+   ✅ 토글 스위치(throwToggle) 비주얼 업그레이드
+   - 기존 .switch 구조 유지 (input + .slider)
+================================================== */
+
+.switch{
+  position: relative;
+  width: 58px;
+  height: 34px;
+  flex: 0 0 auto;
+}
+
+.switch input{
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* 트랙 */
+.slider{
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+
+  /* 고급스러운 다크 톤 */
+  background: linear-gradient(180deg, #0b1220 0%, #0a1020 100%);
+  border: 1px solid rgba(148,163,184,0.22);
+
+  /* 살짝 안으로 들어가는 느낌 */
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 10px 18px rgba(0,0,0,0.45);
+
+  transition: all 0.22s ease;
+}
+
+/* 썸(손잡이) */
+.slider:before{
+  content:"";
+  position:absolute;
+  width: 28px;
+  height: 28px;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff 0%, #dbeafe 100%);
+
+  /* 썸 입체감 */
+  box-shadow:
+    0 10px 20px rgba(0,0,0,0.45),
+    inset 0 0 0 1px rgba(0,0,0,0.08);
+
+  transition: all 0.22s cubic-bezier(.2,.8,.2,1);
+}
+
+/* hover/press 피드백 */
+.switch:hover .slider{
+  border-color: rgba(148,163,184,0.34);
+  transform: translateY(-0.5px);
+}
+
+.switch:active .slider{
+  transform: translateY(0.5px);
+}
+
+/* ON 상태 */
+.switch input:checked + .slider{
+  background: linear-gradient(135deg, rgba(14,165,233,0.45) 0%, rgba(2,132,199,0.55) 100%);
+  border-color: rgba(14,165,233,0.55);
+
+  /* 글로우 */
+  box-shadow:
+    0 10px 26px rgba(14,165,233,0.20),
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    inset 0 10px 18px rgba(0,0,0,0.35);
+}
+
+.switch input:checked + .slider:before{
+  transform: translateY(-50%) translateX(24px);
+  background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%);
+}
+
+/* 접근성: 키보드 포커스 링 */
+.switch input:focus-visible + .slider{
+  outline: none;
+  box-shadow:
+    0 0 0 4px rgba(14,165,233,0.22),
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    inset 0 10px 18px rgba(0,0,0,0.35);
+}
+.switch input:checked + .slider::after{
+  content:"";
+  position:absolute;
+  inset:-6px;
+  border-radius:999px;
+  background: rgba(14,165,233,0.18);
+  filter: blur(10px);
+  z-index:-1;
+}
