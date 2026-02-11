@@ -321,3 +321,68 @@ input[type="number"] {
   .hero-image { height:180px; }
   h1 { font-size:28px; }
 }
+/* =========================
+   ✅ 숫자 입력 UX 개선 (모바일 줌/스텝퍼)
+========================= */
+
+/* iOS 줌 방지: 16px 이상 */
+input[type="number"]{
+  font-size:16px; /* ✅ 중요 */
+  -webkit-text-size-adjust:100%;
+}
+
+/* 기본 스핀 버튼 숨김 (브라우저 기본 UI 제거) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+input[type="number"]{
+  -moz-appearance:textfield;
+}
+
+/* 스텝퍼 래퍼 */
+.stepper{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* 스텝퍼 버튼 */
+.stepper-btn{
+  width:38px;
+  height:38px;
+  border-radius:10px;
+  border:1px solid #1f2937;
+  background:#020617;
+  color:#fff;
+  font-weight:900;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.stepper-btn:active{
+  transform:translateY(1px);
+}
+
+/* 스텝퍼 input */
+.stepper input[type="number"]{
+  width:64px;             /* 기존 56보다 살짝 */
+  height:38px;
+  padding:6px 8px;
+  border-radius:10px;
+  border:1px solid #1f2937;
+  background:#020617;
+  color:#fff;
+  text-align:center;
+
+  /* 모바일 키보드/입력 불편 최소화 */
+  caret-color:transparent; /* 커서 깜빡임 줄이기(원하면 제거) */
+}
+
+/* 숫자를 직접 치고 싶으면 caret-color만 지우면 됨 */
