@@ -96,7 +96,7 @@
     '소파(2~3인)': { label: '소파(2~3인)', price: 10000 },
     '소파(4인이상)': { label: '소파(4인 이상)', price: 15000 },
     '침대매트리스(킹제외)': { label: '침대 매트리스(킹 제외)', price: 10000 },
-    '침대프레임(분해/조립)': { label: '침대 프레임 분해/조립', price: 12000 },
+    '침대프레임(분해/조립)': { label: '침대 프레임 분해/조립', price: 30000 },
   };
 
   const LOAD_MAP_GENERAL = {
@@ -785,3 +785,4 @@ if (moveToggleEl && moveBodyEl) {
   moveToggleEl.addEventListener('change', syncMoveUI);
   syncMoveUI();
 }
+
