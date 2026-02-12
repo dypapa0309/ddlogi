@@ -885,3 +885,10 @@ input[type="checkbox"], input[type="radio"]{
   filter: blur(10px);
   z-index:-1;
 }
+
+.move-toggle-row{
+  align-items:center;
+}
+.move-toggle-row .switch{
+  flex: 0 0 auto;
+}

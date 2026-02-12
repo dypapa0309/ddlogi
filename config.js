@@ -1,13 +1,9 @@
 // /config.js
-// ✅ 배포/로컬 공통 설정
-// ⚠️ 로컬 테스트(5500): 카카오 개발자센터 Web 플랫폼에
-//    http://127.0.0.1:5500, http://localhost:5500 등록 필요
-
-
-// /config.js
 window.DDLOGI_CONFIG = {
   supabaseUrl: "https://hsgoaqhqwesfhxehyokb.supabase.co",
   supabaseKey: "sb_publishable_DbJF69dpT9Qly2w5LHKqhQ_xS9NAAfZ",
+  channelPluginKey: "70a74661-1cd7-48f6-9f3f-cc5a427f582f",
+
   timeSlots: [
     { value: "7",  labelKR: "오전 7시" },
     { value: "8",  labelKR: "오전 8시" },
