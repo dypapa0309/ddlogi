@@ -71,7 +71,7 @@
   };
 
   const BASE_PRICE   = { truck: 50000, van: 50000, lorry: 90000 };
-  const PER_KM_PRICE = { truck: 1500,  van: 1500,  lorry: 1500 };
+  const PER_KM_PRICE = { truck: 1550,  van: 1550,  lorry: 1550 };
 
   const FURNITURE_PRICE = {
     // 가전
@@ -538,70 +538,110 @@
   });
 
   /* =========================
-     거리 계산
-  ========================= */
-  if (calcDistanceBtn) {
-    calcDistanceBtn.addEventListener('click', async () => {
-      const start = (startAddressInput?.value || '').trim();
-      const end   = (endAddressInput?.value || '').trim();
+   거리 계산 (✅ 도로 주행거리 기준)
+   - 주소 → 좌표(카카오 지오코더)
+   - 좌표 → 도로거리(Netlify Function → Kakao Mobility Directions)
+   - 실패 시 직선거리로 백업
+========================= */
+if (calcDistanceBtn) {
+  calcDistanceBtn.addEventListener('click', async () => {
+    const start = (startAddressInput?.value || '').trim();
+    const end   = (endAddressInput?.value || '').trim();
 
-      if (!start || !end) {
-        alert('출발지와 도착지를 모두 입력해주세요.');
-        return;
-      }
-      if (!geocoder) {
-        alert('거리 계산을 위한 카카오맵 초기화에 실패했습니다.\n(카카오 개발자센터에 localhost 등록/도메인 등록 확인 필요)');
-        return;
-      }
+    if (!start || !end) {
+      alert('출발지와 도착지를 모두 입력해주세요.');
+      return;
+    }
+    if (!geocoder) {
+      alert('거리 계산을 위한 카카오맵 초기화에 실패했습니다.\n(카카오 개발자센터에 localhost 등록/도메인 등록 확인 필요)');
+      return;
+    }
 
-      calcDistanceBtn.textContent = '계산 중...';
-      calcDistanceBtn.disabled = true;
+    calcDistanceBtn.textContent = '계산 중...';
+    calcDistanceBtn.disabled = true;
 
-      try {
-        const startCoord = await getCoordinates(start);
-        const endCoord   = await getCoordinates(end);
+    try {
+      const startCoord = await getCoordinates(start);
+      const endCoord   = await getCoordinates(end);
 
-        const distance = calculateDistance(startCoord, endCoord);
-        state.distance = Math.max(0, Math.round(distance));
+      // ✅ 도로거리(주행거리) 우선, 실패 시 직선거리 백업
+      const km = await getBestDistanceKm(startCoord, endCoord);
+      state.distance = km;
 
-        if (distanceText) distanceText.textContent = `${state.distance} km`;
-        calc();
-      } catch (error) {
-        alert(error.message || '주소를 찾을 수 없습니다. 정확한 주소를 입력해주세요.');
-      } finally {
-        calcDistanceBtn.textContent = '거리 계산하기';
-        calcDistanceBtn.disabled = false;
+      if (distanceText) distanceText.textContent = `${state.distance} km`;
+      calc();
+    } catch (error) {
+      alert(error.message || '주소를 찾을 수 없습니다. 정확한 주소를 입력해주세요.');
+    } finally {
+      calcDistanceBtn.textContent = '거리 계산하기';
+      calcDistanceBtn.disabled = false;
+    }
+  });
+}
+
+function getCoordinates(address) {
+  return new Promise((resolve, reject) => {
+    geocoder.addressSearch(address, (result, status) => {
+      if (status === kakao.maps.services.Status.OK) {
+        resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) });
+      } else {
+        reject(new Error(`"${address}" 주소를 찾을 수 없습니다.`));
       }
     });
+  });
+}
+
+/* ====== 도로거리 (Kakao Mobility Directions via Netlify Function) ====== */
+async function getRoadDistanceKmByKakaoMobility(origin, destination) {
+  // ✅ 주의: origin/destination은 "경도,위도" 순서
+  const params = new URLSearchParams({
+    origin: `${origin.lng},${origin.lat}`,
+    destination: `${destination.lng},${destination.lat}`,
+  });
+
+  const res = await fetch(`/.netlify/functions/kakaoDirections?${params.toString()}`, {
+    method: 'GET',
+  });
+
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error(`도로거리 계산 실패: ${res.status} ${t}`);
   }
 
-  function getCoordinates(address) {
-    return new Promise((resolve, reject) => {
-      geocoder.addressSearch(address, (result, status) => {
-        if (status === kakao.maps.services.Status.OK) {
-          resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) });
-        } else {
-          reject(new Error(`"${address}" 주소를 찾을 수 없습니다.`));
-        }
-      });
-    });
-  }
+  const data = await res.json();
+  const meter = data?.routes?.[0]?.summary?.distance;
 
-  function calculateDistance(coord1, coord2) {
-    const R = 6371;
-    const dLat = toRad(coord2.lat - coord1.lat);
-    const dLng = toRad(coord2.lng - coord1.lng);
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(coord1.lat)) * Math.cos(toRad(coord2.lat)) *
-      Math.sin(dLng / 2) ** 2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  }
+  if (!Number.isFinite(meter)) throw new Error('도로거리 데이터가 없습니다.');
 
-  function toRad(deg) {
-    return deg * (Math.PI / 180);
+  return Math.max(0, Math.round(meter / 1000)); // km 정수
+}
+
+async function getBestDistanceKm(startCoord, endCoord) {
+  try {
+    return await getRoadDistanceKmByKakaoMobility(startCoord, endCoord);
+  } catch (e) {
+    console.warn('[거리] 도로거리 실패 → 직선거리로 백업:', e);
+    const straight = calculateDistance(startCoord, endCoord);
+    return Math.max(0, Math.round(straight));
   }
+}
+
+/* ====== 직선거리(백업용) ====== */
+function calculateDistance(coord1, coord2) {
+  const R = 6371;
+  const dLat = toRad(coord2.lat - coord1.lat);
+  const dLng = toRad(coord2.lng - coord1.lng);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(coord1.lat)) * Math.cos(toRad(coord2.lat)) *
+    Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function toRad(deg) {
+  return deg * (Math.PI / 180);
+}
 
   /* =========================
      ✅ 문의 메시지 생성 (채널톡용)
@@ -671,7 +711,7 @@
     '※ 예약금 입금 시 예약 확정되며, 잔금은 운송 당일 결제합니다.',
     '※ 현장 상황(짐량/동선/주차/추가 작업)에 따라 금액이 변동될 수 있습니다.',
     '',
-    '자세한 상담과 예약을 원하시면 언제든지 문의해주세요. 감사합니다!'
+
   ].filter(Boolean);
 
   return lines.join('\n');
