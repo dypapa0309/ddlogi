@@ -38,22 +38,20 @@
 
     <div class="hero-content">
 
-   <!-- 히어로 섹션 -->
+ <!-- 히어로 섹션 -->
 <section class="section" id="hero">
   <div class="hero-card">
-   
-
     <div class="hero-content">
       <h1>이사 견적이 <br>다 다른 이유,<br><br />아시나요?</h1>
-<br><hr><br>
-      <!-- 핵심 키워드(알약) -->
+
+      <br><hr><br>
+
       <div class="hero-pills" aria-label="핵심 기능">
         <span class="pill">자동 계산</span>
         <span class="pill">투명한 옵션</span>
         <span class="pill">AI 안내</span>
       </div>
 
-      <!-- 본문(강조 포함) -->
       <p class="hero-desc">
         이사비용은 <span class="hl">비밀이 아닙니다</span><br /><br />
         <span class="hl2">자동 계산</span>으로 빠르게<br /><br />
@@ -61,15 +59,14 @@
         거기에 <span class="hl2">AI까지</span>
       </p>
 
-      <!-- 한 줄 콜아웃 -->
       <div class="hero-callout">
         고객님이 <b>직접 투명하게 계산</b>하세요.
       </div>
-<br><hr>
-      <!-- 대표 프로필(맨 아래) -->
+
+      <br><hr>
+
       <div class="hero-signature" aria-label="대표 소개">
         <div class="owner-profile">
-          <!-- ✅ 여기 이미지만 교체 -->
           <img src="/assets/img/hero-bin.jpg" alt="디디운송 대표 이상빈" />
         </div>
         <div class="hero-owner">디디운송 대표 이상빈</div>
@@ -77,6 +74,7 @@
     </div>
   </div>
 </section>
+
 
 
 
@@ -91,9 +89,9 @@
     <section class="section">
       <h2>차량 선택</h2>
       <div class="card">
-        <div class="vehicle" data-vehicle="1톤 카고">🛻 1톤 카고 더블캡</div>
-        <div class="vehicle" data-vehicle="1톤 저상탑">🚚 1톤 저상탑</div>
-        <div class="vehicle" data-vehicle="1톤 카고+저상탑">🛻🚚 카고 + 저상탑</div>
+        <div class="vehicle" data-vehicle="1톤 카고">🛻 1톤 카고 (오픈카)</div>
+        <div class="vehicle" data-vehicle="1톤 저상탑">🚚 1톤 탑차 (박스카)</div>
+        <div class="vehicle" data-vehicle="1톤 카고+저상탑">🛻🚚 1대 이상 (문의)</div>
       </div>
     </section>
 
@@ -112,63 +110,75 @@
       </div>
     </section>
 
-    <!-- 예약 정보 -->
-    <section class="section">
-      <h2>예약 정보</h2>
-      <div class="card">
-        <div class="sub">이사 날짜</div>
-        <div class="date-wrap">
-          <input type="date" id="moveDate" class="address-input date-input" required />
-          <span class="date-icon" aria-hidden="true"></span>
-        </div>
+   <!-- 예약 정보 -->
+<section class="section" id="reserveSection">
+  <h2>예약 정보</h2>
+  <div class="card">
 
-        <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;" />
+    <div class="section-center">
+      <div class="sub">이사 날짜</div>
+    </div>
 
-        <div class="sub">이사 희망 시간</div>
+    <div class="date-wrap">
+      <input type="date" id="moveDate" class="address-input date-input" required />
+      <span class="date-icon" aria-hidden="true"></span>
+    </div>
 
-        <!-- ✅ 7~15시 단일 시간 선택 -->
-        <label class="option" style="cursor:pointer;">
-          <div>7시</div>
-          <input type="radio" name="timeSlot" value="7" />
-        </label>
-        <label class="option" style="cursor:pointer;">
-          <div>8시</div>
-          <input type="radio" name="timeSlot" value="8" />
-        </label>
-        <label class="option" style="cursor:pointer;">
-          <div>9시</div>
-          <input type="radio" name="timeSlot" value="9" />
-        </label>
-        <label class="option" style="cursor:pointer;">
-          <div>10시</div>
-          <input type="radio" name="timeSlot" value="10" />
-        </label>
-        <label class="option" style="cursor:pointer;">
-          <div>11시</div>
-          <input type="radio" name="timeSlot" value="11" />
-        </label>
-        <label class="option" style="cursor:pointer;">
-          <div>12시</div>
-          <input type="radio" name="timeSlot" value="12" />
-        </label>
-        <label class="option" style="cursor:pointer;">
-          <div>13시</div>
-          <input type="radio" name="timeSlot" value="13" />
-        </label>
-        <label class="option" style="cursor:pointer;">
-          <div>14시</div>
-          <input type="radio" name="timeSlot" value="14" />
-        </label>
-        <label class="option" style="cursor:pointer;">
-          <div>15시</div>
-          <input type="radio" name="timeSlot" value="15" />
-        </label>
+    <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;" />
 
-        <div class="sub" style="margin-top: 10px;">
-          ※ 배차 상황에 따라 확정 시간은 상담 후 안내됩니다.
-        </div>
+    <div class="section-center">
+      <div class="sub">이사 희망 시간</div>
+    </div>
+
+    <div class="time-grid" aria-label="이사 희망 시간 선택">
+      <label class="time-chip">
+        <input type="radio" name="timeSlot" value="7" />
+        <span>7시</span>
+      </label>
+      <label class="time-chip">
+        <input type="radio" name="timeSlot" value="8" />
+        <span>8시</span>
+      </label>
+      <label class="time-chip">
+        <input type="radio" name="timeSlot" value="9" />
+        <span>9시</span>
+      </label>
+      <label class="time-chip">
+        <input type="radio" name="timeSlot" value="10" />
+        <span>10시</span>
+      </label>
+      <label class="time-chip">
+        <input type="radio" name="timeSlot" value="11" />
+        <span>11시</span>
+      </label>
+      <label class="time-chip">
+        <input type="radio" name="timeSlot" value="12" />
+        <span>12시</span>
+      </label>
+      <label class="time-chip">
+        <input type="radio" name="timeSlot" value="13" />
+        <span>13시</span>
+      </label>
+      <label class="time-chip">
+        <input type="radio" name="timeSlot" value="14" />
+        <span>14시</span>
+      </label>
+      <label class="time-chip">
+        <input type="radio" name="timeSlot" value="15" />
+        <span>15시</span>
+      </label>
+    </div>
+
+    <div class="section-center">
+      <div class="sub" style="margin-top: 10px;">
+        ※ 배차 상황에 따라 확정 시간은 상담 후 안내됩니다.
       </div>
-    </section>
+    </div>
+
+  </div>
+</section>
+
+
 
 <!-- 추가 옵션 -->
 <section class="section" id="optionsSection">

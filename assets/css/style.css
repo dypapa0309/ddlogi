@@ -722,3 +722,101 @@ input[type="checkbox"], input[type="radio"]{ accent-color: var(--accent); }
   .contact-actions .contact-btn.mega{ font-size:15px; }
 }
 
+/* =========================
+   ✅ option 레이아웃 안정화 (핵심)
+========================= */
+.option{
+  display:grid;
+  grid-template-columns: 1fr auto;  /* 왼쪽=설명, 오른쪽=컨트롤 */
+  align-items:center;
+  column-gap:12px;
+  row-gap:6px;
+  margin-bottom:12px;
+}
+
+/* option 안의 왼쪽 텍스트 영역이 길어져도 깨지지 않게 */
+.option > div:first-child{
+  min-width:0;
+}
+
+/* 토글/체크/라디오가 항상 오른쪽에 붙도록 */
+.option input[type="checkbox"],
+.option input[type="radio"]{
+  justify-self:end;
+}
+
+/* stepper가 있는 옵션은 오른쪽 정렬 고정 */
+.option .stepper,
+.option .option-controls{
+  justify-self:end;
+}
+
+/* item-qty-row도 동일하게(라벨+스텝퍼) */
+.option.item-qty-row{
+  grid-template-columns: 1fr auto;
+}
+.vehicle{
+  text-align:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.time-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:10px;
+  margin-top:10px;
+}
+
+.time-chip{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:12px 10px;
+  border-radius:14px;
+  border:1px solid rgba(148,163,184,0.22);
+  background:rgba(2,6,23,0.55);
+  cursor:pointer;
+  user-select:none;
+}
+
+.time-chip input{ display:none; }
+
+.time-chip span{
+  font-weight:900;
+  letter-spacing:-0.3px;
+}
+
+.time-chip:has(input:checked){
+  border-color:rgba(14,165,233,0.55);
+  background:rgba(14,165,233,0.14);
+  box-shadow:0 10px 22px rgba(14,165,233,0.12);
+}
+
+.time-chip:has(input:disabled){
+  opacity:0.45;
+  cursor:not-allowed;
+}
+
+.time-chip:has(input:disabled) span{
+  text-decoration:line-through;
+}
+/* =========================
+   ✅ 섹션 메인 텍스트만 가운데 정렬
+   (컨트롤/옵션은 그대로)
+========================= */
+.section-center{
+  text-align:center;
+}
+
+.section-center .sub{
+  text-align:center;
+}
+
+/* option 내부 텍스트는 기본(왼쪽) 유지 */
+.section-center .option,
+.section-center .option *{
+  text-align:initial;
+}
