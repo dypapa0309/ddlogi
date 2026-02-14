@@ -1,5 +1,10 @@
 // /assets/js/app.js
 (() => {
+  // ✅ 내가 임의로 조정하는 전체 가격 배율
+// 기본값 1 (변화 없음)
+// 예: 1.05 → 5% 인상 / 0.97 → 3% 인하
+const PRICE_MULTIPLIER = 1;
+
   /* ==================================================
      디디운송 견적 계산기 (KR)
      - 거리 자동계산(카카오 지오코더) + 플로팅 가격바
@@ -775,11 +780,14 @@ function toRad(deg) {
     if (state.helperTo)   price += 40000;
 
     // 반포장 1.2배 (전체)
-    if (state.moveType === 'half') {
-      price = Math.round(price * 1.2);
-    }
+if (state.moveType === 'half') {
+  price = Math.round(price * 1.2);
+}
 
-    lastPrice = price;
+// ✅ 내가 조정하는 배율
+price = Math.round(price * PRICE_MULTIPLIER);
+
+lastPrice = price;
 
     // 요약
     if (summaryEl) {

@@ -15,7 +15,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="디디운송 | 빠르고 정직한 1톤 카고·용달" />
   <meta property="og:description" content="거리·옵션 선택만으로 예상 견적 확인" />
-  <meta property="og:image" content="/assets/img/hero-truck.jpg" />
+  <meta property="og:image" content="/assets/img/hero-bin.jpg" />
   <meta property="og:locale" content="ko_KR" />
 
   <!-- Verification tags (optional) -->
@@ -33,30 +33,59 @@
 <body data-lang="ko">
   <div class="container">
 
-    <!-- 히어로 섹션 -->
-    <section class="section">
-      <div class="hero-card">
-        <div class="hero-image">
-          <span class="badge">NO HIDDEN FEES</span>
-        </div>
-        <div class="hero-content">
-          <h1>디디운송</h1>
-          <p class="hero-desc">
-            견적 계산기를 사용하여 고객이 견적 내는 유일한 업체!<br />
-            투명한 가격으로 이사 하세요!
-          </p>
-          <div class="hero-features">
-            <div class="feature">🛡️ 전면 보험</div>
-            <div class="feature">⏰ 24시간 상담</div>
-            <div class="feature">🚚 카고 전문</div>
-          </div>
-        </div>
-      </div>
-    </section>
+<section class="section">
+  <div class="hero-card minimal">
 
-    <script>
-  (function(){var w=window;if(w.ChannelIO){return w.console.error("ChannelIO script included twice.");}var ch=function(){ch.c(arguments);};ch.q=[];ch.c=function(args){ch.q.push(args);};w.ChannelIO=ch;function l(){if(w.ChannelIOInitialized){return;}w.ChannelIOInitialized=true;var s=document.createElement("script");s.type="text/javascript";s.async=true;s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";var x=document.getElementsByTagName("script")[0];if(x.parentNode){x.parentNode.insertBefore(s,x);}}if(document.readyState==="complete"){l();}else{w.addEventListener("DOMContentLoaded",l);w.addEventListener("load",l);}})();
-</script>
+    <div class="hero-content">
+
+   <!-- 히어로 섹션 -->
+<section class="section" id="hero">
+  <div class="hero-card">
+   
+
+    <div class="hero-content">
+      <h1>이사 견적이 <br>다 다른 이유,<br><br />아시나요?</h1>
+<br><hr><br>
+      <!-- 핵심 키워드(알약) -->
+      <div class="hero-pills" aria-label="핵심 기능">
+        <span class="pill">자동 계산</span>
+        <span class="pill">투명한 옵션</span>
+        <span class="pill">AI 안내</span>
+      </div>
+
+      <!-- 본문(강조 포함) -->
+      <p class="hero-desc">
+        이사비용은 <span class="hl">비밀이 아닙니다</span><br /><br />
+        <span class="hl2">자동 계산</span>으로 빠르게<br /><br />
+        <span class="hl2">옵션은 투명하게</span><br /><br />
+        거기에 <span class="hl2">AI까지</span>
+      </p>
+
+      <!-- 한 줄 콜아웃 -->
+      <div class="hero-callout">
+        고객님이 <b>직접 투명하게 계산</b>하세요.
+      </div>
+<br><hr>
+      <!-- 대표 프로필(맨 아래) -->
+      <div class="hero-signature" aria-label="대표 소개">
+        <div class="owner-profile">
+          <!-- ✅ 여기 이미지만 교체 -->
+          <img src="/assets/img/hero-bin.jpg" alt="디디운송 대표 이상빈" />
+        </div>
+        <div class="hero-owner">디디운송 대표 이상빈</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+      
+    </div>
+  </div>
+</section>
+
+
 
     <!-- 차량 선택 -->
     <section class="section">
@@ -623,10 +652,14 @@
         <div class="price" id="price">₩0</div>
       </div>
 
-      <div class="cta-wrap">
-  <a href="#" class="cta sub" id="channelInquiry">💬 버튼을 눌러 예상견적 채널톡 문의하기</a>
-  <a href="tel:01058363055" class="cta primary">전화 문의하기</a>
+      <div class="contact-actions">
+  <a href="#" class="contact-btn mega" id="channelInquiry">
+    💬 버튼을 눌러 견적 보내고 AI와 예약 완료하기
+  </a>
+  <a href="tel:01058363055" class="contact-btn ghost">📞 전화 문의하기</a>
 </div>
+
+
 
     </section>
 
@@ -650,5 +683,38 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/config.js"></script>
   <script type="module" src="/assets/js/app.js"></script>
+<script>
+(function(){
+  var w=window;
+  if(w.ChannelIO){return;}
+  var ch=function(){ch.c(arguments);};
+  ch.q=[]; ch.c=function(args){ch.q.push(args);};
+  w.ChannelIO=ch;
+
+  function l(){
+    if(w.ChannelIOInitialized){return;}
+    w.ChannelIOInitialized=true;
+    var s=document.createElement("script");
+    s.type="text/javascript";
+    s.async=true;
+    s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";
+    var x=document.getElementsByTagName("script")[0];
+    if(x.parentNode){x.parentNode.insertBefore(s,x);}
+  }
+
+  if(document.readyState==="complete"){l();}
+  else{w.addEventListener("DOMContentLoaded",l); w.addEventListener("load",l);}
+})();
+</script>
+
+<script>
+  // ✅ 플러그인 키는 네 config.js에 있는 값으로 넣어도 되고, 여기서 직접 넣어도 됨
+  window.ChannelIO('boot', {
+    pluginKey: window.DDLOGI_CONFIG?.channelPluginKey || "여기에_채널톡_플러그인키",
+    hideChannelButtonOnBoot: false   // ✅ 우하단 버튼 숨기지 마
+  });
+</script>
+
+
 </body>
 </html>

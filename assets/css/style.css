@@ -1,33 +1,39 @@
 /* /assets/css/style.css */
-:root {
+
+/* =========================
+   0) 토큰
+========================= */
+:root{
   --bg:#0b1220;
   --card:#111827;
   --accent:#0ea5e9;
   --sub:#94a3b8;
 }
 
-/* ✅ 전역: 모바일 튐/폭 계산 문제 방지 */
-*, *::before, *::after { box-sizing: border-box; }
+/* =========================
+   1) 전역/레이아웃
+========================= */
+*, *::before, *::after{ box-sizing:border-box; }
 
-body {
+body{
   margin:0;
   background:var(--bg);
   color:#fff;
   font-family:-apple-system,BlinkMacSystemFont,Pretendard,sans-serif;
 }
 
-.container {
+.container{
   max-width:420px;
   margin:0 auto;
-  padding:20px 16px 240px; /* ✅ 플로팅바 공간 확보 */
+  padding:20px 16px 240px; /* 플로팅바 공간 */
 }
 
-.section { margin-bottom:32px; }
+.section{ margin-bottom:32px; }
 
-h1 { font-size:32px; margin:0 0 10px; }
-h2 { font-size:20px; margin-bottom:12px; }
+h1{ font-size:32px; margin:0 0 10px; }
+h2{ font-size:20px; margin-bottom:12px; }
 
-.card {
+.card{
   background:var(--card);
   border-radius:18px;
   padding:16px;
@@ -35,62 +41,129 @@ h2 { font-size:20px; margin-bottom:12px; }
   overflow:hidden;
 }
 
-.sub {
+.sub{
   color:var(--sub);
   font-size:14px;
   margin-bottom:8px;
 }
 
-/* 히어로 */
-.hero-card {
+/* =========================
+   2) HERO (최종본: 중복 금지)
+   - 이미지(트럭/추상) 안 씀
+   - 대표 프로필 맨 아래 + 크게
+   - 전체 가운데 정렬(요청 반영)
+========================= */
+.hero-card{
   background:#020617;
   border-radius:22px;
   overflow:hidden;
+  box-shadow:0 18px 60px rgba(0,0,0,0.45);
 }
 
-.hero-image {
-  height: 220px;
-  background-image: url('/assets/img/hero-truck.jpg');
-  background-size: cover;
-  background-position: center;
-  border-radius: 16px;
-  position: relative;
+/* 히어로 본문 */
+.hero-content{
+  padding:18px;
+  text-align:center; /* ✅ 가운데 정렬 */
 }
 
-.badge {
-  position:absolute;
-  top:14px;
-  left:14px;
-  background:#000;
-  padding:6px 10px;
-  font-size:12px;
-  border-radius:999px;
+.hero-content h1{
+  margin:10px 0 10px;
+  font-size:34px;
+  line-height:1.15;
+  letter-spacing:-0.8px;
 }
 
-.hero-content { padding:18px; }
-
-.hero-desc {
-  color:#cbd5f5;
-  font-size:15px;
-  line-height:1.4;
-}
-
-.hero-features {
+/* 키워드 알약 */
+.hero-pills{
   display:flex;
-  gap:10px;
-  margin-top:12px;
+  justify-content:center; /* ✅ 알약 중앙 정렬 */
+  gap:8px;
   flex-wrap:wrap;
+  margin:12px 0 14px;
+}
+.hero-pills .pill{
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:-0.2px;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(148,163,184,0.22);
+  background:rgba(2,6,23,0.65);
+  color:#e2e8f0;
 }
 
-.feature {
-  font-size:13px;
-  background:#020617;
-  padding:6px 10px;
-  border-radius:10px;
+/* 설명 문구 */
+.hero-desc{
+  margin:0;
+  color:#cbd5f5;
+  font-size:16px;
+  line-height:1.55;
+  letter-spacing:-0.2px;
+}
+.hero-desc .hl{
+  color:#ffffff;
+  font-weight:900;
+}
+.hero-desc .hl2{
+  color:var(--accent);
+  font-weight:900;
+  padding:3px 10px;
+  border-radius:12px;
+  background:rgba(14,165,233,0.10);
+  border:1px solid rgba(14,165,233,0.20);
 }
 
-/* 옵션 */
-.option {
+/* 콜아웃 */
+.hero-callout{
+  margin:16px auto 0;      /* ✅ 가운데 박스 */
+  padding:14px 14px;
+  border-radius:16px;
+  background:rgba(15,23,42,0.85);
+  border:1px solid rgba(14,165,233,0.20);
+  color:#e2e8f0;
+  font-size:16px;
+  line-height:1.35;
+  max-width:420px;
+}
+.hero-callout b{
+  color:#ffffff;
+  font-weight:900;
+}
+
+/* 대표 서명(맨 아래) */
+.hero-signature{
+  margin-top:24px;
+  padding-top:20px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  text-align:center;
+}
+
+.owner-profile{
+  width:110px;             /* ✅ 사진 크게 */
+  height:110px;
+  margin:0 auto 12px;
+  border-radius:50%;
+  overflow:hidden;
+  border:2px solid rgba(255,255,255,0.12);
+  box-shadow:0 10px 30px rgba(0,0,0,0.45);
+}
+.owner-profile img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:50% 30%; /* ✅ 얼굴 위로(0~40% 조절) */
+}
+.hero-owner{
+  font-weight:800;
+  opacity:.92;
+  letter-spacing:-0.3px;
+  font-size:18px;
+}
+
+/* =========================
+   3) 옵션/입력 공통
+========================= */
+.option{
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -98,100 +171,28 @@ h2 { font-size:20px; margin-bottom:12px; }
   margin-bottom:12px;
 }
 
-.option-controls {
-  display:flex;
-  gap:6px;
-}
+.option-controls{ display:flex; gap:6px; }
 
-input[type="number"] {
-  width:56px;
-  background:#020617;
-  color:#fff;
-  border:1px solid #1f2937;
-  border-radius:8px;
-  padding:6px;
-  text-align:center;
-}
-
-/* 차량 */
-.vehicle {
-  border:2px solid #1f2937;
-  border-radius:14px;
-  padding:14px;
-  margin-bottom:10px;
-  cursor:pointer;
-  transition:all 0.3s ease;
-}
-.vehicle:hover { border-color:#334155; }
-.vehicle.active {
-  border-color:var(--accent);
-  background:#0f172a;
-}
-
-/* 가격 */
-.price-card {
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-.price {
-  font-size:30px;
-  font-weight:800;
-}
-
-/* CTA */
-.cta-wrap {
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.cta {
-  width:100%;
-  padding:18px;
-  border-radius:18px;
-  font-size:17px;
-  font-weight:700;
-  text-align:center;
-  text-decoration:none;
-  color:#fff;
-  transition:all 0.3s ease;
-}
-
-.cta.primary { background:var(--accent); }
-.cta.primary:hover { background:#0284c7; transform:translateY(-2px); }
-
-.cta.sub { background:#334155; }
-.cta.sub:hover { background:#475569; }
-
-/* =========================
-   ✅ 입력 공통 스타일
-========================= */
-.address-input {
+.address-input{
   width:100%;
   max-width:100%;
   display:block;
-
   padding:12px 15px;
   font-size:15px;
   background:#020617;
   color:#fff;
-
   border:2px solid #1f2937;
   border-radius:12px;
-
   margin-top:8px;
   transition:all 0.3s ease;
 }
-
-.address-input:focus {
+.address-input:focus{
   outline:none;
   border-color:var(--accent);
   background:#0f172a;
   box-shadow:0 0 0 3px rgba(14,165,233,0.15);
 }
-
-.address-input::placeholder {
+.address-input::placeholder{
   color:#64748b;
   font-size:14px;
 }
@@ -207,20 +208,15 @@ input[type="number"] {
   width:100%;
   max-width:100%;
   display:block;
-
   padding:12px 15px;
   padding-right:52px;
-
   font-size:15px;
   background:#020617;
   color:#fff;
-
   border:2px solid #1f2937;
   border-radius:12px;
-
   margin-top:0 !important;
   transition:all 0.3s ease;
-
   -webkit-appearance:none;
   appearance:none;
 }
@@ -248,12 +244,11 @@ input[type="number"] {
   pointer-events:none;
   opacity:0.95;
   z-index:2;
-
   background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm13 8H4v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9ZM5 6a1 1 0 0 0-1 1v1h16V7a1 1 0 0 0-1-1H5Z'/%3E%3C/svg%3E");
 }
 
 /* 거리 계산 버튼 */
-.calc-btn {
+.calc-btn{
   width:100%;
   padding:14px;
   margin-top:15px;
@@ -267,29 +262,61 @@ input[type="number"] {
   transition:all 0.3s ease;
   box-shadow:0 4px 12px rgba(14,165,233,0.25);
 }
-.calc-btn:hover {
+.calc-btn:hover{
   transform:translateY(-2px);
   box-shadow:0 6px 16px rgba(14,165,233,0.35);
 }
-.calc-btn:active { transform:translateY(0); }
-.calc-btn:disabled {
+.calc-btn:active{ transform:translateY(0); }
+.calc-btn:disabled{
   opacity:0.6;
   cursor:not-allowed;
   transform:none;
 }
 
-/* 거리 결과 표시 */
-.distance-result {
+/* 거리 결과 */
+.distance-result{
   margin-top:15px;
   padding:15px;
   background:#0f172a;
   border-radius:12px;
   border-left:4px solid var(--accent);
 }
-.distance-result .sub { margin:0; color:#cbd5e1; }
-.distance-result b { color:var(--accent); font-size:18px; }
+.distance-result .sub{ margin:0; color:#cbd5e1; }
+.distance-result b{ color:var(--accent); font-size:18px; }
 
-/* 하단 플로팅 가격바 */
+/* =========================
+   4) 차량 선택
+========================= */
+.vehicle{
+  border:2px solid #1f2937;
+  border-radius:14px;
+  padding:14px;
+  margin-bottom:10px;
+  cursor:pointer;
+  transition:all 0.3s ease;
+}
+.vehicle:hover{ border-color:#334155; }
+.vehicle.active{
+  border-color:var(--accent);
+  background:#0f172a;
+}
+
+/* =========================
+   5) 가격 표시
+========================= */
+.price-card{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.price{
+  font-size:30px;
+  font-weight:800;
+}
+
+/* =========================
+   6) 하단 플로팅 가격바
+========================= */
 .sticky-pricebar{
   position:fixed;
   left:16px;
@@ -298,7 +325,6 @@ input[type="number"] {
   max-width:420px;
   margin:0 auto;
   z-index:999;
-
   background:var(--card);
   border-radius:22px;
   padding:18px 16px;
@@ -313,33 +339,34 @@ input[type="number"] {
 }
 
 /* =========================
-   ✅ 숫자 입력 UX 개선 (모바일 줌/스텝퍼)
+   7) 스텝퍼/숫자 입력
 ========================= */
-
-/* iOS 줌 방지: 16px 이상 */
 input[type="number"]{
-  font-size:16px; /* ✅ 중요 */
+  width:56px;
+  background:#020617;
+  color:#fff;
+  border:1px solid #1f2937;
+  border-radius:8px;
+  padding:6px;
+  text-align:center;
+
+  font-size:16px; /* iOS 줌 방지 */
   -webkit-text-size-adjust:100%;
 }
 
-/* 기본 스핀 버튼 숨김 (브라우저 기본 UI 제거) */
+/* 스핀 버튼 제거 */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button{
   -webkit-appearance:none;
   margin:0;
 }
-input[type="number"]{
-  -moz-appearance:textfield;
-}
+input[type="number"]{ -moz-appearance:textfield; }
 
-/* 스텝퍼 래퍼 */
 .stepper{
   display:flex;
   align-items:center;
   gap:8px;
 }
-
-/* 스텝퍼 버튼 */
 .stepper-btn{
   width:38px;
   height:38px;
@@ -357,11 +384,7 @@ input[type="number"]{
   user-select:none;
   -webkit-tap-highlight-color:transparent;
 }
-.stepper-btn:active{
-  transform:translateY(1px);
-}
-
-/* 스텝퍼 input */
+.stepper-btn:active{ transform:translateY(1px); }
 .stepper input[type="number"]{
   width:64px;
   height:38px;
@@ -371,108 +394,37 @@ input[type="number"]{
   background:#020617;
   color:#fff;
   text-align:center;
-  caret-color:transparent; /* 커서 깜빡임 줄이기(원하면 제거) */
+  caret-color:transparent; /* 필요하면 auto로 */
 }
 
 /* =========================
-   ✅ "버려주세요!" 섹션(throw) UI
-   - 토글 + 출발/도착 2열(모바일은 1열)
+   8) throw(버려주세요) 섹션
+   - 카드 잘림 방지
 ========================= */
+#throwSection .card{ overflow:visible; }
 
-.throw-card {
-  background:#0b162a; /* 기존 카드보다 살짝 다른 톤 */
+.throw-card{
+  background:#0b162a;
   border:1px solid #1f2937;
   border-radius:18px;
   padding:16px;
 }
 
-.throw-head {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
-
-.throw-title {
-  font-size:16px;
-  font-weight:800;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.throw-title .pill {
-  font-size:12px;
-  font-weight:800;
-  padding:6px 10px;
-  border-radius:999px;
-  background:#020617;
-  border:1px solid #1f2937;
-  color:#cbd5f5;
-}
-
-.throw-desc {
-  margin-top:8px;
-  color:#cbd5e1;
-  font-size:13px;
-  line-height:1.45;
-}
-
-/* 토글 스위치 */
-.switch {
-  position:relative;
-  width:52px;
-  height:30px;
-  flex:0 0 auto;
-}
-.switch input {
-  opacity:0;
-  width:0;
-  height:0;
-}
-.slider {
-  position:absolute;
-  inset:0;
-  background:#1f2937;
-  border-radius:999px;
-  transition:all .2s ease;
-  border:1px solid #334155;
-}
-.slider:before {
-  content:"";
-  position:absolute;
-  width:24px;
-  height:24px;
-  left:3px;
-  top:50%;
-  transform:translateY(-50%);
-  background:#fff;
-  border-radius:999px;
-  transition:all .2s ease;
-}
-.switch input:checked + .slider {
-  background:rgba(14,165,233,0.35);
-  border-color:rgba(14,165,233,0.55);
-}
-.switch input:checked + .slider:before {
-  transform:translateY(-50%) translateX(22px);
-}
-
-/* 토글 바디 */
-#throwBody {
+#throwBody{
+  overflow:hidden;
+  transition:all 0.3s ease;
   margin-top:14px;
   padding-top:14px;
   border-top:1px solid rgba(255,255,255,0.08);
 }
 
-/* 출발/도착 작업 체크 */
-.throw-work {
+.throw-work{
   display:flex;
   gap:10px;
   flex-wrap:wrap;
   margin-bottom:12px;
 }
-.throw-work label {
+.throw-work label{
   display:flex;
   align-items:center;
   gap:8px;
@@ -482,35 +434,27 @@ input[type="number"]{
   border-radius:14px;
   cursor:pointer;
 }
-.throw-work input[type="checkbox"]{
-  width:18px;
-  height:18px;
-  accent-color: var(--accent);
-}
 
-/* 출발/도착 2열 */
-.throw-grid {
+.throw-grid{
   display:grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns:1fr 1fr;
   gap:12px;
 }
 
-.throw-col {
+.throw-col{
   background:#020617;
   border:1px solid #1f2937;
   border-radius:16px;
   padding:12px;
 }
-
-.throw-col h3 {
+.throw-col h3{
   margin:0 0 10px;
   font-size:14px;
   color:#e2e8f0;
   letter-spacing:0.2px;
 }
 
-/* 품목 라인 */
-.throw-row {
+.throw-row{
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -518,377 +462,263 @@ input[type="number"]{
   padding:10px 0;
   border-top:1px solid rgba(255,255,255,0.06);
 }
-.throw-row:first-of-type { border-top:none; }
-.throw-row .label {
+.throw-row:first-of-type{ border-top:none; }
+.throw-row .label{
   font-size:14px;
   color:#e2e8f0;
   line-height:1.2;
 }
 
-/* throw 수량 input: 기존 stepper와 동일 톤 */
-.throw-row .stepper {
-  gap:6px;
-}
-.throw-row .stepper-btn {
-  width:34px;
-  height:34px;
-  border-radius:10px;
-}
-.throw-row .stepper input[type="number"]{
-  width:56px;
-  height:34px;
-  border-radius:10px;
-}
-
-/* 체크박스/라디오 기본 accent */
-input[type="checkbox"], input[type="radio"]{
-  accent-color: var(--accent);
-}
-
 /* =========================
-   반응형
+   9) 스위치 (✅ 단 1개만 유지)
 ========================= */
-@media (max-width: 768px) {
-  .container { padding:16px 12px 240px; }
-  .address-input, .date-input { font-size:14px; padding:10px 12px; }
-  .date-input { padding-right:48px; }
-  .calc-btn { font-size:15px; padding:12px; }
-  .hero-image { height:180px; }
-  h1 { font-size:28px; }
-
-  /* throw: 모바일은 1열 */
-  .throw-grid { grid-template-columns: 1fr; }
-}
-
-#throwBody {
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-/* ==================================================
-   ✅ 버려주세요(throwSection) UI 정리
-   - 카드 잘림(overflow) 해결
-   - 체크/스위치 정렬
-   - 품목 라벨/스텝퍼 레이아웃 안정화
-================================================== */
-
-/* 1) 이 섹션 카드만 overflow 풀기 (스텝퍼가 잘리는 현상 방지) */
-#throwSection .card{
-  overflow: visible;
-}
-
-/* 2) 토글 헤더(한 줄 정렬) */
-#throwSection .option{
-  align-items: center;
-  gap: 14px;
-}
-
-/* 3) throwBody 전체 간격 */
-#throwBody{
-  margin-top: 14px;
-}
-
-/* 4) 출발/도착 작업여부 체크 2개를 버튼처럼 보이게 */
-#throwBody .work-grid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 10px;
-}
-
-#throwBody .work-pill{
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-  gap: 10px;
-
-  padding: 14px 14px;
-  border-radius: 18px;
-  border: 1px solid #1f2937;
-  background: #020617;
-}
-
-#throwBody .work-pill b{
-  font-size: 16px;
-  letter-spacing: -0.2px;
-}
-
-/* 5) 출발지/도착지 짐(수량) 2컬럼 카드 */
-#throwBody .throw-cols{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-#throwBody .throw-col{
-  background: #020617;
-  border: 1px solid #1f2937;
-  border-radius: 18px;
-  padding: 14px;
-}
-
-#throwBody .throw-col .col-title{
-  font-size: 18px;
-  font-weight: 800;
-  margin-bottom: 10px;
-}
-
-/* 6) 품목 row를 '라벨 + 스텝퍼'로 안정적으로 배치 */
-#throwBody .item-qty-row{
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 10px;
-
-  padding: 12px 0;
-  margin: 0;
-  border-bottom: 1px solid rgba(148,163,184,0.12);
-}
-#throwBody .item-qty-row:last-child{
-  border-bottom: none;
-}
-
-/* 라벨(줄바꿈 최소화 + 가독성) */
-#throwBody .item-qty-row > div:first-child{
-  font-size: 14px;
-  line-height: 1.25;
-  color: #e5e7eb;
-  letter-spacing: -0.2px;
-  word-break: keep-all;
-}
-
-/* 7) throw 전용 스텝퍼 폭/정렬 */
-#throwBody .stepper{
-  gap: 8px;
-}
-#throwBody .stepper-btn{
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-}
-#throwBody input.throwQty{
-  width: 72px;
-  height: 40px;
-  border-radius: 12px;
-  font-size: 16px;
-  caret-color: auto; /* 숫자 직접 입력도 자연스럽게 */
-}
-
-/* 8) 작은 안내문 */
-#throwBody .throw-note{
-  margin-top: 10px;
-  color: #94a3b8;
-  font-size: 13px;
-  line-height: 1.35;
-}
-
-/* 9) 모바일(폭 좁을 때) 1컬럼으로 자동 전환 */
-@media (max-width: 420px){
-  #throwBody .throw-cols{
-    grid-template-columns: 1fr;
-  }
-  #throwBody .work-grid{
-    grid-template-columns: 1fr;
-  }
-}
-/* ==================================================
-   ✅ 토글 스위치(throwToggle) 비주얼 업그레이드
-   - 기존 .switch 구조 유지 (input + .slider)
-================================================== */
-
 .switch{
-  position: relative;
-  width: 58px;
-  height: 34px;
-  flex: 0 0 auto;
+  position:relative;
+  width:58px;
+  height:34px;
+  flex:0 0 auto;
 }
-
 .switch input{
-  opacity: 0;
-  width: 0;
-  height: 0;
+  opacity:0;
+  width:0;
+  height:0;
 }
-
-/* 트랙 */
 .slider{
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-
-  /* 고급스러운 다크 톤 */
-  background: linear-gradient(180deg, #0b1220 0%, #0a1020 100%);
-  border: 1px solid rgba(148,163,184,0.22);
-
-  /* 살짝 안으로 들어가는 느낌 */
+  position:absolute;
+  inset:0;
+  border-radius:999px;
+  background:linear-gradient(180deg, #0b1220 0%, #0a1020 100%);
+  border:1px solid rgba(148,163,184,0.22);
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.04),
     inset 0 10px 18px rgba(0,0,0,0.45);
-
-  transition: all 0.22s ease;
+  transition:all 0.22s ease;
 }
-
-/* 썸(손잡이) */
 .slider:before{
   content:"";
   position:absolute;
-  width: 28px;
-  height: 28px;
-  left: 3px;
-  top: 50%;
-  transform: translateY(-50%);
-
-  border-radius: 999px;
-  background: linear-gradient(180deg, #ffffff 0%, #dbeafe 100%);
-
-  /* 썸 입체감 */
+  width:28px;
+  height:28px;
+  left:3px;
+  top:50%;
+  transform:translateY(-50%);
+  border-radius:999px;
+  background:linear-gradient(180deg, #ffffff 0%, #dbeafe 100%);
   box-shadow:
     0 10px 20px rgba(0,0,0,0.45),
     inset 0 0 0 1px rgba(0,0,0,0.08);
-
-  transition: all 0.22s cubic-bezier(.2,.8,.2,1);
+  transition:all 0.22s cubic-bezier(.2,.8,.2,1);
 }
-
-/* hover/press 피드백 */
 .switch:hover .slider{
-  border-color: rgba(148,163,184,0.34);
-  transform: translateY(-0.5px);
+  border-color:rgba(148,163,184,0.34);
+  transform:translateY(-0.5px);
 }
+.switch:active .slider{ transform:translateY(0.5px); }
 
-.switch:active .slider{
-  transform: translateY(0.5px);
-}
-
-/* ON 상태 */
 .switch input:checked + .slider{
-  background: linear-gradient(135deg, rgba(14,165,233,0.45) 0%, rgba(2,132,199,0.55) 100%);
-  border-color: rgba(14,165,233,0.55);
-
-  /* 글로우 */
+  background:linear-gradient(135deg, rgba(14,165,233,0.45) 0%, rgba(2,132,199,0.55) 100%);
+  border-color:rgba(14,165,233,0.55);
   box-shadow:
     0 10px 26px rgba(14,165,233,0.20),
     inset 0 0 0 1px rgba(255,255,255,0.06),
     inset 0 10px 18px rgba(0,0,0,0.35);
 }
-
 .switch input:checked + .slider:before{
-  transform: translateY(-50%) translateX(24px);
-  background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%);
-}
-
-/* 접근성: 키보드 포커스 링 */
-.switch input:focus-visible + .slider{
-  outline: none;
-  box-shadow:
-    0 0 0 4px rgba(14,165,233,0.22),
-    inset 0 0 0 1px rgba(255,255,255,0.06),
-    inset 0 10px 18px rgba(0,0,0,0.35);
-}
-/* ==================================================
-   ✅ 토글 스위치(throwToggle) 비주얼 업그레이드
-   - 기존 .switch 구조 유지 (input + .slider)
-================================================== */
-
-.switch{
-  position: relative;
-  width: 58px;
-  height: 34px;
-  flex: 0 0 auto;
-}
-
-.switch input{
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* 트랙 */
-.slider{
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-
-  /* 고급스러운 다크 톤 */
-  background: linear-gradient(180deg, #0b1220 0%, #0a1020 100%);
-  border: 1px solid rgba(148,163,184,0.22);
-
-  /* 살짝 안으로 들어가는 느낌 */
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.04),
-    inset 0 10px 18px rgba(0,0,0,0.45);
-
-  transition: all 0.22s ease;
-}
-
-/* 썸(손잡이) */
-.slider:before{
-  content:"";
-  position:absolute;
-  width: 28px;
-  height: 28px;
-  left: 3px;
-  top: 50%;
-  transform: translateY(-50%);
-
-  border-radius: 999px;
-  background: linear-gradient(180deg, #ffffff 0%, #dbeafe 100%);
-
-  /* 썸 입체감 */
-  box-shadow:
-    0 10px 20px rgba(0,0,0,0.45),
-    inset 0 0 0 1px rgba(0,0,0,0.08);
-
-  transition: all 0.22s cubic-bezier(.2,.8,.2,1);
-}
-
-/* hover/press 피드백 */
-.switch:hover .slider{
-  border-color: rgba(148,163,184,0.34);
-  transform: translateY(-0.5px);
-}
-
-.switch:active .slider{
-  transform: translateY(0.5px);
-}
-
-/* ON 상태 */
-.switch input:checked + .slider{
-  background: linear-gradient(135deg, rgba(14,165,233,0.45) 0%, rgba(2,132,199,0.55) 100%);
-  border-color: rgba(14,165,233,0.55);
-
-  /* 글로우 */
-  box-shadow:
-    0 10px 26px rgba(14,165,233,0.20),
-    inset 0 0 0 1px rgba(255,255,255,0.06),
-    inset 0 10px 18px rgba(0,0,0,0.35);
-}
-
-.switch input:checked + .slider:before{
-  transform: translateY(-50%) translateX(24px);
-  background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%);
-}
-
-/* 접근성: 키보드 포커스 링 */
-.switch input:focus-visible + .slider{
-  outline: none;
-  box-shadow:
-    0 0 0 4px rgba(14,165,233,0.22),
-    inset 0 0 0 1px rgba(255,255,255,0.06),
-    inset 0 10px 18px rgba(0,0,0,0.35);
+  transform:translateY(-50%) translateX(24px);
+  background:linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%);
 }
 .switch input:checked + .slider::after{
   content:"";
   position:absolute;
   inset:-6px;
   border-radius:999px;
-  background: rgba(14,165,233,0.18);
-  filter: blur(10px);
+  background:rgba(14,165,233,0.18);
+  filter:blur(10px);
   z-index:-1;
 }
+.switch input:focus-visible + .slider{
+  outline:none;
+  box-shadow:
+    0 0 0 4px rgba(14,165,233,0.22),
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    inset 0 10px 18px rgba(0,0,0,0.35);
+}
 
-.move-toggle-row{
+/* 체크박스/라디오 accent */
+input[type="checkbox"], input[type="radio"]{ accent-color: var(--accent); }
+
+/* =========================
+   10) 반응형
+========================= */
+@media (max-width: 768px){
+  .container{ padding:16px 12px 240px; }
+  .address-input, .date-input{ font-size:14px; padding:10px 12px; }
+  .date-input{ padding-right:48px; }
+  .calc-btn{ font-size:15px; padding:12px; }
+  h1{ font-size:28px; }
+
+  .hero-content h1{ font-size:32px; }
+  .owner-profile{ width:96px; height:96px; }
+
+  .throw-grid{ grid-template-columns:1fr; } /* throw 모바일 1열 */
+}
+
+@media (max-width: 420px){
+  .hero-content h1{ font-size:30px; }
+  .hero-desc{ font-size:15px; }
+}
+
+/* =========================
+   ✅ 문의 버튼(채널톡/전화) UI (최종)
+   - 메인: 채널톡 'AI로 예약 완료하기' (mega)
+   - 서브: 전화문의는 아래에 작은 링크/버튼 느낌
+========================= */
+
+/* ✅ 메인/서브를 "세로"로 (전화는 아래로 내려감) */
+.contact-actions{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:12px;
+}
+
+/* 공통 버튼 */
+.contact-actions .contact-btn{
+  width:100%;
+  display:flex;
   align-items:center;
+  justify-content:center;
+  gap:10px;
+
+  padding:14px 12px;
+  border-radius:18px;
+
+  font-size:15px;
+  font-weight:900;
+  letter-spacing:-0.2px;
+
+  text-decoration:none;
+  border:1px solid rgba(148,163,184,0.22);
+  background:rgba(2,6,23,0.65);
+  color:#fff;
+
+  box-shadow:0 10px 26px rgba(0,0,0,0.35);
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
 }
-.move-toggle-row .switch{
-  flex: 0 0 auto;
+
+.contact-actions .contact-btn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(148,163,184,0.35);
+  box-shadow:0 14px 34px rgba(0,0,0,0.45);
 }
+.contact-actions .contact-btn:active{ transform:translateY(0); }
+
+/* ✅ 메인 CTA: mega (강조 + 문구 길어도 예쁘게) */
+.contact-actions .contact-btn.mega{
+  padding:16px 14px;
+  border-radius:20px;
+  font-size:16px;
+  line-height:1.2;
+
+  border-color:rgba(14,165,233,0.40);
+  background:linear-gradient(135deg, rgba(14,165,233,0.18) 0%, rgba(2,132,199,0.12) 100%);
+  box-shadow:
+    0 14px 40px rgba(0,0,0,0.55),
+    0 10px 26px rgba(14,165,233,0.12);
+}
+
+/* mega 버튼 안 텍스트를 2줄로 정돈하고 싶을 때(선택) */
+.contact-actions .contact-btn.mega .cta-text{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+}
+.contact-actions .contact-btn.mega .cta-text .title{
+  font-size:16px;
+  font-weight:950;
+  letter-spacing:-0.3px;
+}
+.contact-actions .contact-btn.mega .cta-text .desc{
+  font-size:13px;
+  color:#cbd5e1;
+  font-weight:800;
+  letter-spacing:-0.2px;
+}
+
+/* ✅ 서브 CTA: 전화 (아래, 덜 강조) */
+.contact-actions .contact-btn.ghost{
+  padding:12px 12px;
+  border-radius:16px;
+  font-size:14px;
+  font-weight:850;
+
+  background:rgba(15,23,42,0.55);
+  border-color:rgba(148,163,184,0.18);
+  box-shadow:0 8px 22px rgba(0,0,0,0.32);
+  opacity:0.92;
+}
+
+/* =========================
+   ✅ 메인 CTA 은은한 맥박 효과 (mega 전용)
+========================= */
+.contact-actions .contact-btn.mega{
+  position:relative;
+  overflow:hidden;
+}
+
+.contact-actions .contact-btn.mega::after{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  border-radius:24px;
+  background:rgba(14,165,233,0.18);
+  filter:blur(14px);
+  opacity:0.6;
+  z-index:-1;
+  animation:softPulse 2.8s ease-in-out infinite;
+}
+
+.contact-actions .contact-btn.mega::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:20px;
+  background:radial-gradient(
+    circle at 50% 50%,
+    rgba(14,165,233,0.25) 0%,
+    rgba(14,165,233,0.08) 40%,
+    transparent 70%
+  );
+  opacity:0.35;
+  animation:innerGlow 3s ease-in-out infinite;
+}
+
+@keyframes softPulse{
+  0%,100%{ opacity:0.40; transform:scale(1); }
+  50%{ opacity:0.75; transform:scale(1.03); }
+}
+@keyframes innerGlow{
+  0%,100%{ opacity:0.22; }
+  50%{ opacity:0.42; }
+}
+
+.contact-actions .contact-btn.mega:hover::after,
+.contact-actions .contact-btn.mega:hover::before{
+  animation:none;
+  opacity:0.9;
+}
+
+/* mega가 너무 튄다고 느끼면, 모션 민감 사용자 배려 */
+@media (prefers-reduced-motion: reduce){
+  .contact-actions .contact-btn.mega::after,
+  .contact-actions .contact-btn.mega::before{
+    animation:none !important;
+  }
+}
+
+/* 초소형 화면에서 텍스트 줄바꿈 자연스럽게 */
+@media (max-width: 360px){
+  .contact-actions .contact-btn.mega{ font-size:15px; }
+}
+
