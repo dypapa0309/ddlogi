@@ -650,77 +650,72 @@
     return deg * (Math.PI / 180);
   }
 
-  /* =========================
-     ✅ 문의 메시지 생성 (채널톡용)
-  ========================= */
-  function buildInquiryMessage(priceNumber) {
-    const startAddr = (startAddressInput?.value || '').trim();
-    const endAddr   = (endAddressInput?.value || '').trim();
+ function buildInquiryMessage(priceNumber) {
+  const startAddr = (startAddressInput?.value || '').trim();
+  const endAddr   = (endAddressInput?.value || '').trim();
 
-    const vehicleLabel = state.vehicle || '미선택';
-    const moveLabel    = moveTypeLabel(state.moveType);
+  const vehicleLabel = state.vehicle || '미선택';
+  const moveLabel    = moveTypeLabel(state.moveType);
 
-    const stairsFrom = state.noFrom ? `${state.fromFloor}층(엘베없음)` : '엘베있음';
-    const stairsTo   = state.noTo ? `${state.toFloor}층(엘베없음)` : '엘베있음';
+  const stairsFrom = state.noFrom ? `${state.fromFloor}층(엘베없음)` : '엘베있음';
+  const stairsTo   = state.noTo ? `${state.toFloor}층(엘베없음)` : '엘베있음';
 
-    const loadMap = getLoadMap(state.moveType);
-    const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : '미선택';
+  const loadMap = getLoadMap(state.moveType);
+  const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : '미선택';
 
-    const ladderLabel = state.ladder ? '필요' : '불필요';
-    const nightLabel  = state.night  ? '해당' : '미해당';
-    const rideLabel   = state.ride > 0 ? `${state.ride}명` : '없음';
-    const distanceLabel = state.distance > 0 ? `${state.distance}km` : '미계산';
+  const ladderLabel = state.ladder ? '필요' : '불필요';
+  const nightLabel  = state.night  ? '해당' : '미해당';
+  const rideLabel   = state.ride > 0 ? `${state.ride}명` : '없음';
 
-    const scheduleLabel = state.moveDate || '미선택';
-    const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
+  const distanceLabel = state.distance > 0 ? `${state.distance}km` : '미계산';
+  const scheduleLabel = state.moveDate || '미선택';
+  const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
+  const laborLabel = buildLaborLabel(state);
 
-    const laborLabel = buildLaborLabel(state);
+  // ✅ 분리
+  const moveItemsLabel  = getSelectedQtyLabel(state.itemQty);
+  const throwFromLabel  = getSelectedQtyLabel(state.throwFromQty);
+  const throwToLabel    = getSelectedQtyLabel(state.throwToQty);
 
-    const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
-    const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
-    const allItemsLabel = getSelectedQtyLabel(mergedAllItems);
+  const total   = Math.max(0, Number(priceNumber) || 0);
+  const deposit = Math.round(total * 0.2);
+  const balance = total - deposit;
 
-    const throwModeLabel = state.throwEnabled ? '사용' : '미사용';
-    const workLabel = state.throwEnabled
-      ? `출발지 작업:${state.workFrom ? '있음' : '없음'} / 도착지 작업:${state.workTo ? '있음' : '없음'}`
-      : '-';
+  const lines = [
+    '안녕하세요. 디디운송 견적 문의드립니다.',
+    '',
+    `[조건]`,
+    `- 이사 방식: ${moveLabel}`,
+    `- 차량: ${vehicleLabel}`,
+    `- 거리: ${distanceLabel}`,
+    `- 일정: ${scheduleLabel}`,
+    `- 희망 시간: ${timeSlotLabel}`,
+    startAddr ? `- 출발지: ${startAddr}` : null,
+    endAddr ? `- 도착지: ${endAddr}` : null,
+    `- 계단: 출발 ${stairsFrom} / 도착 ${stairsTo}`,
+    `- 짐양(박스): ${loadLabel}`,
+    '',
+    `- 옮겨주세요(운송 품목): ${moveItemsLabel}`,
+    state.throwEnabled ? `- 버려주세요(출발): ${throwFromLabel}` : `- 버려주세요: 미사용`,
+    state.throwEnabled ? `- 버려주세요(도착): ${throwToLabel}` : null,
+    '',
+    `- 사다리차: ${ladderLabel}`,
+    `- 야간/주말: ${nightLabel}`,
+    `- 동승: ${rideLabel}`,
+    `- 인부/작업: ${laborLabel}`,
+    '',
+    `[예상금액] ₩${total.toLocaleString('ko-KR')}`,
+    `[예약금(20%)] ₩${deposit.toLocaleString('ko-KR')}`,
+    `[잔금(80%)] ₩${balance.toLocaleString('ko-KR')}`,
+    '※ 예약금 입금 시 예약 확정되며, 잔금은 운송 당일 결제합니다.',
+    '※ 현장 상황에 따라 금액이 변동될 수 있습니다.',
+    ''
+  ].filter(Boolean);
 
-    // ✅ 결제 금액 계산
-    const total = Math.max(0, Number(priceNumber) || 0);
-    const deposit = Math.round(total * 0.2);
-    const balance = Math.max(0, total - deposit);
+  return lines.join('\n');
+}
 
-    const lines = [
-      '안녕하세요. 디디운송 견적 문의드립니다.',
-      '',
-      `[조건]`,
-      `- 이사 방식: ${moveLabel}`,
-      `- 차량: ${vehicleLabel}`,
-      `- 거리: ${distanceLabel}`,
-      `- 일정: ${scheduleLabel}`,
-      `- 희망 시간: ${timeSlotLabel}`,
-      startAddr ? `- 출발지: ${startAddr}` : null,
-      endAddr ? `- 도착지: ${endAddr}` : null,
-      `- 계단: 출발 ${stairsFrom} / 도착 ${stairsTo}`,
-      `- 짐양(박스): ${loadLabel}`,
-      `- 버려주세요: ${throwModeLabel}`,
-      `- 작업 여부: ${workLabel}`,
-      `- 가구·가전(합산): ${allItemsLabel}`,
-      `- 사다리차: ${ladderLabel}`,
-      `- 야간/주말: ${nightLabel}`,
-      `- 동승: ${rideLabel}`,
-      `- 인부/작업: ${laborLabel}`,
-      '',
-      `[예상금액] ₩${total.toLocaleString('ko-KR')}`,
-      `[예약금(20%)] ₩${deposit.toLocaleString('ko-KR')}`,
-      `[잔금(80%)] ₩${balance.toLocaleString('ko-KR')}`,
-      '※ 예약금 입금 시 예약 확정되며, 잔금은 운송 당일 결제합니다.',
-      '※ 현장 상황(짐량/동선/주차/추가 작업)에 따라 금액이 변동될 수 있습니다.',
-      '',
-    ].filter(Boolean);
 
-    return lines.join('\n');
-  }
 
   /* =========================
      가격 계산 (✅ 옵션 A - 거리밴드 제거ver)

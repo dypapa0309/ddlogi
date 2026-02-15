@@ -6,6 +6,7 @@
   /* ==================================================
      DDLOGI Estimate Calculator (EN)
      - Same logic as KR version, only text/output is English
+     - Throw mode: display separately (Move items / Throw-from / Throw-to)
   ================================================== */
 
   /* =========================
@@ -127,23 +128,24 @@
     return moveType === 'half' ? 'Semi-Packed' : 'Basic';
   }
 
+  // ✅ keep only ONE time formatter
   function formatTimeSlotEN(v) {
     const s = String(v || '');
     if (!s) return 'Not selected';
-    const hour = toNumberSafe(s, NaN);
+    const hour = Number(s);
     if (!Number.isFinite(hour)) return 'Not selected';
 
-    if (hour === 12) return '12 PM';
-    if (hour >= 13) return `${hour - 12} PM`;
-    return `${hour} AM`;
+    const isPM = hour >= 12;
+    const h12 = ((hour + 11) % 12) + 1; // 0->12, 13->1
+    return `${h12} ${isPM ? 'PM' : 'AM'}`;
   }
 
-  function buildLaborLabel(st) {
+  function buildLaborLabelEN(st) {
     const parts = [];
-    if (st.cantCarryFrom) parts.push('Hard to carry at start (+₩30,000)');
-    if (st.cantCarryTo)   parts.push('Hard to carry at destination (+₩30,000)');
-    if (st.helperFrom)    parts.push('Add helper at start (+₩40,000)');
-    if (st.helperTo)      parts.push('Add helper at destination (+₩40,000)');
+    if (st.cantCarryFrom) parts.push('From: hard to carry by 1 driver (+₩30,000)');
+    if (st.cantCarryTo)   parts.push('To: hard to carry by 1 driver (+₩30,000)');
+    if (st.helperFrom)    parts.push('From: add 1 helper (+₩40,000)');
+    if (st.helperTo)      parts.push('To: add 1 helper (+₩40,000)');
     return parts.length ? parts.join(', ') : 'None';
   }
 
@@ -158,13 +160,79 @@
     return out;
   }
 
-  function getSelectedQtyLabel(qtyMap = {}) {
+  function getSelectedQtyLabelEN(qtyMap = {}) {
     const labels = [];
     Object.entries(qtyMap).forEach(([k, qty]) => {
       const q = Math.max(0, Number(qty) || 0);
       if (q > 0) labels.push(`${FURNITURE_PRICE[k]?.label || k}×${q}`);
     });
     return labels.length ? labels.join(', ') : 'None';
+  }
+
+  function buildInquiryMessageEN(priceNumber) {
+    const startAddr = (startAddressInput?.value || '').trim();
+    const endAddr   = (endAddressInput?.value || '').trim();
+
+    const vehicleLabel = state.vehicle || 'Not selected';
+    const moveLabel = moveTypeLabel(state.moveType);
+
+    const stairsFrom = state.noFrom ? `${state.fromFloor}F (No elevator)` : 'Elevator';
+    const stairsTo   = state.noTo ? `${state.toFloor}F (No elevator)` : 'Elevator';
+
+    const loadMap = getLoadMap(state.moveType);
+    const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : 'Not selected';
+
+    const distanceLabel = state.distance > 0 ? `${state.distance} km` : 'Not calculated';
+    const scheduleLabel = state.moveDate || 'Not selected';
+    const timeSlotLabel = formatTimeSlotEN(state.timeSlot);
+    const laborLabel = buildLaborLabelEN(state);
+
+    const moveItemsLabel  = getSelectedQtyLabelEN(state.itemQty);
+    const throwFromLabel  = getSelectedQtyLabelEN(state.throwFromQty);
+    const throwToLabel    = getSelectedQtyLabelEN(state.throwToQty);
+
+    const total   = Math.max(0, Number(priceNumber) || 0);
+    const deposit = Math.round(total * 0.2);
+    const balance = total - deposit;
+
+    const throwEnabledLabel = state.throwEnabled ? 'Enabled' : 'Disabled';
+    const throwWorkLabel = state.throwEnabled
+      ? `Start: ${state.workFrom ? 'Yes' : 'No'} / Destination: ${state.workTo ? 'Yes' : 'No'}`
+      : '-';
+
+    const lines = [
+      'Hello, this is a quote inquiry for DD Logistics.',
+      '',
+      `[Estimated total] ₩${total.toLocaleString('en-US')}`,
+      `[Deposit 20%] ₩${deposit.toLocaleString('en-US')}`,
+      `[Balance 80%] ₩${balance.toLocaleString('en-US')}`,
+      '',
+      '[Details]',
+      `- Move type: ${moveLabel}`,
+      `- Vehicle: ${vehicleLabel}`,
+      `- Distance: ${distanceLabel}`,
+      `- Date: ${scheduleLabel}`,
+      `- Preferred time: ${timeSlotLabel}`,
+      startAddr ? `- From: ${startAddr}` : null,
+      endAddr ? `- To: ${endAddr}` : null,
+      `- Stairs: From ${stairsFrom} / To ${stairsTo}`,
+      `- Boxes: ${loadLabel}`,
+      '',
+      `- Move items (transport): ${moveItemsLabel}`,
+      `- Throw mode: ${throwEnabledLabel}`,
+      state.throwEnabled ? `- Throw work: ${throwWorkLabel}` : null,
+      state.throwEnabled ? `- Throw away (from): ${throwFromLabel}` : null,
+      state.throwEnabled ? `- Throw away (to): ${throwToLabel}` : null,
+      '',
+      `- Ladder truck: ${state.ladder ? 'Required' : 'Not required'}`,
+      `- Night/Weekend: ${state.night ? 'Yes' : 'No'}`,
+      `- Ride-along: ${state.ride > 0 ? `${state.ride} person(s)` : 'None'}`,
+      `- Helper/Labor: ${laborLabel}`,
+      '',
+      '* Final price may vary depending on on-site conditions.'
+    ].filter(Boolean);
+
+    return lines.join('\n');
   }
 
   /* =========================
@@ -611,77 +679,6 @@
   }
 
   /* =========================
-     Inquiry message (ChannelTalk)
-  ========================= */
-  function buildInquiryMessage(priceNumber) {
-    const startAddr = (startAddressInput?.value || '').trim();
-    const endAddr   = (endAddressInput?.value || '').trim();
-
-    const vehicleLabel = state.vehicle || 'Not selected';
-    const moveLabel    = moveTypeLabel(state.moveType);
-
-    const stairsFrom = state.noFrom ? `${state.fromFloor}F (No elevator)` : 'Elevator';
-    const stairsTo   = state.noTo ? `${state.toFloor}F (No elevator)` : 'Elevator';
-
-    const loadMap = getLoadMap(state.moveType);
-    const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : 'Not selected';
-
-    const ladderLabel = state.ladder ? 'Needed' : 'Not needed';
-    const nightLabel  = state.night  ? 'Yes' : 'No';
-    const rideLabel   = state.ride > 0 ? `${state.ride}` : '0';
-    const distanceLabel = state.distance > 0 ? `${state.distance} km` : 'Not calculated';
-
-    const scheduleLabel = state.moveDate || 'Not selected';
-    const timeSlotLabel = formatTimeSlotEN(state.timeSlot);
-
-    const laborLabel = buildLaborLabel(state);
-
-    const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
-    const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
-    const allItemsLabel = getSelectedQtyLabel(mergedAllItems);
-
-    const throwModeLabel = state.throwEnabled ? 'On' : 'Off';
-    const workLabel = state.throwEnabled
-      ? `Start work: ${state.workFrom ? 'Yes' : 'No'} / Destination work: ${state.workTo ? 'Yes' : 'No'}`
-      : '-';
-
-    const total = Math.max(0, Number(priceNumber) || 0);
-    const deposit = Math.round(total * 0.2);
-    const balance = Math.max(0, total - deposit);
-
-    const lines = [
-      'Hello, this is an estimate inquiry for DDLOGI.',
-      '',
-      `[Details]`,
-      `- Service: ${moveLabel}`,
-      `- Vehicle: ${vehicleLabel}`,
-      `- Distance: ${distanceLabel}`,
-      `- Date: ${scheduleLabel}`,
-      `- Preferred time: ${timeSlotLabel}`,
-      startAddr ? `- Start: ${startAddr}` : null,
-      endAddr ? `- Destination: ${endAddr}` : null,
-      `- Stairs: Start ${stairsFrom} / Destination ${stairsTo}`,
-      `- Boxes: ${loadLabel}`,
-      `- Throw mode: ${throwModeLabel}`,
-      `- Work: ${workLabel}`,
-      `- Items (total): ${allItemsLabel}`,
-      `- Ladder truck: ${ladderLabel}`,
-      `- Night/Weekend: ${nightLabel}`,
-      `- Passengers: ${rideLabel}`,
-      `- Labor/Help: ${laborLabel}`,
-      '',
-      `[Estimated] ₩${total.toLocaleString('ko-KR')}`,
-      `[Deposit (20%)] ₩${deposit.toLocaleString('ko-KR')}`,
-      `[Balance (80%)] ₩${balance.toLocaleString('ko-KR')}`,
-      '※ Reservation is confirmed after deposit. Balance is paid on moving day.',
-      '※ Price may change depending on on-site conditions (items, route, parking, extra work).',
-      '',
-    ].filter(Boolean);
-
-    return lines.join('\n');
-  }
-
-  /* =========================
      Price calc (same policy)
   ========================= */
   function calc() {
@@ -729,10 +726,12 @@
       (state.noFrom ? calcStairCostOneSide(state.fromFloor) : 0) +
       (state.noTo   ? calcStairCostOneSide(state.toFloor)   : 0);
 
+    // ✅ for pricing: merge all (move items + throw items)
     const mergedThrow    = sumQtyMaps(state.throwFromQty, state.throwToQty);
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
 
-    const totalItemCount = Object.values(mergedAllItems).reduce((a, v) => a + Math.max(0, Number(v) || 0), 0);
+    const totalItemCount = Object.values(mergedAllItems)
+      .reduce((a, v) => a + Math.max(0, Number(v) || 0), 0);
 
     function getRiskMultiplier(itemKey) {
       if (itemKey === 'TV/모니터') return FRAGILE_RISK_MULTIPLIER;
@@ -772,8 +771,6 @@
     if (state.helperFrom) optionCost += 40000;
     if (state.helperTo)   optionCost += 40000;
 
-    // night/weekend is free
-
     // 4) total
     let total = core + work + optionCost;
 
@@ -787,14 +784,17 @@
     // summary
     if (summaryEl) {
       const loadLabel  = state.load && loadMap[state.load] ? loadMap[state.load].label : 'Not selected';
-      const laborLabel = buildLaborLabel(state);
+      const laborLabel = buildLaborLabelEN(state);
 
       const throwModeLabel = state.throwEnabled ? 'On' : 'Off';
       const workLabel = state.throwEnabled
         ? `Start: ${state.workFrom ? 'Yes' : 'No'} / Destination: ${state.workTo ? 'Yes' : 'No'}`
         : '-';
 
-      const allItemsLabel = getSelectedQtyLabel(mergedAllItems);
+      // ✅ display separately (no confusion)
+      const moveItemsLabel  = getSelectedQtyLabelEN(state.itemQty);
+      const throwFromLabel  = getSelectedQtyLabelEN(state.throwFromQty);
+      const throwToLabel    = getSelectedQtyLabelEN(state.throwToQty);
 
       summaryEl.innerHTML = `
         <b>🚚 Summary</b><br><br>
@@ -813,11 +813,14 @@
 
         ▪ Boxes: ${loadLabel}<br><br>
 
+        <b>📦 Items</b><br>
+        ▪ Move items (transport): ${moveItemsLabel}<br><br>
+
         <b>🧹 Throw Mode</b><br>
         ▪ Enabled: ${throwModeLabel}<br>
-        ▪ Work: ${workLabel}<br><br>
-
-        ▪ Items (total): ${allItemsLabel}<br><br>
+        ▪ Work: ${workLabel}<br>
+        ▪ Throw away (from): ${state.throwEnabled ? throwFromLabel : 'Disabled'}<br>
+        ▪ Throw away (to): ${state.throwEnabled ? throwToLabel : 'Disabled'}<br><br>
 
         ▪ Ladder truck: ${state.ladder ? 'Needed' : 'Not needed'}<br>
         ▪ Night/Weekend: ${state.night ? 'Yes' : 'No'}<br>
@@ -872,7 +875,7 @@
 
       bootChannelIO();
 
-      const msg = buildInquiryMessage(lastPrice);
+      const msg = buildInquiryMessageEN(lastPrice);
 
       try {
         window.ChannelIO('openChat', undefined, msg);
