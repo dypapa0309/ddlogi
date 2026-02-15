@@ -337,6 +337,21 @@ h2{ font-size:20px; margin-bottom:12px; }
   font-weight:900;
   text-align:center;
 }
+/* ✅ 플로팅바 가격 아래 작은 문구 */
+.sticky-under{
+  margin-top:6px;
+  text-align:center;
+  font-size:12px;
+  line-height:1.25;
+  color:rgba(148,163,184,0.92); /* --sub 느낌 */
+  letter-spacing:-0.2px;
+}
+
+.sticky-under b{
+  color:#e2e8f0;
+  font-weight:900;
+}
+
 
 /* =========================
    7) 스텝퍼/숫자 입력
@@ -803,20 +818,57 @@ input[type="checkbox"], input[type="radio"]{ accent-color: var(--accent); }
 .time-chip:has(input:disabled) span{
   text-decoration:line-through;
 }
+
 /* =========================
-   ✅ 섹션 메인 텍스트만 가운데 정렬
-   (컨트롤/옵션은 그대로)
+   ✅ 예상견적(정적) 가격 카드 보강
 ========================= */
-.section-center{
+#priceCardStatic{
+  padding:22px 16px;
+  border-radius:22px;
+  background:#0f172a;                 /* 무광 느낌 */
+  border:1px solid rgba(148,163,184,0.12);
+  box-shadow:0 14px 40px rgba(0,0,0,0.45);
+}
+
+#price{
+  font-size:44px;
+  font-weight:950;
+  letter-spacing:-0.8px;
+  line-height:1.05;
   text-align:center;
 }
 
-.section-center .sub{
+/* ✅ 정적 가격 아래 문구 */
+.price-under{
+  margin-top:8px;
   text-align:center;
+  font-size:12px;
+  line-height:1.25;
+  color:rgba(148,163,184,0.92);
+  letter-spacing:-0.2px;
+}
+.price-under b{
+  color:#e2e8f0;
+  font-weight:900;
 }
 
-/* option 내부 텍스트는 기본(왼쪽) 유지 */
-.section-center .option,
-.section-center .option *{
-  text-align:initial;
+/* =========================
+   ✅ 버튼 텍스트 2줄 구성 안정화
+========================= */
+.contact-actions .contact-btn.mega .cta-text{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+}
+.contact-actions .contact-btn.mega .cta-text .title{
+  font-size:16px;
+  font-weight:950;
+  letter-spacing:-0.3px;
+}
+.contact-actions .contact-btn.mega .cta-text .desc{
+  font-size:13px;
+  color:#cbd5e1;
+  font-weight:800;
+  letter-spacing:-0.2px;
 }

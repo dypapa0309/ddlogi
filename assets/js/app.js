@@ -725,125 +725,160 @@ function toRad(deg) {
 
 
 
-  /* =========================
-     가격 계산
-  ========================= */
-  function calc() {
-    if (!state.vehicle) return;
+/* =========================
+   가격 계산 (✅ 옵션 A - 거리밴드 제거ver)
+   - 거리밴드 운영비: 0원(삭제)
+   - 반포장은 일반 대비 항상 % 비싸게 유지
+   - 표시가는 경쟁사 평균 대비 살짝 낮게(예: -5%)
+========================= */
+function calc() {
+  if (!state.vehicle) return;
 
-    const key = VEHICLE_MAP[state.vehicle];
-    if (!key) return;
+  const key = VEHICLE_MAP[state.vehicle];
+  if (!key) return;
 
-    const base  = toNumberSafe(BASE_PRICE[key], 0);
-    const perKm = toNumberSafe(PER_KM_PRICE[key], 0);
-    const dist  = Math.max(0, toNumberSafe(state.distance, 0));
+  const base  = toNumberSafe(BASE_PRICE[key], 0);
+  const perKm = toNumberSafe(PER_KM_PRICE[key], 0);
+  const dist  = Math.max(0, toNumberSafe(state.distance, 0));
 
-    let price = base + (dist * perKm);
+  // =========================
+  // ✅ 옵션 A 레버(여기 3개만 조절하면 됨)
+  // =========================
 
-    // 계단 비용 (층당 7,000원)
-    const stairCount =
-      (state.noFrom ? toNumberSafe(state.fromFloor, 1) : 0) +
-      (state.noTo   ? toNumberSafe(state.toFloor,   1) : 0);
-    price += Math.max(0, stairCount) * 7000;
+  // 1) 표시가 배율: 경쟁사 평균 대비 살짝 낮게 보이기
+  // 예: 0.95 = 5% 낮게
+  const DISPLAY_MULTIPLIER = 0.95;
 
-    // 품목 비용: 기존 + throw 합산
-    const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
-    const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
+  // 2) 반포장 프리미엄: 일반 대비 항상 더 비싸게
+  // 예: 1.18 = 18% 프리미엄
+  const HALF_PREMIUM_MULTIPLIER = 1.18;
 
-    price += Object.entries(mergedAllItems).reduce((sum, [k, qty]) => {
-      const q = Math.max(0, Number(qty) || 0);
-      return sum + (FURNITURE_PRICE[k]?.price || 0) * q;
-    }, 0);
+  // 3) ✅ 거리 밴드 운영비: 완전 제거 (0원)
+  // function getDistanceBandFee(km) { return 0; }
 
-    // 짐양(박스)
-    const loadMap = getLoadMap(state.moveType);
-    if (state.load && loadMap[state.load]) {
-      let loadPrice = loadMap[state.load].price;
+  // =========================
+  // ✅ 1) Core: 차량 + 거리 (거리밴드 없음)
+  // =========================
+  let core = base + (dist * perKm);
 
-      // 반포장 + 엘베없음 체크 시 박스 구간 1.2배
-      const hasStairs = !!(state.noFrom || state.noTo);
-      if (state.moveType === 'half' && hasStairs) {
-        loadPrice = Math.round(loadPrice * 1.2);
-      }
+  // =========================
+  // ✅ 2) Work: (짐양 + 품목 + 계단)
+  // =========================
 
-      price += loadPrice;
-    }
+  // 계단 비용 (층당 7,000원)
+  const stairCount =
+    (state.noFrom ? toNumberSafe(state.fromFloor, 1) : 0) +
+    (state.noTo   ? toNumberSafe(state.toFloor,   1) : 0);
+  const stairCost = Math.max(0, stairCount) * 7000;
 
-    // 추가 옵션
-    if (state.ladder) price += 80000;
-    price += toNumberSafe(state.ride, 0) * 20000;
+  // 품목 비용: 기존 + throw 합산
+  const mergedThrow    = sumQtyMaps(state.throwFromQty, state.throwToQty);
+  const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
 
-    if (state.cantCarryFrom) price += 30000;
-    if (state.cantCarryTo)   price += 30000;
+  const itemCost = Object.entries(mergedAllItems).reduce((sum, [k, qty]) => {
+    const q = Math.max(0, Number(qty) || 0);
+    return sum + (FURNITURE_PRICE[k]?.price || 0) * q;
+  }, 0);
 
-    if (state.helperFrom) price += 40000;
-    if (state.helperTo)   price += 40000;
+  // 짐양(박스)
+  const loadMap = getLoadMap(state.moveType);
+  const loadCost =
+    (state.load && loadMap[state.load]) ? toNumberSafe(loadMap[state.load].price, 0) : 0;
 
-    // 반포장 1.2배 (전체)
-if (state.moveType === 'half') {
-  price = Math.round(price * 1.2);
+  const work = loadCost + itemCost + stairCost;
+
+  // =========================
+  // ✅ 3) 추가 옵션 (배율 적용 X, 그대로 더함)
+  // =========================
+  let optionCost = 0;
+  if (state.ladder) optionCost += 80000;
+  optionCost += toNumberSafe(state.ride, 0) * 20000;
+
+  if (state.cantCarryFrom) optionCost += 30000;
+  if (state.cantCarryTo)   optionCost += 30000;
+
+  if (state.helperFrom) optionCost += 40000;
+  if (state.helperTo)   optionCost += 40000;
+
+  // ✅ 야간/주말(night)은 0원 유지 → 반영 안 함
+
+  // =========================
+  // ✅ 4) 일반/반포장 최종
+  // =========================
+  let total = core + work + optionCost;
+
+  // 반포장 프리미엄: "항상 일반보다 비싸게" 유지
+  if (state.moveType === 'half') {
+    total = Math.round(total * HALF_PREMIUM_MULTIPLIER);
+  }
+
+  // ✅ 표시가 배율(경쟁사 평균 대비 살짝 낮게)
+  total = Math.round(total * DISPLAY_MULTIPLIER);
+
+  // ✅ 운영용 전체 배율(네가 이미 둔 레버)까지 적용
+  total = Math.round(total * PRICE_MULTIPLIER);
+
+  lastPrice = total;
+
+  // -----------------------------
+  // 요약(기존 UI 유지)
+  // -----------------------------
+  if (summaryEl) {
+    const loadLabel  = state.load && loadMap[state.load] ? loadMap[state.load].label : '미선택';
+    const laborLabel = buildLaborLabel(state);
+
+    const throwModeLabel = state.throwEnabled ? '사용' : '미사용';
+    const workLabel = state.throwEnabled
+      ? `출발지:${state.workFrom ? '있음' : '없음'} / 도착지:${state.workTo ? '있음' : '없음'}`
+      : '-';
+
+    const allItemsLabel = getSelectedQtyLabel(mergedAllItems);
+
+    summaryEl.innerHTML = `
+      <b>🚚 이사 조건 요약</b><br><br>
+
+      ▪ 이사 방식: ${moveTypeShortLabel(state.moveType)}<br><br>
+
+      ▪ 차량: ${state.vehicle}<br>
+      ▪ 거리: ${dist > 0 ? dist + ' km' : '미계산'}<br><br>
+
+      ▪ 일정: ${state.moveDate ? state.moveDate : '미선택'}<br>
+      ▪ 희망 시간: ${formatTimeSlotKR(state.timeSlot)}<br><br>
+
+      ▪ 계단:<br>
+      &nbsp;&nbsp;- 출발지: ${state.noFrom ? `${state.fromFloor}층 (엘베 없음)` : '엘베 있음'}<br>
+      &nbsp;&nbsp;- 도착지: ${state.noTo ? `${state.toFloor}층 (엘베 없음)` : '엘베 있음'}<br><br>
+
+      ▪ 짐양: ${loadLabel}<br><br>
+
+      <b>🧹 버려주세요 모드</b><br>
+      ▪ 사용: ${throwModeLabel}<br>
+      ▪ 작업 여부: ${workLabel}<br><br>
+
+      ▪ 가구·가전(합산): ${allItemsLabel}<br><br>
+
+      ▪ 사다리차: ${state.ladder ? '필요' : '불필요'}<br>
+      ▪ 야간/주말: ${state.night ? '해당' : '미해당'}<br>
+      ▪ 동승 인원: ${state.ride > 0 ? `${state.ride}명` : '없음'}<br><br>
+
+      ▪ 인부/작업: ${laborLabel}
+    `;
+  }
+
+  // 가격 표시
+  const formatted = `₩${total.toLocaleString()}`;
+  if (priceEl) priceEl.innerText = formatted;
+  if (stickyPriceEl) stickyPriceEl.innerText = formatted;
+
+  // 플로팅바 표시
+  if (stickyBarEl && quoteSectionEl) {
+    const rect = quoteSectionEl.getBoundingClientRect();
+    const quoteVisible = rect.top < window.innerHeight * 0.88 && rect.bottom > 0;
+    stickyBarEl.style.display = quoteVisible ? 'none' : 'block';
+  }
 }
 
-// ✅ 내가 조정하는 배율
-price = Math.round(price * PRICE_MULTIPLIER);
 
-lastPrice = price;
-
-    // 요약
-    if (summaryEl) {
-      const loadLabel  = state.load && loadMap[state.load] ? loadMap[state.load].label : '미선택';
-      const laborLabel = buildLaborLabel(state);
-
-      const throwModeLabel = state.throwEnabled ? '사용' : '미사용';
-      const workLabel = state.throwEnabled
-        ? `출발지:${state.workFrom ? '있음' : '없음'} / 도착지:${state.workTo ? '있음' : '없음'}`
-        : '-';
-
-      const allItemsLabel = getSelectedQtyLabel(mergedAllItems);
-
-      summaryEl.innerHTML = `
-        <b>🚚 이사 조건 요약</b><br><br>
-
-        ▪ 이사 방식: ${moveTypeShortLabel(state.moveType)}<br><br>
-
-        ▪ 차량: ${state.vehicle}<br>
-        ▪ 거리: ${dist > 0 ? dist + ' km' : '미계산'}<br><br>
-
-        ▪ 일정: ${state.moveDate ? state.moveDate : '미선택'}<br>
-        ▪ 희망 시간: ${formatTimeSlotKR(state.timeSlot)}<br><br>
-
-        ▪ 계단:<br>
-        &nbsp;&nbsp;- 출발지: ${state.noFrom ? `${state.fromFloor}층 (엘베 없음)` : '엘베 있음'}<br>
-        &nbsp;&nbsp;- 도착지: ${state.noTo ? `${state.toFloor}층 (엘베 없음)` : '엘베 있음'}<br><br>
-
-        ▪ 짐양: ${loadLabel}<br><br>
-
-        <b>🧹 버려주세요 모드</b><br>
-        ▪ 사용: ${throwModeLabel}<br>
-        ▪ 작업 여부: ${workLabel}<br><br>
-
-        ▪ 가구·가전(합산): ${allItemsLabel}<br><br>
-
-        ▪ 사다리차: ${state.ladder ? '필요' : '불필요'}<br>
-        ▪ 야간/주말: ${state.night ? '해당' : '미해당'}<br>
-        ▪ 동승 인원: ${state.ride > 0 ? `${state.ride}명` : '없음'}<br><br>
-
-        ▪ 인부/작업: ${laborLabel}
-      `;
-    }
-
-    // 가격 표시
-    const formatted = `₩${price.toLocaleString()}`;
-    if (priceEl) priceEl.innerText = formatted;
-    if (stickyPriceEl) stickyPriceEl.innerText = formatted;
-
-    // 플로팅바 표시
-    if (stickyBarEl && quoteSectionEl) {
-      const rect = quoteSectionEl.getBoundingClientRect();
-      const quoteVisible = rect.top < window.innerHeight * 0.88 && rect.bottom > 0;
-      stickyBarEl.style.display = quoteVisible ? 'none' : 'block';
-    }
-  }
 
   /* =========================
      ✅ 채널톡 문의 버튼

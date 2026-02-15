@@ -654,20 +654,36 @@
 </section>
 
     <!-- 견적 -->
-    <section class="section" id="quoteSection">
-      <h2>예상 견적</h2>
-      <div class="card" id="summary">조건을 선택하세요</div>
+<section class="section" id="quoteSection">
+  <h2>예상 견적</h2>
 
-      <div class="card price-card" id="priceCardStatic">
-        <div class="price" id="price">₩0</div>
-      </div>
+  <div class="card" id="summary">조건을 선택하세요</div>
 
-      <div class="contact-actions">
-  <a href="#" class="contact-btn mega" id="channelInquiry">
-    💬 버튼을 눌러 견적 보내고 AI와 예약 완료하기
-  </a>
-  <a href="tel:01058363055" class="contact-btn ghost">📞 전화 문의하기</a>
-</div>
+  <!-- ✅ 가격 카드(정적) -->
+  <div class="card price-card" id="priceCardStatic">
+    <div class="price" id="price">₩0</div>
+
+    <!-- ✅ 가격 아래 문구(정적) -->
+    <div class="price-under" id="priceUnder">
+      예상 견적은 <b>시장 평균가격보다 13% 저렴합니다.</b>
+    </div>
+  </div>
+
+  <!-- ✅ 문의 버튼 -->
+  <div class="contact-actions">
+    <a href="#" class="contact-btn mega" id="channelInquiry">
+      <span class="cta-text">
+        <span class="title">💬 버튼을 눌러 견적 보내고</span>
+        <span class="desc">AI로 예약 완료하기</span>
+      </span>
+    </a>
+
+    <a href="tel:01058363055" class="contact-btn ghost">
+      📞 전화 문의하기
+    </a>
+  </div>
+</section>
+
 
 
 
@@ -684,10 +700,16 @@
     </section>
   </div>
 
-  <!-- 하단 플로팅 가격바 -->
-  <div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
-    <div class="sticky-price" id="stickyPrice">₩0</div>
+ <!-- 하단 플로팅 가격바 -->
+<div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
+  <div class="sticky-price" id="stickyPrice">₩0</div>
+
+  <!-- ✅ 여기 안에 추가 -->
+  <div class="sticky-under">
+    예상 견적은 <b>시장 평균가격보다 13% 저렴합니다.</b>
   </div>
+</div>
+
 
   <!-- Load Supabase, config, and app script -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
