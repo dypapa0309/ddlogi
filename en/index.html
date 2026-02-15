@@ -1,203 +1,675 @@
+<!-- /en/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- 🔍 SEO -->
-  <title>DD Logistics | 1-Ton Cargo·Moving Specialist | Fair Quotes</title>
-  <meta name="description" content="DD Logistics specializes in 1-ton cargo and small moves. Check estimated quotes by distance and options." />
-  <meta name="keywords" content="DD Logistics, moving, 1-ton cargo, small move, Korea" />
+  <title>DDLOGI | 1-Ton Cargo Moving & Delivery | Transparent Quote</title>
+  <meta name="description" content="DDLOGI provides 1-ton cargo moving and delivery. Get an instant estimate by selecting distance and options." />
+  <meta name="keywords" content="DDLOGI, moving, delivery, 1-ton truck, cargo, relocation" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://ddlogi.netlify.app/en/" />
+
   <!-- OG metadata -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="DD Logistics | Fast & Fair 1-Ton Cargo" />
-  <meta property="og:description" content="Check estimated quotes by distance and options" />
-  <meta property="og:image" content="/assets/img/hero-truck.jpg" />
+  <meta property="og:title" content="DDLOGI | Fast & Transparent 1-Ton Cargo Moving" />
+  <meta property="og:description" content="Instant estimate with distance & options." />
+  <meta property="og:image" content="/assets/img/hero-bin.jpg" />
   <meta property="og:locale" content="en_US" />
-  <!-- Kakao Map API -->
-  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e72755495282830e0006d49708dabe5b&libraries=services"></script>
+
+  <!-- Verification tags (optional) -->
+  <meta name="naver-site-verification" content="678161b38e6ea859e9e863da9807f759ce7e331e" />
+  <meta name="google-site-verification" content="2Ty8rFRVnpPuNKFrt7b8DAno9v7kEe1f7Pnr9_bRcsU" />
+
+  <!-- ✅ Kakao Map API (autoload=false) -->
+  <script
+    type="text/javascript"
+    src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e72755495282830e0006d49708dabe5b&libraries=services&autoload=false">
+  </script>
+
   <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
 <body data-lang="en">
+  <div class="container">
 
-<div class="container">
-  <!-- Language switch -->
-  <div class="lang-switch">
-    <a href="/">KR</a> | <strong>EN</strong>
+    <!-- ✅ Language Toggle (must be inside body + container) -->
+    <div class="langbar" role="navigation" aria-label="Language switch">
+      <a class="lang-pill" href="/" data-lang="ko">KR</a>
+      <a class="lang-pill" href="/en/" data-lang="en" aria-current="page">EN</a>
+    </div>
+
+    <!-- HERO -->
+    <section class="section" id="hero">
+      <div class="hero-card">
+        <div class="hero-content">
+          <h1>Ever wondered<br>why moving quotes<br>are all different?</h1>
+
+          <br><hr><br>
+
+          <div class="hero-pills" aria-label="Key features">
+            <span class="pill">Auto Estimate</span>
+            <span class="pill">Transparent Options</span>
+            <span class="pill">AI Guidance</span>
+          </div>
+
+          <p class="hero-desc">
+            Moving costs are <span class="hl">not a secret</span><br /><br />
+            Get it fast with <span class="hl2">Auto Estimate</span><br /><br />
+            Choose <span class="hl2">options transparently</span><br /><br />
+            and finish with <span class="hl2">AI</span>
+          </p>
+
+          <div class="hero-callout">
+            Calculate it <b>yourself, transparently</b>.
+          </div>
+
+          <br><hr>
+
+          <div class="hero-signature" aria-label="Owner">
+            <div class="owner-profile">
+              <img src="/assets/img/hero-bin.jpg" alt="DDLOGI Owner" />
+            </div>
+            <div class="hero-owner">DDLOGI Owner Sangbin</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  
+
+    <!-- Vehicle -->
+    <section class="section">
+      <h2>Vehicle</h2>
+      <div class="card">
+        <div class="vehicle" data-vehicle="1톤 카고">🛻 1-ton Cargo (Open)</div>
+        <div class="vehicle" data-vehicle="1톤 저상탑">🚚 1-ton Box Truck</div>
+        <div class="vehicle" data-vehicle="1톤 카고+저상탑">🛻🚚 2+ Vehicles (Inquiry)</div>
+      </div>
+    </section>
+
+    <!-- Distance -->
+    <section class="section">
+      <h2>Distance</h2>
+      <div class="card">
+        <div class="sub">Start address</div>
+        <input type="text" id="startAddress" class="address-input" placeholder="e.g., Teheran-ro 152, Gangnam-gu, Seoul" />
+        <div class="sub" style="margin-top: 15px;">Destination address</div>
+        <input type="text" id="endAddress" class="address-input" placeholder="e.g., Sangdong-ro 87, Bucheon-si, Gyeonggi-do" />
+        <button id="calcDistance" class="calc-btn">Calculate distance</button>
+        <div id="distanceResult" class="distance-result">
+          <div class="sub">Calculated: <b id="distanceText">Please enter addresses</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reservation -->
+    <section class="section" id="reserveSection">
+      <h2>Schedule</h2>
+      <div class="card">
+
+        <div class="section-center">
+          <div class="sub">Moving date</div>
+        </div>
+
+        <div class="date-wrap">
+          <input type="date" id="moveDate" class="address-input date-input" required />
+          <span class="date-icon" aria-hidden="true"></span>
+        </div>
+
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;" />
+
+        <div class="section-center">
+          <div class="sub">Preferred time</div>
+        </div>
+
+        <div class="time-grid" aria-label="Preferred time selection">
+          <label class="time-chip"><input type="radio" name="timeSlot" value="7" /><span>7 AM</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="8" /><span>8 AM</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="9" /><span>9 AM</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="10" /><span>10 AM</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="11" /><span>11 AM</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="12" /><span>12 PM</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="13" /><span>1 PM</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="14" /><span>2 PM</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="15" /><span>3 PM</span></label>
+        </div>
+
+        <div class="section-center">
+          <div class="sub" style="margin-top: 10px;">
+            ※ Final time will be confirmed after consultation depending on availability.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Options -->
+    <section class="section" id="optionsSection">
+      <h2>Move it!</h2>
+      <div class="card">
+
+        <!-- Toggle -->
+        <div class="option move-toggle-row">
+          <div>
+            Moving Estimate Calculator
+            <div class="sub" style="margin:6px 0 0;">
+              Use DDLOGI’s transparent calculator<br>
+              to get a quick estimate.
+            </div>
+          </div>
+
+          <label class="switch" aria-label="Toggle move options">
+            <input type="checkbox" id="moveToggle" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <hr />
+
+        <!-- Always visible: Move type -->
+        <div class="sub">Service type</div>
+
+        <div class="option">
+          <div>
+            Basic Move
+            <div class="sub" style="margin:6px 0 0;">
+              (You must pack all boxes in advance.)
+            </div>
+          </div>
+          <input type="radio" name="moveType" value="general" checked />
+        </div>
+
+        <div class="option">
+          <div>
+            Semi-Packed Move
+            <div class="sub" style="margin:6px 0 0;">
+              (You pack most items. We provide up to 5 boxes for items used until moving day.)
+            </div>
+          </div>
+          <input type="radio" name="moveType" value="half" />
+        </div>
+
+        <hr />
+
+        <!-- Collapsible body -->
+        <div id="moveBody">
+
+          <div class="sub">No elevator?<br>Please check.</div>
+
+          <div class="option">
+            Start
+            <div class="option-controls">
+              <input type="checkbox" id="noFrom" />
+              <div class="stepper">
+                <button type="button" class="stepper-btn" data-stepper="fromFloor" data-dir="-1">−</button>
+                <input type="number" id="fromFloor" min="1" value="1" inputmode="numeric" />
+                <button type="button" class="stepper-btn" data-stepper="fromFloor" data-dir="1">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="option">
+            Destination
+            <div class="option-controls">
+              <input type="checkbox" id="noTo" />
+              <div class="stepper">
+                <button type="button" class="stepper-btn" data-stepper="toFloor" data-dir="-1">−</button>
+                <input type="number" id="toFloor" min="1" value="1" inputmode="numeric" />
+                <button type="button" class="stepper-btn" data-stepper="toFloor" data-dir="1">+</button>
+              </div>
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="sub">Appliances & Furniture</div>
+
+          <div class="sub" style="margin-top:10px;">Appliances</div>
+
+          <div class="option item-qty-row">
+            <div>Microwave</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="전자레인지" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="전자레인지" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="전자레인지" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Air purifier</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="공기청정기" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="공기청정기" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="공기청정기" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Vacuum</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="청소기" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="청소기" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="청소기" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>TV/Monitor</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="TV/모니터" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="TV/모니터" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="TV/모니터" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Water purifier (move only)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="정수기(이동만)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="정수기(이동만)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="정수기(이동만)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Washer (≤12kg)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="세탁기(12kg이하)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="세탁기(12kg이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="세탁기(12kg이하)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Dryer (≤12kg)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="건조기(12kg이하)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="건조기(12kg이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="건조기(12kg이하)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Refrigerator (≤380L)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="냉장고(380L이하)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="냉장고(380L이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="냉장고(380L이하)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="sub">Furniture</div>
+
+          <div class="option item-qty-row">
+            <div>Chair</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="의자" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="의자" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="의자" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Clothing rack</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="행거" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="행거" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="행거" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Small side table</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="협탁/사이드테이블(소형)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="협탁/사이드테이블(소형)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="협탁/사이드테이블(소형)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Small vanity</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="화장대(소형)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="화장대(소형)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="화장대(소형)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Desk/Table</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="책상/테이블(일반)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="책상/테이블(일반)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="책상/테이블(일반)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Chest (3–5 drawers)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="서랍장(3~5단)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="서랍장(3~5단)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="서랍장(3~5단)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Bookshelf</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="책장(일반)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="책장(일반)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="책장(일반)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Cabinet/TV stand</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="수납장/TV장(일반)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="수납장/TV장(일반)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="수납장/TV장(일반)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Sofa (2–3 seats)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="소파(2~3인)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="소파(2~3인)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="소파(2~3인)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Mattress (excluding king)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="침대매트리스(킹제외)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="침대매트리스(킹제외)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="침대매트리스(킹제외)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Bed frame disassembly/assembly</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="침대프레임(분해/조립)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="침대프레임(분해/조립)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="침대프레임(분해/조립)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="sub" style="margin-top:10px;">
+            ※ Large/special items and disassembly/installation are confirmed after consultation.
+          </div>
+
+          <hr />
+
+          <div class="sub">Box count (Standard moving box)</div>
+          <div class="option">1–5 <input type="radio" name="load" value="1" /></div>
+          <div class="option">6–10 <input type="radio" name="load" value="2" /></div>
+          <div class="option">11–15 <input type="radio" name="load" value="3" /></div>
+          <div class="option">16–20 <input type="radio" name="load" value="4" /></div>
+
+          <hr />
+
+          <div class="sub">If you can’t carry items yourself<br>(Check if driver alone can help)</div>
+          <div class="option">Hard to carry at start <input type="checkbox" id="cantCarryFrom" /></div>
+          <div class="option">Hard to carry at destination <input type="checkbox" id="cantCarryTo" /></div>
+
+          <hr />
+
+          <div class="sub">Add helper<br>(Check if driver alone is not enough)</div>
+          <div class="option">Add helper at start <input type="checkbox" id="helperFrom" /></div>
+          <div class="option">Add helper at destination <input type="checkbox" id="helperTo" /></div>
+
+          <hr />
+
+          <div class="option">Ladder truck (+₩80,000) <input type="checkbox" id="ladder" /></div>
+          <div class="option">Night/Weekend (Free) <input type="checkbox" id="night" /></div>
+
+          <hr />
+
+          <div class="option">
+            Passengers (If 2+ please ask for a deal)
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper="ride" data-dir="-1">−</button>
+              <input type="number" id="ride" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper="ride" data-dir="1">+</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Throw away -->
+    <section class="section" id="throwSection">
+      <h2>Throw it away!</h2>
+      <div class="card">
+
+        <div class="option throw-toggle-row">
+          <div>
+            Items to discard on the 1st floor
+
+            <div class="sub" style="margin:6px 0 0;">
+              Heavy items you can’t handle alone,<br>do it with the driver.
+            </div>
+          </div>
+
+          <label class="switch" aria-label="Toggle throw mode">
+            <input type="checkbox" id="throwToggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div id="throwBody" style="display:none; margin-top:14px;">
+
+          <div class="sub">Work needed (start/destination)</div>
+          <div class="option">Work at start <input type="checkbox" id="workFrom" /></div>
+          <div class="option">Work at destination <input type="checkbox" id="workTo" /></div>
+
+          <hr />
+
+          <div class="sub">Start-side items (qty)</div>
+
+          <!-- from -->
+          <div class="option item-qty-row">
+            <div>Washer (≤12kg)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="세탁기(12kg이하)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="세탁기(12kg이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="세탁기(12kg이하)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Dryer (≤12kg)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="건조기(12kg이하)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="건조기(12kg이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="건조기(12kg이하)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Refrigerator (≤380L)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="냉장고(380L이하)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="냉장고(380L이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="냉장고(380L이하)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Small side table</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="협탁/사이드테이블(소형)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="협탁/사이드테이블(소형)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="협탁/사이드테이블(소형)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Desk/Table</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="책상/테이블(일반)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="책상/테이블(일반)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="책상/테이블(일반)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Chest (3–5 drawers)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="서랍장(3~5단)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="서랍장(3~5단)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="서랍장(3~5단)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Bookshelf</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="책장(일반)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="책장(일반)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="책장(일반)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Cabinet/TV stand</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="수납장/TV장(일반)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="수납장/TV장(일반)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="수납장/TV장(일반)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Sofa (2–3 seats)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="소파(2~3인)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="소파(2~3인)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="소파(2~3인)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Sofa (4+ seats)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="소파(4인이상)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="소파(4인이상)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="소파(4인이상)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Mattress (excluding king)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="침대매트리스(킹제외)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="침대매트리스(킹제외)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="침대매트리스(킹제외)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <hr />
+          <div class="sub">Destination-side items (qty)</div>
+          <!-- to (same as from; you can duplicate later if needed) -->
+
+          <div class="sub" style="margin-top:10px;">
+            ※ “Throw mode” is for quick selection. Final cost may vary depending on on-site conditions.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quote -->
+    <section class="section" id="quoteSection">
+      <h2>Estimated Quote</h2>
+
+      <div class="card" id="summary">Select conditions</div>
+
+      <div class="card price-card" id="priceCardStatic">
+        <div class="price" id="price">₩0</div>
+
+        <div class="price-under" id="priceUnder">
+          This estimate is <b>13.8% lower than the market average.</b>
+        </div>
+      </div>
+
+      <div class="contact-actions">
+        <a href="#" class="contact-btn mega" id="channelInquiry">
+          <span class="cta-text">
+            <span class="title">💬 Send estimate</span>
+            <span class="desc">Complete reservation with AI</span>
+          </span>
+        </a>
+
+        <a href="tel:01058363055" class="contact-btn ghost">
+          📞 Call us
+        </a>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <section class="section">
+      <div class="card sub">
+        Business No.: 876-28-01550<br />
+        Address: 803-102, 87 Sangdong-ro, Bucheon-si, Gyeonggi-do, Korea<br />
+        Privacy Officer / Owner: Sangbin
+      </div>
+    </section>
+
   </div>
 
-  <!-- Hero -->
-  <section class="section">
-    <div class="hero-card">
-      <div class="hero-image">
-        <span class="badge">NO HIDDEN FEES</span>
-      </div>
-      <div class="hero-content">
-        <h1>DD Logistics</h1>
-        <p class="hero-desc">
-          The only moving company where customers can calculate quotes!<br />
-          Move with transparent pricing.
-        </p>
-        <div class="hero-features">
-          <div class="feature">🛡️ Full Insurance</div>
-          <div class="feature">⏰ 24/7 Consultation</div>
-          <div class="feature">🚚 Cargo Specialist</div>
-        </div>
-      </div>
+  <!-- Sticky price bar -->
+  <div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
+    <div class="sticky-price" id="stickyPrice">₩0</div>
+    <div class="sticky-under">
+      This estimate is <b>13.8% lower than the market average.</b>
     </div>
-  </section>
+  </div>
 
-  <!-- Vehicle selection -->
-  <section class="section">
-    <h2>Select Vehicle</h2>
-    <div class="card">
-      <div class="vehicle" data-vehicle="1-Ton Cargo">🛻 1-Ton Cargo Double Cab</div>
-      <div class="vehicle" data-vehicle="1-Ton Low-Top">🚚 1-Ton Low-Top</div>
-      <div class="vehicle" data-vehicle="Cargo+Low-Top">🛻🚚 Cargo + Low-Top</div>
-    </div>
-  </section>
+  <!-- Load Supabase, config, and app script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/config.js"></script>
+  <script type="module" src="/assets/js/app-en.js"></script>
 
-  <!-- Distance -->
-  <section class="section">
-    <h2>Moving Distance</h2>
-    <div class="card">
-      <div class="sub">Pickup Address</div>
-      <input type="text" id="startAddress" class="address-input" placeholder="e.g., 152 Teheran-ro, Gangnam-gu, Seoul" />
-      <div class="sub" style="margin-top: 15px;">Drop-off Address</div>
-      <input type="text" id="endAddress" class="address-input" placeholder="e.g., 87 Sangdong-ro, Bucheon-si, Gyeonggi-do" />
-      <button id="calcDistance" class="calc-btn">Calculate Distance</button>
-      <div id="distanceResult" class="distance-result">
-        <div class="sub">Calculated Distance: <b id="distanceText">Please enter addresses</b></div>
-      </div>
-    </div>
-  </section>
+  <!-- ChannelIO loader -->
+  <script>
+  (function(){
+    var w=window;
+    if(w.ChannelIO){return;}
+    var ch=function(){ch.c(arguments);};
+    ch.q=[]; ch.c=function(args){ch.q.push(args);};
+    w.ChannelIO=ch;
 
-  <!-- Reservation -->
-  <section class="section">
-    <h2>Reservation</h2>
-    <div class="card">
-      <div class="sub">Moving Date</div>
-      <input type="date" id="moveDate" class="address-input" />
-      <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;" />
-      <div class="sub">Preferred Time Slot (Required)</div>
-      <label class="option" style="cursor:pointer;">
-        <div>Before 9 AM</div>
-        <input type="radio" name="timeSlot" value="before9" />
-      </label>
-      <label class="option" style="cursor:pointer;">
-        <div>9 AM – 12 PM</div>
-        <input type="radio" name="timeSlot" value="9to12" />
-      </label>
-      <label class="option" style="cursor:pointer;">
-        <div>12 PM – 3 PM</div>
-        <input type="radio" name="timeSlot" value="12to15" />
-      </label>
-      <div class="sub" style="margin-top: 10px;">
-        ※ Final schedule will be confirmed after consultation.
-      </div>
-    </div>
-  </section>
+    function l(){
+      if(w.ChannelIOInitialized){return;}
+      w.ChannelIOInitialized=true;
+      var s=document.createElement("script");
+      s.type="text/javascript";
+      s.async=true;
+      s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";
+      var x=document.getElementsByTagName("script")[0];
+      if(x.parentNode){x.parentNode.insertBefore(s,x);}
+    }
 
-  <!-- Options -->
-  <section class="section">
-    <h2>Additional Options</h2>
-    <div class="card">
-      <!-- Move Type -->
-      <div class="sub">Move Type</div>
-      <div class="option">
-        <div>
-          General Move
-          <div class="sub" style="margin:6px 0 0;">
-            (You must pack all items into boxes in advance.)
-          </div>
-        </div>
-        <input type="radio" name="moveType" value="general" checked />
-      </div>
-      <div class="option">
-        <div>
-          Semi-Packing Move
-          <div class="sub" style="margin:6px 0 0;">
-            (Please pack most items. We provide up to 5 boxes for items you use until moving day.)
-          </div>
-        </div>
-        <input type="radio" name="moveType" value="half" />
-      </div>
-      <hr />
-      <div class="sub">No Elevator (₩7,000 per floor)</div>
-      <div class="option">
-        Pickup
-        <div class="option-controls">
-          <input type="checkbox" id="noFrom" />
-          <input type="number" id="fromFloor" min="1" value="1" />
-        </div>
-      </div>
-      <div class="option">
-        Drop-off
-        <div class="option-controls">
-          <input type="checkbox" id="noTo" />
-          <input type="number" id="toFloor" min="1" value="1" />
-        </div>
-      </div>
-      <hr />
-      <div class="sub">Furniture Size (Multiple selection)</div>
-      <div class="option">Small (chairs, side tables) <input type="checkbox" class="furniture" value="Small" /></div>
-      <div class="option">Medium (tables, small fridge) <input type="checkbox" class="furniture" value="Medium" /></div>
-      <div class="option">Large (wardrobe, washer, dryer) <input type="checkbox" class="furniture" value="Large" /></div>
-      <hr />
-      <div class="sub">Load Volume (Based on size 5 moving boxes)</div>
-      <div class="option">1–5 boxes <input type="radio" name="load" value="1" /></div>
-      <div class="option">6–10 boxes <input type="radio" name="load" value="2" /></div>
-      <div class="option">11–15 boxes <input type="radio" name="load" value="3" /></div>
-      <div class="option">16–20 boxes <input type="radio" name="load" value="4" /></div>
-      <hr />
-      <div class="option">
-        Check if you need help carrying items
-        <input type="checkbox" id="cantCarry" />
-      </div>
-      <div class="sub">※ Labor costs will be confirmed during consultation</div>
-      <hr />
-      <div class="option">Ladder Truck (+₩80,000) <input type="checkbox" id="ladder" /></div>
-      <div class="option">Night/Weekend (Free) <input type="checkbox" id="night" /></div>
-      <div class="option">
-        Number of passengers<br />
-        (Negotiation required for 1+ person)
-        <input type="number" id="ride" min="0" value="0" />
-      </div>
-    </div>
-  </section>
+    if(document.readyState==="complete"){l();}
+    else{w.addEventListener("DOMContentLoaded",l); w.addEventListener("load",l);}
+  })();
+  </script>
 
+  <script>
+    window.ChannelIO('boot', {
+      pluginKey: window.DDLOGI_CONFIG?.channelPluginKey || "여기에_채널톡_플러그인키",
+      hideChannelButtonOnBoot: false
+    });
+  </script>
 
-  <!-- Quote -->
-  <section class="section" id="quoteSection">
-    <h2>Estimated Quote</h2>
-    <div class="card" id="summary">Please select conditions</div>
-    <div class="card price-card" id="priceCardStatic">
-      <div class="price" id="price">₩0</div>
-    </div>
-    <div class="cta-wrap">
-      <a href="#" class="cta sub" id="smsInquiry">📩 Text for Estimated Quote</a>
-      <a href="tel:01040941666" class="cta primary">Call for Inquiry</a>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <section class="section">
-    <div class="card sub">
-      Business Registration: 876-28-01550<br />
-      Address: 803-102, 87 Sangdong-ro, Bucheon-si, Gyeonggi-do, Worknesia<br />
-      (Sangdong, Gana Best Town Three)<br />
-      Privacy Officer, CEO: Lee Sang-bin
-    </div>
-  </section>
-</div>
-
-<!-- Sticky price bar -->
-<div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
-  <div class="sticky-price" id="stickyPrice">₩0</div>
-</div>
-
-<!-- Load app script (English version) -->
-<script src="/assets/js/app-en.js" defer></script>
 </body>
 </html>

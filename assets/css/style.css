@@ -872,3 +872,78 @@ input[type="checkbox"], input[type="radio"]{ accent-color: var(--accent); }
   font-weight:800;
   letter-spacing:-0.2px;
 }
+
+/* =========================
+   ✅ Language Toggle (KR/EN)
+   - 현 스타일(무광 다크 + accent) 유지
+   - 모바일 상단 고정, 우측 상단 느낌
+========================= */
+.langbar{
+  position:sticky;
+  top:10px;
+  z-index:1000;
+
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+
+  margin:0 0 12px;
+  padding:0;
+}
+
+/* pill 기본 */
+.lang-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  height:34px;
+  min-width:52px;
+  padding:0 12px;
+
+  border-radius:999px;
+  border:1px solid rgba(148,163,184,0.22);
+  background:rgba(2,6,23,0.55);
+
+  color:#e2e8f0;
+  text-decoration:none;
+
+  font-weight:950;
+  font-size:12px;
+  letter-spacing:-0.2px;
+
+  box-shadow:0 10px 26px rgba(0,0,0,0.30);
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.lang-pill:hover{
+  transform:translateY(-1px);
+  border-color:rgba(148,163,184,0.35);
+  box-shadow:0 14px 34px rgba(0,0,0,0.42);
+}
+
+.lang-pill:active{ transform:translateY(0); }
+
+/* 현재 언어 강조 */
+.lang-pill[aria-current="page"]{
+  border-color:rgba(14,165,233,0.55);
+  background:rgba(14,165,233,0.14);
+  color:#ffffff;
+  box-shadow:
+    0 14px 34px rgba(0,0,0,0.50),
+    0 10px 22px rgba(14,165,233,0.12);
+}
+
+/* 접근성: 키보드 포커스 */
+.lang-pill:focus-visible{
+  outline:none;
+  box-shadow:
+    0 0 0 4px rgba(14,165,233,0.22),
+    0 14px 34px rgba(0,0,0,0.42);
+}
+
+/* 플로팅바랑 겹침 느낌 줄이기 (초소형) */
+@media (max-width: 420px){
+  .langbar{ top:8px; margin-bottom:10px; }
+  .lang-pill{ height:32px; min-width:50px; }
+}
