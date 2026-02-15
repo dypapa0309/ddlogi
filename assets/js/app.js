@@ -1,9 +1,9 @@
 // /assets/js/app.js
 (() => {
   // ✅ 내가 임의로 조정하는 전체 가격 배율
-// 기본값 1 (변화 없음)
-// 예: 1.05 → 5% 인상 / 0.97 → 3% 인하
-const PRICE_MULTIPLIER = 1;
+  // 기본값 1 (변화 없음)
+  // 예: 1.05 → 5% 인상 / 0.97 → 3% 인하
+  const PRICE_MULTIPLIER = 1;
 
   /* ==================================================
      디디운송 견적 계산기 (KR)
@@ -18,6 +18,10 @@ const PRICE_MULTIPLIER = 1;
        2) data-stepper-item="키" (기존 itemQty)
        3) data-stepper-loc="from|to" + data-stepper-item="키" (throwQty)
      - ✅ SMS 문의 → ✅ 채널톡 문의로 교체
+     - ✅ 2026-02-15 정책 반영
+       1) 박스(짐양): "구간별 퍼센트 가중치" 적용 (16~20은 1.95)
+       2) 계단: 1→2는 7,000 / 이후 구간별 단가 상승 + (층수-1)로 이동층수 계산
+       3) 품목(가전/가구): 퍼센트 인상 + 고위험 품목 가중치 + 품목 개수에 따른 복리 가산
   ================================================== */
 
   /* =========================
@@ -268,8 +272,6 @@ const PRICE_MULTIPLIER = 1;
 
   /* =========================
      ✅ 채널톡 부팅 (필수)
-     - index.html에 로더 스니펫을 이미 넣었으므로 여기서는 boot만 처리
-     - pluginKey는 config.js에 DDLOGI_CONFIG.channelPluginKey로 넣는 걸 추천
   ========================= */
   function bootChannelIO() {
     const pluginKey = CFG.channelPluginKey; // ✅ config.js에 넣어라
@@ -548,343 +550,383 @@ const PRICE_MULTIPLIER = 1;
    - 좌표 → 도로거리(Netlify Function → Kakao Mobility Directions)
    - 실패 시 직선거리로 백업
 ========================= */
-if (calcDistanceBtn) {
-  calcDistanceBtn.addEventListener('click', async () => {
-    const start = (startAddressInput?.value || '').trim();
-    const end   = (endAddressInput?.value || '').trim();
+  if (calcDistanceBtn) {
+    calcDistanceBtn.addEventListener('click', async () => {
+      const start = (startAddressInput?.value || '').trim();
+      const end   = (endAddressInput?.value || '').trim();
 
-    if (!start || !end) {
-      alert('출발지와 도착지를 모두 입력해주세요.');
-      return;
-    }
-    if (!geocoder) {
-      alert('거리 계산을 위한 카카오맵 초기화에 실패했습니다.\n(카카오 개발자센터에 localhost 등록/도메인 등록 확인 필요)');
-      return;
-    }
+      if (!start || !end) {
+        alert('출발지와 도착지를 모두 입력해주세요.');
+        return;
+      }
+      if (!geocoder) {
+        alert('거리 계산을 위한 카카오맵 초기화에 실패했습니다.\n(카카오 개발자센터에 localhost 등록/도메인 등록 확인 필요)');
+        return;
+      }
 
-    calcDistanceBtn.textContent = '계산 중...';
-    calcDistanceBtn.disabled = true;
+      calcDistanceBtn.textContent = '계산 중...';
+      calcDistanceBtn.disabled = true;
 
-    try {
-      const startCoord = await getCoordinates(start);
-      const endCoord   = await getCoordinates(end);
+      try {
+        const startCoord = await getCoordinates(start);
+        const endCoord   = await getCoordinates(end);
 
-      // ✅ 도로거리(주행거리) 우선, 실패 시 직선거리 백업
-      const km = await getBestDistanceKm(startCoord, endCoord);
-      state.distance = km;
+        // ✅ 도로거리(주행거리) 우선, 실패 시 직선거리 백업
+        const km = await getBestDistanceKm(startCoord, endCoord);
+        state.distance = km;
 
-      if (distanceText) distanceText.textContent = `${state.distance} km`;
-      calc();
-    } catch (error) {
-      alert(error.message || '주소를 찾을 수 없습니다. 정확한 주소를 입력해주세요.');
-    } finally {
-      calcDistanceBtn.textContent = '거리 계산하기';
-      calcDistanceBtn.disabled = false;
-    }
-  });
-}
-
-function getCoordinates(address) {
-  return new Promise((resolve, reject) => {
-    geocoder.addressSearch(address, (result, status) => {
-      if (status === kakao.maps.services.Status.OK) {
-        resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) });
-      } else {
-        reject(new Error(`"${address}" 주소를 찾을 수 없습니다.`));
+        if (distanceText) distanceText.textContent = `${state.distance} km`;
+        calc();
+      } catch (error) {
+        alert(error.message || '주소를 찾을 수 없습니다. 정확한 주소를 입력해주세요.');
+      } finally {
+        calcDistanceBtn.textContent = '거리 계산하기';
+        calcDistanceBtn.disabled = false;
       }
     });
-  });
-}
-
-/* ====== 도로거리 (Kakao Mobility Directions via Netlify Function) ====== */
-async function getRoadDistanceKmByKakaoMobility(origin, destination) {
-  // ✅ 주의: origin/destination은 "경도,위도" 순서
-  const params = new URLSearchParams({
-    origin: `${origin.lng},${origin.lat}`,
-    destination: `${destination.lng},${destination.lat}`,
-  });
-
-  const res = await fetch(`/.netlify/functions/kakaoDirections?${params.toString()}`, {
-    method: 'GET',
-  });
-
-  if (!res.ok) {
-    const t = await res.text().catch(() => '');
-    throw new Error(`도로거리 계산 실패: ${res.status} ${t}`);
   }
 
-  const data = await res.json();
-  const meter = data?.routes?.[0]?.summary?.distance;
-
-  if (!Number.isFinite(meter)) throw new Error('도로거리 데이터가 없습니다.');
-
-  return Math.max(0, Math.round(meter / 1000)); // km 정수
-}
-
-async function getBestDistanceKm(startCoord, endCoord) {
-  try {
-    return await getRoadDistanceKmByKakaoMobility(startCoord, endCoord);
-  } catch (e) {
-    console.warn('[거리] 도로거리 실패 → 직선거리로 백업:', e);
-    const straight = calculateDistance(startCoord, endCoord);
-    return Math.max(0, Math.round(straight));
+  function getCoordinates(address) {
+    return new Promise((resolve, reject) => {
+      geocoder.addressSearch(address, (result, status) => {
+        if (status === kakao.maps.services.Status.OK) {
+          resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) });
+        } else {
+          reject(new Error(`"${address}" 주소를 찾을 수 없습니다.`));
+        }
+      });
+    });
   }
-}
 
-/* ====== 직선거리(백업용) ====== */
-function calculateDistance(coord1, coord2) {
-  const R = 6371;
-  const dLat = toRad(coord2.lat - coord1.lat);
-  const dLng = toRad(coord2.lng - coord1.lng);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(coord1.lat)) * Math.cos(toRad(coord2.lat)) *
-    Math.sin(dLng / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
+  /* ====== 도로거리 (Kakao Mobility Directions via Netlify Function) ====== */
+  async function getRoadDistanceKmByKakaoMobility(origin, destination) {
+    // ✅ 주의: origin/destination은 "경도,위도" 순서
+    const params = new URLSearchParams({
+      origin: `${origin.lng},${origin.lat}`,
+      destination: `${destination.lng},${destination.lat}`,
+    });
 
-function toRad(deg) {
-  return deg * (Math.PI / 180);
-}
+    const res = await fetch(`/.netlify/functions/kakaoDirections?${params.toString()}`, {
+      method: 'GET',
+    });
+
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      throw new Error(`도로거리 계산 실패: ${res.status} ${t}`);
+    }
+
+    const data = await res.json();
+    const meter = data?.routes?.[0]?.summary?.distance;
+
+    if (!Number.isFinite(meter)) throw new Error('도로거리 데이터가 없습니다.');
+
+    return Math.max(0, Math.round(meter / 1000)); // km 정수
+  }
+
+  async function getBestDistanceKm(startCoord, endCoord) {
+    try {
+      return await getRoadDistanceKmByKakaoMobility(startCoord, endCoord);
+    } catch (e) {
+      console.warn('[거리] 도로거리 실패 → 직선거리로 백업:', e);
+      const straight = calculateDistance(startCoord, endCoord);
+      return Math.max(0, Math.round(straight));
+    }
+  }
+
+  /* ====== 직선거리(백업용) ====== */
+  function calculateDistance(coord1, coord2) {
+    const R = 6371;
+    const dLat = toRad(coord2.lat - coord1.lat);
+    const dLng = toRad(coord2.lng - coord1.lng);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(coord1.lat)) * Math.cos(toRad(coord2.lat)) *
+      Math.sin(dLng / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  function toRad(deg) {
+    return deg * (Math.PI / 180);
+  }
 
   /* =========================
      ✅ 문의 메시지 생성 (채널톡용)
-     - SMS 바디를 "톡에 붙이기 좋은 형태"로 구성
   ========================= */
   function buildInquiryMessage(priceNumber) {
-  const startAddr = (startAddressInput?.value || '').trim();
-  const endAddr   = (endAddressInput?.value || '').trim();
+    const startAddr = (startAddressInput?.value || '').trim();
+    const endAddr   = (endAddressInput?.value || '').trim();
 
-  const vehicleLabel = state.vehicle || '미선택';
-  const moveLabel    = moveTypeLabel(state.moveType);
+    const vehicleLabel = state.vehicle || '미선택';
+    const moveLabel    = moveTypeLabel(state.moveType);
 
-  const stairsFrom = state.noFrom ? `${state.fromFloor}층(엘베없음)` : '엘베있음';
-  const stairsTo   = state.noTo ? `${state.toFloor}층(엘베없음)` : '엘베있음';
+    const stairsFrom = state.noFrom ? `${state.fromFloor}층(엘베없음)` : '엘베있음';
+    const stairsTo   = state.noTo ? `${state.toFloor}층(엘베없음)` : '엘베있음';
 
-  const loadMap = getLoadMap(state.moveType);
-  const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : '미선택';
+    const loadMap = getLoadMap(state.moveType);
+    const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : '미선택';
 
-  const ladderLabel = state.ladder ? '필요' : '불필요';
-  const nightLabel  = state.night  ? '해당' : '미해당';
-  const rideLabel   = state.ride > 0 ? `${state.ride}명` : '없음';
-  const distanceLabel = state.distance > 0 ? `${state.distance}km` : '미계산';
+    const ladderLabel = state.ladder ? '필요' : '불필요';
+    const nightLabel  = state.night  ? '해당' : '미해당';
+    const rideLabel   = state.ride > 0 ? `${state.ride}명` : '없음';
+    const distanceLabel = state.distance > 0 ? `${state.distance}km` : '미계산';
 
-  const scheduleLabel = state.moveDate || '미선택';
-  const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
+    const scheduleLabel = state.moveDate || '미선택';
+    const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
 
-  const laborLabel = buildLaborLabel(state);
-
-  const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
-  const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
-  const allItemsLabel = getSelectedQtyLabel(mergedAllItems);
-
-  const throwModeLabel = state.throwEnabled ? '사용' : '미사용';
-  const workLabel = state.throwEnabled
-    ? `출발지 작업:${state.workFrom ? '있음' : '없음'} / 도착지 작업:${state.workTo ? '있음' : '없음'}`
-    : '-';
-
-  // ✅ 결제 금액 계산
-  const total = Math.max(0, Number(priceNumber) || 0);
-  const deposit = Math.round(total * 0.2);
-  const balance = Math.max(0, total - deposit);
-
-  const lines = [
-    '안녕하세요. 디디운송 견적 문의드립니다.',
-    '',
-    `[조건]`,
-    `- 이사 방식: ${moveLabel}`,
-    `- 차량: ${vehicleLabel}`,
-    `- 거리: ${distanceLabel}`,
-    `- 일정: ${scheduleLabel}`,
-    `- 희망 시간: ${timeSlotLabel}`,
-    startAddr ? `- 출발지: ${startAddr}` : null,
-    endAddr ? `- 도착지: ${endAddr}` : null,
-    `- 계단: 출발 ${stairsFrom} / 도착 ${stairsTo}`,
-    `- 짐양(박스): ${loadLabel}`,
-    `- 버려주세요: ${throwModeLabel}`,
-    `- 작업 여부: ${workLabel}`,
-    `- 가구·가전(합산): ${allItemsLabel}`,
-    `- 사다리차: ${ladderLabel}`,
-    `- 야간/주말: ${nightLabel}`,
-    `- 동승: ${rideLabel}`,
-    `- 인부/작업: ${laborLabel}`,
-    '',
-    `[예상금액] ₩${total.toLocaleString('ko-KR')}`,
-    `[예약금(20%)] ₩${deposit.toLocaleString('ko-KR')}`,
-    `[잔금(80%)] ₩${balance.toLocaleString('ko-KR')}`,
-    '※ 예약금 입금 시 예약 확정되며, 잔금은 운송 당일 결제합니다.',
-    '※ 현장 상황(짐량/동선/주차/추가 작업)에 따라 금액이 변동될 수 있습니다.',
-    '',
-
-  ].filter(Boolean);
-
-  return lines.join('\n');
-}
-
-
-
-
-/* =========================
-   가격 계산 (✅ 옵션 A - 거리밴드 제거ver)
-   - 거리밴드 운영비: 0원(삭제)
-   - 반포장은 일반 대비 항상 % 비싸게 유지
-   - 표시가는 경쟁사 평균 대비 살짝 낮게(예: -5%)
-========================= */
-function calc() {
-  if (!state.vehicle) return;
-
-  const key = VEHICLE_MAP[state.vehicle];
-  if (!key) return;
-
-  const base  = toNumberSafe(BASE_PRICE[key], 0);
-  const perKm = toNumberSafe(PER_KM_PRICE[key], 0);
-  const dist  = Math.max(0, toNumberSafe(state.distance, 0));
-
-  // =========================
-  // ✅ 옵션 A 레버(여기 3개만 조절하면 됨)
-  // =========================
-
-  // 1) 표시가 배율: 경쟁사 평균 대비 살짝 낮게 보이기
-  // 예: 0.95 = 5% 낮게
-  const DISPLAY_MULTIPLIER = 0.95;
-
-  // 2) 반포장 프리미엄: 일반 대비 항상 더 비싸게
-  // 예: 1.18 = 18% 프리미엄
-  const HALF_PREMIUM_MULTIPLIER = 1.18;
-
-  // 3) ✅ 거리 밴드 운영비: 완전 제거 (0원)
-  // function getDistanceBandFee(km) { return 0; }
-
-  // =========================
-  // ✅ 1) Core: 차량 + 거리 (거리밴드 없음)
-  // =========================
-  let core = base + (dist * perKm);
-
-  // =========================
-  // ✅ 2) Work: (짐양 + 품목 + 계단)
-  // =========================
-
-  // 계단 비용 (층당 7,000원)
-  const stairCount =
-    (state.noFrom ? toNumberSafe(state.fromFloor, 1) : 0) +
-    (state.noTo   ? toNumberSafe(state.toFloor,   1) : 0);
-  const stairCost = Math.max(0, stairCount) * 7000;
-
-  // 품목 비용: 기존 + throw 합산
-  const mergedThrow    = sumQtyMaps(state.throwFromQty, state.throwToQty);
-  const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
-
-  const itemCost = Object.entries(mergedAllItems).reduce((sum, [k, qty]) => {
-    const q = Math.max(0, Number(qty) || 0);
-    return sum + (FURNITURE_PRICE[k]?.price || 0) * q;
-  }, 0);
-
-  // 짐양(박스)
-  const loadMap = getLoadMap(state.moveType);
-  const loadCost =
-    (state.load && loadMap[state.load]) ? toNumberSafe(loadMap[state.load].price, 0) : 0;
-
-  const work = loadCost + itemCost + stairCost;
-
-  // =========================
-  // ✅ 3) 추가 옵션 (배율 적용 X, 그대로 더함)
-  // =========================
-  let optionCost = 0;
-  if (state.ladder) optionCost += 80000;
-  optionCost += toNumberSafe(state.ride, 0) * 20000;
-
-  if (state.cantCarryFrom) optionCost += 30000;
-  if (state.cantCarryTo)   optionCost += 30000;
-
-  if (state.helperFrom) optionCost += 40000;
-  if (state.helperTo)   optionCost += 40000;
-
-  // ✅ 야간/주말(night)은 0원 유지 → 반영 안 함
-
-  // =========================
-  // ✅ 4) 일반/반포장 최종
-  // =========================
-  let total = core + work + optionCost;
-
-  // 반포장 프리미엄: "항상 일반보다 비싸게" 유지
-  if (state.moveType === 'half') {
-    total = Math.round(total * HALF_PREMIUM_MULTIPLIER);
-  }
-
-  // ✅ 표시가 배율(경쟁사 평균 대비 살짝 낮게)
-  total = Math.round(total * DISPLAY_MULTIPLIER);
-
-  // ✅ 운영용 전체 배율(네가 이미 둔 레버)까지 적용
-  total = Math.round(total * PRICE_MULTIPLIER);
-
-  lastPrice = total;
-
-  // -----------------------------
-  // 요약(기존 UI 유지)
-  // -----------------------------
-  if (summaryEl) {
-    const loadLabel  = state.load && loadMap[state.load] ? loadMap[state.load].label : '미선택';
     const laborLabel = buildLaborLabel(state);
+
+    const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
+    const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
+    const allItemsLabel = getSelectedQtyLabel(mergedAllItems);
 
     const throwModeLabel = state.throwEnabled ? '사용' : '미사용';
     const workLabel = state.throwEnabled
-      ? `출발지:${state.workFrom ? '있음' : '없음'} / 도착지:${state.workTo ? '있음' : '없음'}`
+      ? `출발지 작업:${state.workFrom ? '있음' : '없음'} / 도착지 작업:${state.workTo ? '있음' : '없음'}`
       : '-';
 
-    const allItemsLabel = getSelectedQtyLabel(mergedAllItems);
+    // ✅ 결제 금액 계산
+    const total = Math.max(0, Number(priceNumber) || 0);
+    const deposit = Math.round(total * 0.2);
+    const balance = Math.max(0, total - deposit);
 
-    summaryEl.innerHTML = `
-      <b>🚚 이사 조건 요약</b><br><br>
+    const lines = [
+      '안녕하세요. 디디운송 견적 문의드립니다.',
+      '',
+      `[조건]`,
+      `- 이사 방식: ${moveLabel}`,
+      `- 차량: ${vehicleLabel}`,
+      `- 거리: ${distanceLabel}`,
+      `- 일정: ${scheduleLabel}`,
+      `- 희망 시간: ${timeSlotLabel}`,
+      startAddr ? `- 출발지: ${startAddr}` : null,
+      endAddr ? `- 도착지: ${endAddr}` : null,
+      `- 계단: 출발 ${stairsFrom} / 도착 ${stairsTo}`,
+      `- 짐양(박스): ${loadLabel}`,
+      `- 버려주세요: ${throwModeLabel}`,
+      `- 작업 여부: ${workLabel}`,
+      `- 가구·가전(합산): ${allItemsLabel}`,
+      `- 사다리차: ${ladderLabel}`,
+      `- 야간/주말: ${nightLabel}`,
+      `- 동승: ${rideLabel}`,
+      `- 인부/작업: ${laborLabel}`,
+      '',
+      `[예상금액] ₩${total.toLocaleString('ko-KR')}`,
+      `[예약금(20%)] ₩${deposit.toLocaleString('ko-KR')}`,
+      `[잔금(80%)] ₩${balance.toLocaleString('ko-KR')}`,
+      '※ 예약금 입금 시 예약 확정되며, 잔금은 운송 당일 결제합니다.',
+      '※ 현장 상황(짐량/동선/주차/추가 작업)에 따라 금액이 변동될 수 있습니다.',
+      '',
+    ].filter(Boolean);
 
-      ▪ 이사 방식: ${moveTypeShortLabel(state.moveType)}<br><br>
-
-      ▪ 차량: ${state.vehicle}<br>
-      ▪ 거리: ${dist > 0 ? dist + ' km' : '미계산'}<br><br>
-
-      ▪ 일정: ${state.moveDate ? state.moveDate : '미선택'}<br>
-      ▪ 희망 시간: ${formatTimeSlotKR(state.timeSlot)}<br><br>
-
-      ▪ 계단:<br>
-      &nbsp;&nbsp;- 출발지: ${state.noFrom ? `${state.fromFloor}층 (엘베 없음)` : '엘베 있음'}<br>
-      &nbsp;&nbsp;- 도착지: ${state.noTo ? `${state.toFloor}층 (엘베 없음)` : '엘베 있음'}<br><br>
-
-      ▪ 짐양: ${loadLabel}<br><br>
-
-      <b>🧹 버려주세요 모드</b><br>
-      ▪ 사용: ${throwModeLabel}<br>
-      ▪ 작업 여부: ${workLabel}<br><br>
-
-      ▪ 가구·가전(합산): ${allItemsLabel}<br><br>
-
-      ▪ 사다리차: ${state.ladder ? '필요' : '불필요'}<br>
-      ▪ 야간/주말: ${state.night ? '해당' : '미해당'}<br>
-      ▪ 동승 인원: ${state.ride > 0 ? `${state.ride}명` : '없음'}<br><br>
-
-      ▪ 인부/작업: ${laborLabel}
-    `;
+    return lines.join('\n');
   }
 
-  // 가격 표시
-  const formatted = `₩${total.toLocaleString()}`;
-  if (priceEl) priceEl.innerText = formatted;
-  if (stickyPriceEl) stickyPriceEl.innerText = formatted;
+  /* =========================
+     가격 계산 (✅ 옵션 A - 거리밴드 제거ver)
+  ========================= */
+  function calc() {
+    if (!state.vehicle) return;
 
-  // 플로팅바 표시
-  if (stickyBarEl && quoteSectionEl) {
-    const rect = quoteSectionEl.getBoundingClientRect();
-    const quoteVisible = rect.top < window.innerHeight * 0.88 && rect.bottom > 0;
-    stickyBarEl.style.display = quoteVisible ? 'none' : 'block';
+    const key = VEHICLE_MAP[state.vehicle];
+    if (!key) return;
+
+    const base  = toNumberSafe(BASE_PRICE[key], 0);
+    const perKm = toNumberSafe(PER_KM_PRICE[key], 0);
+    const dist  = Math.max(0, toNumberSafe(state.distance, 0));
+
+    // =========================
+    // ✅ 옵션 A 레버(여기만 조절)
+    // =========================
+    const DISPLAY_MULTIPLIER = 0.95;      // 표시가 배율
+    const HALF_PREMIUM_MULTIPLIER = 1.18; // 반포장 프리미엄
+
+    // =========================
+    // ✅ 정책 레버 (이번 반영분)
+    // =========================
+
+    // ✅ 박스(짐양) 구간별 퍼센트 가중치 (16~20은 1.95 확정)
+    const LOAD_BAND_MULT = { 1: 1.00, 2: 1.25, 3: 1.55, 4: 1.95 };
+
+    // ✅ 계단 구간 단가 (층수 올라갈수록 단가 상승)
+    // - 이동층수 = (층수 - 1)
+    // - 1개 층(1→2) : 7,000
+    // - 다음 2개 층(2→3, 3→4): 9,000
+    // - 이후: 12,000
+    const STAIR_TIER_1 = 7000;
+    const STAIR_TIER_2 = 9000;
+    const STAIR_TIER_3 = 12000;
+
+    // ✅ 품목(가전/가구) 인상/가중치/복리
+    const ITEM_PRICE_MULTIPLIER = 1.28;      // 전체 단가 28% 인상
+    const ITEM_COUNT_GROWTH_RATE = 0.02;     // 품목 개수(총합) 늘 때마다 복리 2%
+    const FRAGILE_RISK_MULTIPLIER = 1.45;    // TV/모니터 등
+    const APPLIANCE_RISK_MULTIPLIER = 1.25;  // 냉장고/세탁기/건조기 등
+
+    // =========================
+    // ✅ 1) Core: 차량 + 거리
+    // =========================
+    let core = base + (dist * perKm);
+
+    // =========================
+    // ✅ 2) Work: (짐양 + 품목 + 계단)
+    // =========================
+
+    // ✅ 계단 비용(한쪽)
+    function calcStairCostOneSide(floor) {
+      const f = Math.max(1, toNumberSafe(floor, 1));
+      const flights = Math.max(0, f - 1); // ✅ 이동층수(1층은 0)
+
+      const tier1 = Math.min(flights, 1);                      // 첫 1개 층
+      const tier2 = Math.min(Math.max(flights - 1, 0), 2);     // 다음 2개 층
+      const tier3 = Math.max(flights - 3, 0);                  // 이후
+
+      return (tier1 * STAIR_TIER_1) + (tier2 * STAIR_TIER_2) + (tier3 * STAIR_TIER_3);
+    }
+
+    const stairCost =
+      (state.noFrom ? calcStairCostOneSide(state.fromFloor) : 0) +
+      (state.noTo   ? calcStairCostOneSide(state.toFloor)   : 0);
+
+    // ✅ 품목 비용: 기존 + throw 합산
+    const mergedThrow    = sumQtyMaps(state.throwFromQty, state.throwToQty);
+    const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
+
+    // ✅ 품목 총 개수
+    const totalItemCount = Object.values(mergedAllItems).reduce((a, v) => a + Math.max(0, Number(v) || 0), 0);
+
+    // ✅ 위험 가중치
+    function getRiskMultiplier(itemKey) {
+      if (itemKey === 'TV/모니터') return FRAGILE_RISK_MULTIPLIER;
+
+      if (
+        itemKey === '냉장고(380L이하)' ||
+        itemKey === '세탁기(12kg이하)' ||
+        itemKey === '건조기(12kg이하)'
+      ) {
+        return APPLIANCE_RISK_MULTIPLIER;
+      }
+      return 1;
+    }
+
+    // ✅ 1) 단가 인상 + 2) 위험가중치
+    const rawItemCost = Object.entries(mergedAllItems).reduce((sum, [k, qty]) => {
+      const q = Math.max(0, Number(qty) || 0);
+      const basePrice = (FURNITURE_PRICE[k]?.price || 0) * ITEM_PRICE_MULTIPLIER;
+      const risk = getRiskMultiplier(k);
+      return sum + Math.round(basePrice * risk) * q;
+    }, 0);
+
+    // ✅ 3) 품목 개수 늘수록 복리 가산
+    const itemCost = totalItemCount > 0
+      ? Math.round(rawItemCost * Math.pow(1 + ITEM_COUNT_GROWTH_RATE, Math.max(0, totalItemCount - 1)))
+      : 0;
+
+    // ✅ 짐양(박스): 구간별 퍼센트 가중치 적용
+    const loadMap = getLoadMap(state.moveType);
+    const loadBase =
+      (state.load && loadMap[state.load]) ? toNumberSafe(loadMap[state.load].price, 0) : 0;
+
+    const band = toNumberSafe(state.load, 0);
+    const bandMult = LOAD_BAND_MULT[band] ?? 1.00;
+
+    const loadCost = Math.round(loadBase * bandMult);
+
+    const work = loadCost + itemCost + stairCost;
+
+    // =========================
+    // ✅ 3) 추가 옵션 (배율 적용 X, 그대로 더함)
+    // =========================
+    let optionCost = 0;
+    if (state.ladder) optionCost += 80000;
+    optionCost += toNumberSafe(state.ride, 0) * 20000;
+
+    if (state.cantCarryFrom) optionCost += 30000;
+    if (state.cantCarryTo)   optionCost += 30000;
+
+    if (state.helperFrom) optionCost += 40000;
+    if (state.helperTo)   optionCost += 40000;
+
+    // ✅ 야간/주말(night)은 0원 유지 → 반영 안 함
+
+    // =========================
+    // ✅ 4) 일반/반포장 최종
+    // =========================
+    let total = core + work + optionCost;
+
+    // 반포장 프리미엄
+    if (state.moveType === 'half') {
+      total = Math.round(total * HALF_PREMIUM_MULTIPLIER);
+    }
+
+    // 표시가 배율
+    total = Math.round(total * DISPLAY_MULTIPLIER);
+
+    // 운영용 전체 배율
+    total = Math.round(total * PRICE_MULTIPLIER);
+
+    lastPrice = total;
+
+    // -----------------------------
+    // 요약(기존 UI 유지)
+    // -----------------------------
+    if (summaryEl) {
+      const loadLabel  = state.load && loadMap[state.load] ? loadMap[state.load].label : '미선택';
+      const laborLabel = buildLaborLabel(state);
+
+      const throwModeLabel = state.throwEnabled ? '사용' : '미사용';
+      const workLabel = state.throwEnabled
+        ? `출발지:${state.workFrom ? '있음' : '없음'} / 도착지:${state.workTo ? '있음' : '없음'}`
+        : '-';
+
+      const allItemsLabel = getSelectedQtyLabel(mergedAllItems);
+
+      summaryEl.innerHTML = `
+        <b>🚚 이사 조건 요약</b><br><br>
+
+        ▪ 이사 방식: ${moveTypeShortLabel(state.moveType)}<br><br>
+
+        ▪ 차량: ${state.vehicle}<br>
+        ▪ 거리: ${dist > 0 ? dist + ' km' : '미계산'}<br><br>
+
+        ▪ 일정: ${state.moveDate ? state.moveDate : '미선택'}<br>
+        ▪ 희망 시간: ${formatTimeSlotKR(state.timeSlot)}<br><br>
+
+        ▪ 계단:<br>
+        &nbsp;&nbsp;- 출발지: ${state.noFrom ? `${state.fromFloor}층 (엘베 없음)` : '엘베 있음'}<br>
+        &nbsp;&nbsp;- 도착지: ${state.noTo ? `${state.toFloor}층 (엘베 없음)` : '엘베 있음'}<br><br>
+
+        ▪ 짐양: ${loadLabel}<br><br>
+
+        <b>🧹 버려주세요 모드</b><br>
+        ▪ 사용: ${throwModeLabel}<br>
+        ▪ 작업 여부: ${workLabel}<br><br>
+
+        ▪ 가구·가전(합산): ${allItemsLabel}<br><br>
+
+        ▪ 사다리차: ${state.ladder ? '필요' : '불필요'}<br>
+        ▪ 야간/주말: ${state.night ? '해당' : '미해당'}<br>
+        ▪ 동승 인원: ${state.ride > 0 ? `${state.ride}명` : '없음'}<br><br>
+
+        ▪ 인부/작업: ${laborLabel}
+      `;
+    }
+
+    // 가격 표시
+    const formatted = `₩${total.toLocaleString()}`;
+    if (priceEl) priceEl.innerText = formatted;
+    if (stickyPriceEl) stickyPriceEl.innerText = formatted;
+
+    // 플로팅바 표시
+    if (stickyBarEl && quoteSectionEl) {
+      const rect = quoteSectionEl.getBoundingClientRect();
+      const quoteVisible = rect.top < window.innerHeight * 0.88 && rect.bottom > 0;
+      stickyBarEl.style.display = quoteVisible ? 'none' : 'block';
+    }
   }
-}
-
-
 
   /* =========================
      ✅ 채널톡 문의 버튼
-     - 날짜/시간 필수 체크
-     - 마감(confirmed_slots) 재확인
-     - 채널톡 열면서 메시지 미리 입력
   ========================= */
   if (channelInquiryBtn) {
     channelInquiryBtn.addEventListener('click', async (e) => {
@@ -920,12 +962,10 @@ function calc() {
       const msg = buildInquiryMessage(lastPrice);
 
       // ✅ 채널톡 열기 + 메시지 입력
-      // openChat(chatId, message) → chatId는 undefined로 두면 새 상담으로 열림
       try {
         window.ChannelIO('openChat', undefined, msg);
       } catch (err) {
         console.error('ChannelIO openChat error:', err);
-        // fallback: 메신저라도 열기
         try { window.ChannelIO('showMessenger'); } catch (_) {}
       }
     });
