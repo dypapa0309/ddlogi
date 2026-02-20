@@ -1,28 +1,26 @@
-<!-- /index.html -->
+<!-- /index.html (KR) : 정리/완성본 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- 🔍 SEO -->
+
   <title>디디운송 | 1톤 카고·용달·이사 전문 | 정직한 견적</title>
   <meta name="description" content="디디운송은 1톤 카고·용달·소형이사 전문 업체입니다. 거리·옵션별 예상 견적을 바로 확인하세요." />
   <meta name="keywords" content="디디운송, 용달, 1톤카고, 이사, 소형이사" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://ddlogi.netlify.app/" />
 
-  <!-- OG metadata -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="디디운송 | 빠르고 정직한 1톤 카고·용달" />
   <meta property="og:description" content="거리·옵션 선택만으로 예상 견적 확인" />
   <meta property="og:image" content="/assets/img/hero-bin.jpg" />
   <meta property="og:locale" content="ko_KR" />
 
-  <!-- Verification tags (optional) -->
   <meta name="naver-site-verification" content="678161b38e6ea859e9e863da9807f759ce7e331e" />
   <meta name="google-site-verification" content="2Ty8rFRVnpPuNKFrt7b8DAno9v7kEe1f7Pnr9_bRcsU" />
 
-  <!-- ✅ Kakao Map API (중요: autoload=false) -->
+  <!-- ✅ Kakao Map API (autoload=false) -->
   <script
     type="text/javascript"
     src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e72755495282830e0006d49708dabe5b&libraries=services&autoload=false">
@@ -30,71 +28,56 @@
 
   <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
+
 <body data-lang="ko">
   <div class="container">
 
+    <!-- Language -->
     <div class="langbar" role="navigation" aria-label="Language switch">
       <a class="lang-pill" href="/" data-lang="ko" aria-current="page">KR</a>
       <a class="lang-pill" href="/en/" data-lang="en">EN</a>
     </div>
 
-    <!-- 이하 기존 섹션들 -->
+    <!-- HERO -->
+    <section class="section" id="hero">
+      <div class="hero-card">
+        <div class="hero-content">
+          <h1>이사 견적이 <br>다 다른 이유,<br><br />아시나요?</h1>
 
+          <br><hr><br>
 
-<section class="section">
-  <div class="hero-card minimal">
+          <div class="hero-pills" aria-label="핵심 기능">
+            <span class="pill">자동 계산</span>
+            <span class="pill">투명한 옵션</span>
+            <span class="pill">AI 안내</span>
+          </div>
 
-    <div class="hero-content">
+          <p class="hero-desc">
+            이사비용은 <span class="hl">비밀이 아닙니다</span><br /><br />
+            <span class="hl2">자동 계산</span>으로 빠르게<br /><br />
+            <span class="hl2">옵션은 투명하게</span><br /><br />
+            거기에 <span class="hl2">AI까지</span>
+          </p>
 
- <!-- 히어로 섹션 -->
-<section class="section" id="hero">
-  <div class="hero-card">
-    <div class="hero-content">
-      <h1>이사 견적이 <br>다 다른 이유,<br><br />아시나요?</h1>
+          <div class="hero-callout">
+            고객님이 <b>직접 투명하게 계산</b>하세요.
+          </div>
 
-      <br><hr><br>
+          <br><hr>
 
-      <div class="hero-pills" aria-label="핵심 기능">
-        <span class="pill">자동 계산</span>
-        <span class="pill">투명한 옵션</span>
-        <span class="pill">AI 안내</span>
-      </div>
-
-      <p class="hero-desc">
-        이사비용은 <span class="hl">비밀이 아닙니다</span><br /><br />
-        <span class="hl2">자동 계산</span>으로 빠르게<br /><br />
-        <span class="hl2">옵션은 투명하게</span><br /><br />
-        거기에 <span class="hl2">AI까지</span>
-      </p>
-
-      <div class="hero-callout">
-        고객님이 <b>직접 투명하게 계산</b>하세요.
-      </div>
-
-      <br><hr>
-
-      <div class="hero-signature" aria-label="대표 소개">
-        <div class="owner-profile">
-          <img src="/assets/img/hero-bin.jpg" alt="디디운송 대표 이상빈" />
+          <div class="hero-signature" aria-label="대표 소개">
+            <div class="owner-profile">
+              <img src="/assets/img/hero-bin.jpg" alt="디디운송 대표 이상빈" />
+            </div>
+            "속임수를 싫어합니다.<br>이사비용, 투명하게 알려드릴테니<br>바가지 없이 이사하세요"<br><br>
+            <div class="hero-owner">-디디운송 대표 이상빈</div>
+          </div>
         </div>
-        <div class="hero-owner">디디운송 대표 이상빈</div>
       </div>
-    </div>
-  </div>
-</section>
-
-
-
-
-      
-    </div>
-  </div>
-</section>
-
-
+    </section>
 
     <!-- 차량 선택 -->
-    <section class="section">
+    <section class="section" id="vehicleSection">
       <h2>차량 선택</h2>
       <div class="card">
         <div class="vehicle" data-vehicle="1톤 카고">🛻 1톤 카고 (오픈카)</div>
@@ -104,601 +87,643 @@
     </section>
 
     <!-- 거리 입력 -->
-    <section class="section">
+    <section class="section" id="distanceSection">
       <h2>이동 거리</h2>
       <div class="card">
         <div class="sub">출발지 주소</div>
         <input type="text" id="startAddress" class="address-input" placeholder="예: 서울특별시 강남구 테헤란로 152" />
+
+        <!-- ✅ 경유지 -->
+        <div class="option" style="margin-top:12px;">
+          <div>
+            경유지 있을시 체크해주세요
+            <div class="sub" style="margin:6px 0 0;">출발 → 경유 → 도착 거리 합산 계산</div>
+          </div>
+          <input type="checkbox" id="hasWaypoint" />
+        </div>
+
+        <div id="waypointWrap" style="display:none; margin-top:10px;">
+          <div class="sub">경유지 주소</div>
+          <input type="text" id="waypointAddress" class="address-input" placeholder="예: 경기도 성남시 분당구..." />
+        </div>
+
         <div class="sub" style="margin-top: 15px;">도착지 주소</div>
         <input type="text" id="endAddress" class="address-input" placeholder="예: 경기도 부천시 상동로 87" />
+
         <button id="calcDistance" class="calc-btn">거리 계산하기</button>
+
         <div id="distanceResult" class="distance-result">
           <div class="sub">계산된 거리: <b id="distanceText">주소를 입력해주세요</b></div>
         </div>
       </div>
     </section>
 
-   <!-- 예약 정보 -->
-<section class="section" id="reserveSection">
-  <h2>예약 정보</h2>
-  <div class="card">
+    <!-- 예약 정보 -->
+    <section class="section" id="reserveSection">
+      <h2>예약 정보</h2>
+      <div class="card">
 
-    <div class="section-center">
-      <div class="sub">이사 날짜</div>
-    </div>
-
-    <div class="date-wrap">
-      <input type="date" id="moveDate" class="address-input date-input" required />
-      <span class="date-icon" aria-hidden="true"></span>
-    </div>
-
-    <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;" />
-
-    <div class="section-center">
-      <div class="sub">이사 희망 시간</div>
-    </div>
-
-    <div class="time-grid" aria-label="이사 희망 시간 선택">
-      <label class="time-chip">
-        <input type="radio" name="timeSlot" value="7" />
-        <span>7시</span>
-      </label>
-      <label class="time-chip">
-        <input type="radio" name="timeSlot" value="8" />
-        <span>8시</span>
-      </label>
-      <label class="time-chip">
-        <input type="radio" name="timeSlot" value="9" />
-        <span>9시</span>
-      </label>
-      <label class="time-chip">
-        <input type="radio" name="timeSlot" value="10" />
-        <span>10시</span>
-      </label>
-      <label class="time-chip">
-        <input type="radio" name="timeSlot" value="11" />
-        <span>11시</span>
-      </label>
-      <label class="time-chip">
-        <input type="radio" name="timeSlot" value="12" />
-        <span>12시</span>
-      </label>
-      <label class="time-chip">
-        <input type="radio" name="timeSlot" value="13" />
-        <span>13시</span>
-      </label>
-      <label class="time-chip">
-        <input type="radio" name="timeSlot" value="14" />
-        <span>14시</span>
-      </label>
-      <label class="time-chip">
-        <input type="radio" name="timeSlot" value="15" />
-        <span>15시</span>
-      </label>
-    </div>
-
-    <div class="section-center">
-      <div class="sub" style="margin-top: 10px;">
-        ※ 배차 상황에 따라 확정 시간은 상담 후 안내됩니다.
-      </div>
-    </div>
-
-  </div>
-</section>
-
-
-
-<!-- 추가 옵션 -->
-<section class="section" id="optionsSection">
-  <h2>옮겨주세요!</h2>
-  <div class="card">
-
-    <!-- ✅ NEW: 옮겨주세요! 토글 (카드 안으로 이동) -->
-    <div class="option move-toggle-row">
-      <div>
-        이삿짐 견적 계산기
-        <div class="sub" style="margin:6px 0 0;">
-          디디운송의 투명한 견적 계산기를 이용해<br>
-          쉽고 빠르게 이사 견적을 받아보세요.
-
-
+        <div class="section-center"><div class="sub">이사 날짜</div></div>
+        <div class="date-wrap">
+          <input type="date" id="moveDate" class="address-input date-input" required />
+          <span class="date-icon" aria-hidden="true"></span>
         </div>
-      </div>
 
-      <label class="switch" aria-label="옮겨주세요 모드 토글">
-        <!-- checked = 전체 옵션 펼친 상태(기본) -->
-        <input type="checkbox" id="moveToggle" checked />
-        <span class="slider"></span>
-      </label>
-    </div>
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;" />
 
-    <hr />
+        <div class="section-center"><div class="sub">이사 희망 시간</div></div>
 
-    <!-- ✅ 핵심(항상 노출): 이사 방식 -->
-    <div class="sub">이사 방식</div>
-
-    <div class="option">
-      <div>
-        일반이사
-        <div class="sub" style="margin:6px 0 0;">
-          (고객님이 전부 박스포장 해놓으셔야 합니다.)
+        <div class="time-grid" aria-label="이사 희망 시간 선택">
+          <label class="time-chip"><input type="radio" name="timeSlot" value="7" /><span>7시</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="8" /><span>8시</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="9" /><span>9시</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="10" /><span>10시</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="11" /><span>11시</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="12" /><span>12시</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="13" /><span>13시</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="14" /><span>14시</span></label>
+          <label class="time-chip"><input type="radio" name="timeSlot" value="15" /><span>15시</span></label>
         </div>
-      </div>
-      <input type="radio" name="moveType" value="general" checked />
-    </div>
 
-    <div class="option">
-      <div>
-        반포장 이사
-        <div class="sub" style="margin:6px 0 0;">
-          (웬만한 짐은 다 박스 포장 해놓으시고 당일까지 사용하실 짐을 포장하실 박스를 최대 5개까지 제공합니다.)
-        </div>
-      </div>
-      <input type="radio" name="moveType" value="half" />
-    </div>
-
-    <hr />
-
-    <!-- ✅ 접히는 영역 시작 -->
-    <div id="moveBody">
-
-      <div class="sub">엘리베이터 없을 경우 <br>체크해주세요</div>
-
-      <div class="option">
-        출발지
-        <div class="option-controls">
-          <input type="checkbox" id="noFrom" />
-          <div class="stepper">
-            <button type="button" class="stepper-btn" data-stepper="fromFloor" data-dir="-1">−</button>
-            <input type="number" id="fromFloor" min="1" value="1" inputmode="numeric" />
-            <button type="button" class="stepper-btn" data-stepper="fromFloor" data-dir="1">+</button>
+        <div class="section-center">
+          <div class="sub" style="margin-top: 10px;">
+            ※ 배차 상황에 따라 확정 시간은 상담 후 안내됩니다.
           </div>
         </div>
-      </div>
 
-      <div class="option">
-        도착지
-        <div class="option-controls">
-          <input type="checkbox" id="noTo" />
-          <div class="stepper">
-            <button type="button" class="stepper-btn" data-stepper="toFloor" data-dir="-1">−</button>
-            <input type="number" id="toFloor" min="1" value="1" inputmode="numeric" />
-            <button type="button" class="stepper-btn" data-stepper="toFloor" data-dir="1">+</button>
+      </div>
+    </section>
+
+    <!-- 추가 옵션 -->
+    <section class="section" id="optionsSection">
+      <h2>옮겨주세요!</h2>
+      <div class="card">
+
+        <!-- 토글 -->
+        <div class="option move-toggle-row">
+          <div>
+            이삿짐 견적 계산기
+            <div class="sub" style="margin:6px 0 0;">
+              디디운송의 투명한 견적 계산기를 이용해<br />
+              쉽고 빠르게 이사 견적을 받아보세요.
+            </div>
+          </div>
+          <label class="switch" aria-label="옮겨주세요 모드 토글">
+            <input type="checkbox" id="moveToggle" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <hr />
+
+        <div class="sub">이사 방식</div>
+
+        <div class="option">
+          <div>
+            일반이사
+            <div class="sub" style="margin:6px 0 0;">(고객님이 전부 박스포장 해놓으셔야 합니다.)</div>
+          </div>
+          <input type="radio" name="moveType" value="general" checked />
+        </div>
+
+        <div class="option">
+          <div>
+            반포장 이사
+            <div class="sub" style="margin:6px 0 0;">
+              (웬만한 짐은 다 박스 포장 해놓으시고 당일까지 사용하실 짐을 포장하실 박스를 최대 5개까지 제공합니다.)
+            </div>
+          </div>
+          <input type="radio" name="moveType" value="half" />
+        </div>
+
+        <div class="option">
+          <div>
+            보관이사
+            <div class="sub" style="margin:6px 0 0;">
+              (보관료: 2만원×일수 / 옵션비로만 추가)
+            </div>
+          </div>
+          <input type="radio" name="moveType" value="storage" />
+        </div>
+
+        <!-- 보관이사 옵션 -->
+        <div class="card-sub" id="storageBody" hidden>
+          <div class="field">
+            <label>보관이사 타입</label>
+            <div class="seg">
+              <label class="seg-item">
+                <input type="radio" name="storageBase" value="general" checked />
+                <span>보관-일반이사</span>
+              </label>
+              <label class="seg-item">
+                <input type="radio" name="storageBase" value="half" />
+                <span>보관-반포장이사</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>보관 일수</label>
+            <div class="stepper" data-stepper="storageDays">
+              <button type="button" class="stepper-btn" data-dir="-1" data-stepper="storageDays">−</button>
+              <input type="number" class="stepper-input" id="storageDays" value="1" min="1" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-dir="1" data-stepper="storageDays">+</button>
+              <span class="stepper-unit">일</span>
+            </div>
+            <div class="hint">보관료는 <b>하루 20,000원</b>입니다. (기본 1일)</div>
           </div>
         </div>
-      </div>
 
-      <hr />
+        <hr />
 
-      <div class="sub">가구·가전</div>
+        <!-- 접히는 영역 -->
+        <div id="moveBody">
 
-      <div class="sub" style="margin-top:10px;">가전</div>
+          <div class="sub">엘리베이터 없을 경우 <br>체크해주세요</div>
 
-      <div class="option item-qty-row">
-        <div>전자레인지</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="전자레인지" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="전자레인지" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="전자레인지" data-dir="1">+</button>
+          <div class="option">
+            <div>출발지</div>
+            <div class="option-controls">
+              <input type="checkbox" id="noFrom" />
+              <div class="stepper">
+                <button type="button" class="stepper-btn" data-stepper="fromFloor" data-dir="-1">−</button>
+                <input type="number" id="fromFloor" min="1" value="1" inputmode="numeric" />
+                <button type="button" class="stepper-btn" data-stepper="fromFloor" data-dir="1">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="option">
+            <div>도착지</div>
+            <div class="option-controls">
+              <input type="checkbox" id="noTo" />
+              <div class="stepper">
+                <button type="button" class="stepper-btn" data-stepper="toFloor" data-dir="-1">−</button>
+                <input type="number" id="toFloor" min="1" value="1" inputmode="numeric" />
+                <button type="button" class="stepper-btn" data-stepper="toFloor" data-dir="1">+</button>
+              </div>
+            </div>
+          </div>
+
+          <hr />
+
+          <!-- 가전/가구 -->
+          <div class="sub">가구·가전</div>
+          <div class="sub" style="margin-top:10px;">가전</div>
+
+          <!-- 가전 -->
+          <div class="option item-qty-row">
+            <div>전자레인지</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="전자레인지" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="전자레인지" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="전자레인지" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>공기청정기</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="공기청정기" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="공기청정기" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="공기청정기" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>청소기</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="청소기" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="청소기" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="청소기" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>TV/모니터</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="TV/모니터" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="TV/모니터" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="TV/모니터" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>정수기 (이동만)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="정수기(이동만)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="정수기(이동만)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="정수기(이동만)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>세탁기 (12kg 이하)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="세탁기(12kg이하)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="세탁기(12kg이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="세탁기(12kg이하)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>건조기 (12kg 이하)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="건조기(12kg이하)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="건조기(12kg이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="건조기(12kg이하)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>냉장고 (380L 이하)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="냉장고(380L이하)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="냉장고(380L이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="냉장고(380L이하)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <hr />
+
+          <!-- 가구 -->
+          <div class="sub">가구</div>
+
+          <div class="option item-qty-row">
+            <div>의자</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="의자" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="의자" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="의자" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>행거</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="행거" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="행거" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="행거" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>협탁/사이드테이블(소형)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="협탁/사이드테이블(소형)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="협탁/사이드테이블(소형)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="협탁/사이드테이블(소형)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>화장대(소형)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="화장대(소형)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="화장대(소형)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="화장대(소형)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>책상/테이블(일반)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="책상/테이블(일반)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="책상/테이블(일반)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="책상/테이블(일반)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>서랍장(3~5단)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="서랍장(3~5단)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="서랍장(3~5단)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="서랍장(3~5단)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>책장(일반)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="책장(일반)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="책장(일반)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="책장(일반)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>수납장/TV장(일반)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="수납장/TV장(일반)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="수납장/TV장(일반)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="수납장/TV장(일반)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>소파 (2~3인)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="소파(2~3인)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="소파(2~3인)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="소파(2~3인)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>침대 매트리스 (킹 제외)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-item="침대매트리스(킹제외)" data-dir="-1">−</button>
+              <input type="number" class="itemQty" data-item="침대매트리스(킹제외)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-item="침대매트리스(킹제외)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="sub" style="margin-top:10px;">
+            ※ 대형·특수 가전/가구 및 <br>분해·조립·설치 작업은 상담 후 확정됩니다.
+          </div>
+
+          <hr />
+
+          <!-- 짐양 -->
+          <div class="sub">짐양 (5호 이사박스 기준)</div>
+          <div class="option"><div>1~5개</div><input type="radio" name="load" value="1" /></div>
+          <div class="option"><div>6~10개</div><input type="radio" name="load" value="2" /></div>
+          <div class="option"><div>11~15개</div><input type="radio" name="load" value="3" /></div>
+          <div class="option"><div>16~20개</div><input type="radio" name="load" value="4" /></div>
+
+          <hr />
+
+          <!-- 직접 나르기 어려움 -->
+          <div class="sub">직접 짐 나르기 어려운 경우<br>(기사 1인이 가능한 경우 체크해주세요)</div>
+          <div class="option"><div>출발지에서 어려움</div><input type="checkbox" id="cantCarryFrom" /></div>
+          <div class="option"><div>도착지에서 어려움</div><input type="checkbox" id="cantCarryTo" /></div>
+
+          <hr />
+
+          <!-- 인부 -->
+          <div class="sub">인부 추가<br>(기사 1인이 불가능할 경우 체크 해주세요)</div>
+          <div class="option"><div>출발지 인부 추가</div><input type="checkbox" id="helperFrom" /></div>
+          <div class="option"><div>도착지 인부 추가</div><input type="checkbox" id="helperTo" /></div>
+
+          <hr />
+
+          <!-- ✅ 사다리차(단 1번만 존재) -->
+          <div class="field" id="ladderBlock">
+            <label>사다리차</label>
+
+            <div class="toggles">
+              <label class="toggle">
+                <input type="checkbox" id="ladderFromEnabled" />
+                <span>출발지에서 필요</span>
+              </label>
+
+              <label class="toggle">
+                <input type="checkbox" id="ladderToEnabled" />
+                <span>도착지에서 필요</span>
+              </label>
+            </div>
+
+            <div class="ladder-sub" id="ladderFromBody" hidden>
+              <div class="row">
+                <div class="muted">출발지 층수</div>
+                <div class="stepper">
+                  <button type="button" class="stepper-btn" data-stepper="ladderFromFloor" data-dir="-1">−</button>
+                  <input type="number" class="stepper-input" id="ladderFromFloor" value="6" min="1" inputmode="numeric" />
+                  <button type="button" class="stepper-btn" data-stepper="ladderFromFloor" data-dir="1">+</button>
+                  <span class="stepper-unit">층</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ladder-sub" id="ladderToBody" hidden>
+              <div class="row">
+                <div class="muted">도착지 층수</div>
+                <div class="stepper">
+                  <button type="button" class="stepper-btn" data-stepper="ladderToFloor" data-dir="-1">−</button>
+                  <input type="number" class="stepper-input" id="ladderToFloor" value="6" min="1" inputmode="numeric" />
+                  <button type="button" class="stepper-btn" data-stepper="ladderToFloor" data-dir="1">+</button>
+                  <span class="stepper-unit">층</span>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+
+          <div class="option">
+            <div>야간/주말 (무료)</div>
+            <input type="checkbox" id="night" />
+          </div>
+
+          <hr />
+
+          <div class="option">
+            <div>
+              동승 인원 있을 시 <br>체크해주세요<br />
+              (1인 이상 시 네고 문의)
+            </div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper="ride" data-dir="-1">−</button>
+              <input type="number" id="ride" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper="ride" data-dir="1">+</button>
+            </div>
+          </div>
+
+        </div><!-- /#moveBody -->
+      </div><!-- /.card -->
+    </section>
+
+    <!-- ✅ 버려주세요! (옵션 ↔ 견적 사이, 섹션 구조 정상화) -->
+    <section class="section" id="throwSection">
+      <h2>버려주세요!</h2>
+      <div class="card">
+
+        <div class="option throw-toggle-row">
+          <div>
+            이사하며 1층에 버리실 물건!
+            <div class="sub" style="margin:6px 0 0;">
+              무거워서 처리하기 힘든 짐,<br>기사님과 함께 하세요.
+            </div>
+          </div>
+
+          <label class="switch" aria-label="버려주세요 모드 토글">
+            <input type="checkbox" id="throwToggle" />
+            <span class="slider"></span>
+          </label>
         </div>
-      </div>
 
-      <div class="option item-qty-row">
-        <div>공기청정기</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="공기청정기" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="공기청정기" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="공기청정기" data-dir="1">+</button>
-        </div>
-      </div>
+        <div id="throwBody" style="display:none; margin-top:14px;">
 
-      <div class="option item-qty-row">
-        <div>청소기</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="청소기" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="청소기" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="청소기" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="sub">출발/도착지 작업 여부</div>
+          <div class="option"><div>출발지 작업 있음</div><input type="checkbox" id="workFrom" /></div>
+          <div class="option"><div>도착지 작업 있음</div><input type="checkbox" id="workTo" /></div>
 
-      <div class="option item-qty-row">
-        <div>TV/모니터</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="TV/모니터" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="TV/모니터" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="TV/모니터" data-dir="1">+</button>
-        </div>
-      </div>
+          <hr />
 
-      <div class="option item-qty-row">
-        <div>정수기 (이동만)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="정수기(이동만)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="정수기(이동만)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="정수기(이동만)" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="sub">출발지 짐(수량)</div>
 
-      <div class="option item-qty-row">
-        <div>세탁기 (12kg 이하)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="세탁기(12kg이하)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="세탁기(12kg이하)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="세탁기(12kg이하)" data-dir="1">+</button>
-        </div>
-      </div>
+          <!-- from -->
+          <div class="option item-qty-row">
+            <div>세탁기 (12kg 이하)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="세탁기(12kg이하)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="세탁기(12kg이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="세탁기(12kg이하)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <div class="option item-qty-row">
-        <div>건조기 (12kg 이하)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="건조기(12kg이하)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="건조기(12kg이하)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="건조기(12kg이하)" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="option item-qty-row">
+            <div>건조기 (12kg 이하)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="건조기(12kg이하)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="건조기(12kg이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="건조기(12kg이하)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <div class="option item-qty-row">
-        <div>냉장고 (380L 이하)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="냉장고(380L이하)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="냉장고(380L이하)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="냉장고(380L이하)" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="option item-qty-row">
+            <div>냉장고 (380L 이하)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="냉장고(380L이하)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="냉장고(380L이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="냉장고(380L이하)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <hr />
+          <div class="option item-qty-row">
+            <div>협탁/사이드테이블(소형)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="협탁/사이드테이블(소형)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="협탁/사이드테이블(소형)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="협탁/사이드테이블(소형)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <div class="sub">가구</div>
+          <div class="option item-qty-row">
+            <div>책상/테이블(일반)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="책상/테이블(일반)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="책상/테이블(일반)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="책상/테이블(일반)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <div class="option item-qty-row">
-        <div>의자</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="의자" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="의자" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="의자" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="option item-qty-row">
+            <div>서랍장(3~5단)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="서랍장(3~5단)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="서랍장(3~5단)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="서랍장(3~5단)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <div class="option item-qty-row">
-        <div>행거</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="행거" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="행거" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="행거" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="option item-qty-row">
+            <div>책장(일반)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="책장(일반)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="책장(일반)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="책장(일반)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <div class="option item-qty-row">
-        <div>협탁/사이드테이블(소형)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="협탁/사이드테이블(소형)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="협탁/사이드테이블(소형)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="협탁/사이드테이블(소형)" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="option item-qty-row">
+            <div>수납장/TV장(일반)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="수납장/TV장(일반)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="수납장/TV장(일반)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="수납장/TV장(일반)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <div class="option item-qty-row">
-        <div>화장대(소형)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="화장대(소형)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="화장대(소형)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="화장대(소형)" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="option item-qty-row">
+            <div>소파 (2~3인)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="소파(2~3인)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="소파(2~3인)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="소파(2~3인)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <div class="option item-qty-row">
-        <div>책상/테이블(일반)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="책상/테이블(일반)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="책상/테이블(일반)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="책상/테이블(일반)" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="option item-qty-row">
+            <div>소파 (4인 이상)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="소파(4인이상)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="소파(4인이상)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="소파(4인이상)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <div class="option item-qty-row">
-        <div>서랍장(3~5단)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="서랍장(3~5단)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="서랍장(3~5단)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="서랍장(3~5단)" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="option item-qty-row">
+            <div>침대 매트리스 (킹 제외)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="침대매트리스(킹제외)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="from" data-item="침대매트리스(킹제외)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="침대매트리스(킹제외)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <div class="option item-qty-row">
-        <div>책장(일반)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="책장(일반)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="책장(일반)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="책장(일반)" data-dir="1">+</button>
-        </div>
-      </div>
+          <hr />
 
-      <div class="option item-qty-row">
-        <div>수납장/TV장(일반)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="수납장/TV장(일반)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="수납장/TV장(일반)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="수납장/TV장(일반)" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="sub">도착지 짐(수량)</div>
 
-      <div class="option item-qty-row">
-        <div>소파 (2~3인)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="소파(2~3인)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="소파(2~3인)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="소파(2~3인)" data-dir="1">+</button>
-        </div>
-      </div>
+          <!-- to : from과 동일한 항목을 data-loc="to"로 복붙 -->
+          <div class="option item-qty-row">
+            <div>세탁기 (12kg 이하)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="to" data-stepper-item="세탁기(12kg이하)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="to" data-item="세탁기(12kg이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="to" data-stepper-item="세탁기(12kg이하)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <div class="option item-qty-row">
-        <div>침대 매트리스 (킹 제외)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="침대매트리스(킹제외)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="침대매트리스(킹제외)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="침대매트리스(킹제외)" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="option item-qty-row">
+            <div>냉장고 (380L 이하)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="to" data-stepper-item="냉장고(380L이하)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="to" data-item="냉장고(380L이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="to" data-stepper-item="냉장고(380L이하)" data-dir="1">+</button>
+            </div>
+          </div>
 
-      <div class="option item-qty-row">
-        <div>침대 프레임 분해/조립</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-item="침대프레임(분해/조립)" data-dir="-1">−</button>
-          <input type="number" class="itemQty" data-item="침대프레임(분해/조립)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-item="침대프레임(분해/조립)" data-dir="1">+</button>
-        </div>
-      </div>
+          <div class="sub" style="margin-top:10px;">
+            ※ “버려주세요 모드”는 상담용 빠른 선택입니다. 정확한 금액은 현장 상황에 따라 달라질 수 있습니다.
+          </div>
 
-      <div class="sub" style="margin-top:10px;">
-        ※ 대형·특수 가전/가구 및 <br>분해·조립·설치 작업은 상담 후 확정됩니다.
-      </div>
-
-      <hr />
-
-      <div class="sub">짐양 (5호 이사박스 기준)</div>
-      <div class="option">1~5개 <input type="radio" name="load" value="1" /></div>
-      <div class="option">6~10개 <input type="radio" name="load" value="2" /></div>
-      <div class="option">11~15개 <input type="radio" name="load" value="3" /></div>
-      <div class="option">16~20개 <input type="radio" name="load" value="4" /></div>
-
-      <hr />
-
-      <div class="sub">직접 짐 나르기 어려운 경우<br>(기사 1인이 가능한 경우 체크해주세요)</div>
-      <div class="option">
-        출발지에서 어려움
-        <input type="checkbox" id="cantCarryFrom" />
-      </div>
-      <div class="option">
-        도착지에서 어려움
-        <input type="checkbox" id="cantCarryTo" />
-      </div>
-
-      <hr />
-
-      <div class="sub">인부 추가<br>(기사 1인이 불가능할 경우 체크 해주세요)</div>
-      <div class="option">
-        출발지 인부 추가
-        <input type="checkbox" id="helperFrom" />
-      </div>
-      <div class="option">
-        도착지 인부 추가
-        <input type="checkbox" id="helperTo" />
-      </div>
-
-      <hr />
-
-      <div class="option">사다리차 (+80,000원) <input type="checkbox" id="ladder" /></div>
-      <div class="option">야간/주말 (무료) <input type="checkbox" id="night" /></div>
-
-      <hr />
-
-      <div class="option">
-        동승 인원 있을 시 <br>체크해주세요<br />
-        (1인 이상 시 네고 문의)
-
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper="ride" data-dir="-1">−</button>
-          <input type="number" id="ride" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper="ride" data-dir="1">+</button>
-        </div>
-      </div>
-
-    </div>
-    <!-- ✅ 접히는 영역 끝 -->
-
-  </div>
-</section>
-
-
-    <!-- ✅ NEW: 버려주세요! 토글 섹션 (추가옵션 ↔ 예상견적 사이) -->
-<section class="section" id="throwSection">
-  <h2>버려주세요!</h2>
-  <div class="card">
-
-    <div class="option throw-toggle-row">
-  <div>
-    이사하며 1층에 버리실 물건!
-
-    <div class="sub" style="margin:6px 0 0;">
-      무거워서 처리하기 힘든 짐,<br>기사님과 함께 하세요.
-    </div>
-  </div>
-
-  <!-- ✅ 스위치 마크업 -->
-  <label class="switch" aria-label="버려주세요 모드 토글">
-    <input type="checkbox" id="throwToggle" />
-    <span class="slider"></span>
-  </label>
-</div>
-
-
-    <div id="throwBody" style="display:none; margin-top:14px;">
-
-      <div class="sub">출발/도착지 작업 여부</div>
-      <div class="option">
-        출발지 작업 있음
-        <input type="checkbox" id="workFrom" />
-      </div>
-      <div class="option">
-        도착지 작업 있음
-        <input type="checkbox" id="workTo" />
-      </div>
-
-      <hr />
-
-      <div class="sub">출발지 짐(수량)</div>
-
-      <!-- from -->
-      <div class="option item-qty-row">
-        <div>세탁기 (12kg 이하)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="세탁기(12kg이하)" data-dir="-1">−</button>
-          <input type="number" class="throwQty" data-loc="from" data-item="세탁기(12kg이하)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="세탁기(12kg이하)" data-dir="1">+</button>
-        </div>
-      </div>
-
-      <div class="option item-qty-row">
-        <div>건조기 (12kg 이하)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="건조기(12kg이하)" data-dir="-1">−</button>
-          <input type="number" class="throwQty" data-loc="from" data-item="건조기(12kg이하)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="건조기(12kg이하)" data-dir="1">+</button>
-        </div>
-      </div>
-
-      <div class="option item-qty-row">
-        <div>냉장고 (380L 이하)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="냉장고(380L이하)" data-dir="-1">−</button>
-          <input type="number" class="throwQty" data-loc="from" data-item="냉장고(380L이하)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="냉장고(380L이하)" data-dir="1">+</button>
-        </div>
-      </div>
-
-      <div class="option item-qty-row">
-        <div>협탁/사이드테이블(소형)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="협탁/사이드테이블(소형)" data-dir="-1">−</button>
-          <input type="number" class="throwQty" data-loc="from" data-item="협탁/사이드테이블(소형)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="협탁/사이드테이블(소형)" data-dir="1">+</button>
-        </div>
-      </div>
-
-      <div class="option item-qty-row">
-        <div>책상/테이블(일반)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="책상/테이블(일반)" data-dir="-1">−</button>
-          <input type="number" class="throwQty" data-loc="from" data-item="책상/테이블(일반)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="책상/테이블(일반)" data-dir="1">+</button>
-        </div>
-      </div>
-
-      <div class="option item-qty-row">
-        <div>서랍장(3~5단)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="서랍장(3~5단)" data-dir="-1">−</button>
-          <input type="number" class="throwQty" data-loc="from" data-item="서랍장(3~5단)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="서랍장(3~5단)" data-dir="1">+</button>
-        </div>
-      </div>
-
-      <div class="option item-qty-row">
-        <div>책장(일반)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="책장(일반)" data-dir="-1">−</button>
-          <input type="number" class="throwQty" data-loc="from" data-item="책장(일반)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="책장(일반)" data-dir="1">+</button>
-        </div>
-      </div>
-
-      <div class="option item-qty-row">
-        <div>수납장/TV장(일반)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="수납장/TV장(일반)" data-dir="-1">−</button>
-          <input type="number" class="throwQty" data-loc="from" data-item="수납장/TV장(일반)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="수납장/TV장(일반)" data-dir="1">+</button>
-        </div>
-      </div>
-
-      <div class="option item-qty-row">
-        <div>소파 (2~3인)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="소파(2~3인)" data-dir="-1">−</button>
-          <input type="number" class="throwQty" data-loc="from" data-item="소파(2~3인)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="소파(2~3인)" data-dir="1">+</button>
-        </div>
-      </div>
-
-      <div class="option item-qty-row">
-        <div>소파 (4인 이상)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="소파(4인이상)" data-dir="-1">−</button>
-          <input type="number" class="throwQty" data-loc="from" data-item="소파(4인이상)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="소파(4인이상)" data-dir="1">+</button>
-        </div>
-      </div>
-
-      <div class="option item-qty-row">
-        <div>침대 매트리스 (킹 제외)</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="침대매트리스(킹제외)" data-dir="-1">−</button>
-          <input type="number" class="throwQty" data-loc="from" data-item="침대매트리스(킹제외)" min="0" value="0" inputmode="numeric" />
-          <button type="button" class="stepper-btn" data-stepper-loc="from" data-stepper-item="침대매트리스(킹제외)" data-dir="1">+</button>
-        </div>
-      </div>
-
-      <hr />
-      <div class="sub">도착지 짐(수량)</div>
-
-      <!-- to (from과 동일, data-loc="to"만 변경) -->
-      <!-- 필요한 만큼 동일 복붙 -->
-
-      <div class="sub" style="margin-top:10px;">
-        ※ “버려주세요 모드”는 상담용 빠른 선택입니다. 정확한 금액은 현장 상황에 따라 달라질 수 있습니다.
-      </div>
-    </div>
-  </div>
-</section>
+        </div><!-- /#throwBody -->
+      </div><!-- /.card -->
+    </section>
 
     <!-- 견적 -->
-<section class="section" id="quoteSection">
-  <h2>예상 견적</h2>
+    <section class="section" id="quoteSection">
+      <h2>예상 견적</h2>
 
-  <div class="card" id="summary">조건을 선택하세요</div>
+      <div class="card" id="summary">조건을 선택하세요</div>
 
-  <!-- ✅ 가격 카드(정적) -->
-  <div class="card price-card" id="priceCardStatic">
-    <div class="price" id="price">₩0</div>
+      <div class="card price-card" id="priceCardStatic">
+        <div>
+          <div class="price" id="price">₩0</div>
+          <div class="price-under" id="priceUnder">
+            예상 견적은 <br><b>시장 평균가격보다<br> 약 13.8% 저렴합니다.</b>
+          </div>
+        </div>
+      </div>
 
-    <!-- ✅ 가격 아래 문구(정적) -->
-    <div class="price-under" id="priceUnder">
-      예상 견적은 <br><b>시장 평균가격보다<br> 약 13.8% 저렴합니다.</b>
-    </div>
-  </div>
+      <div class="contact-actions">
+        <a href="#" class="contact-btn mega" id="channelInquiry">
+          <span class="cta-text">
+            <span class="title">💬 버튼을 눌러 견적 보내고</span>
+            <span class="desc">AI로 예약 완료하기</span>
+          </span>
+        </a>
 
-  <!-- ✅ 문의 버튼 -->
-  <div class="contact-actions">
-    <a href="#" class="contact-btn mega" id="channelInquiry">
-      <span class="cta-text">
-        <span class="title">💬 버튼을 눌러 견적 보내고</span>
-        <span class="desc">AI로 예약 완료하기</span>
-      </span>
-    </a>
-
-    <a href="tel:01058363055" class="contact-btn ghost">
-      📞 전화 문의하기
-    </a>
-  </div>
-</section>
-
-
-
-
+        <a href="tel:01058363055" class="contact-btn ghost">
+          📞 전화 문의하기
+        </a>
+      </div>
     </section>
 
     <!-- 푸터 -->
-    <section class="section">
+    <section class="section" id="footerSection">
       <div class="card sub">
         사업자 번호: 876-28-01550<br />
         주소: 경기도 부천시 상동로 87, 803-102호 워크네시아<br />
@@ -706,55 +731,53 @@
         개인정보 책임자, 대표자명: 이상빈
       </div>
     </section>
+
+  </div><!-- /.container -->
+
+  <!-- 하단 플로팅 가격바 -->
+  <div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
+    <div class="sticky-price" id="stickyPrice">₩0</div>
+    <div class="sticky-under">
+      예상 견적은 <b>시장 평균가격보다 약 13.8% 저렴합니다.</b>
+    </div>
   </div>
 
- <!-- 하단 플로팅 가격바 -->
-<div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
-  <div class="sticky-price" id="stickyPrice">₩0</div>
-
-  <!-- ✅ 여기 안에 추가 -->
-  <div class="sticky-under">
-    예상 견적은 <b>시장 평균가격보다 약 13.8% 저렴합니다.</b>
-  </div>
-</div>
-
-
-  <!-- Load Supabase, config, and app script -->
+  <!-- scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/config.js"></script>
   <script type="module" src="/assets/js/app.js"></script>
-<script>
-(function(){
-  var w=window;
-  if(w.ChannelIO){return;}
-  var ch=function(){ch.c(arguments);};
-  ch.q=[]; ch.c=function(args){ch.q.push(args);};
-  w.ChannelIO=ch;
 
-  function l(){
-    if(w.ChannelIOInitialized){return;}
-    w.ChannelIOInitialized=true;
-    var s=document.createElement("script");
-    s.type="text/javascript";
-    s.async=true;
-    s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";
-    var x=document.getElementsByTagName("script")[0];
-    if(x.parentNode){x.parentNode.insertBefore(s,x);}
-  }
+  <!-- 채널톡 로더 -->
+  <script>
+    (function(){
+      var w=window;
+      if(w.ChannelIO){return;}
+      var ch=function(){ch.c(arguments);};
+      ch.q=[]; ch.c=function(args){ch.q.push(args);};
+      w.ChannelIO=ch;
 
-  if(document.readyState==="complete"){l();}
-  else{w.addEventListener("DOMContentLoaded",l); w.addEventListener("load",l);}
-})();
-</script>
+      function l(){
+        if(w.ChannelIOInitialized){return;}
+        w.ChannelIOInitialized=true;
+        var s=document.createElement("script");
+        s.type="text/javascript";
+        s.async=true;
+        s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";
+        var x=document.getElementsByTagName("script")[0];
+        if(x.parentNode){x.parentNode.insertBefore(s,x);}
+      }
 
-<script>
-  // ✅ 플러그인 키는 네 config.js에 있는 값으로 넣어도 되고, 여기서 직접 넣어도 됨
-  window.ChannelIO('boot', {
-    pluginKey: window.DDLOGI_CONFIG?.channelPluginKey || "여기에_채널톡_플러그인키",
-    hideChannelButtonOnBoot: false   // ✅ 우하단 버튼 숨기지 마
-  });
-</script>
+      if(document.readyState==="complete"){l();}
+      else{w.addEventListener("DOMContentLoaded",l); w.addEventListener("load",l);}
+    })();
+  </script>
 
+  <script>
+    window.ChannelIO('boot', {
+      pluginKey: window.DDLOGI_CONFIG?.channelPluginKey || "여기에_채널톡_플러그인키",
+      hideChannelButtonOnBoot: false
+    });
+  </script>
 
 </body>
 </html>

@@ -947,3 +947,60 @@ input[type="checkbox"], input[type="radio"]{ accent-color: var(--accent); }
   .langbar{ top:8px; margin-bottom:10px; }
   .lang-pill{ height:32px; min-width:50px; }
 }
+/* ===== ADDITIONS (Waypoint / Storage / Ladder / Stepper safe) ===== */
+
+#waypointWrap { margin-top: 10px; }
+
+.card-sub{
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  background: rgba(255,255,255,.03);
+}
+
+.field { margin-top: 12px; }
+.field label{
+  display:block;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.seg{ display:flex; gap:10px; flex-wrap:wrap; }
+.seg-item{
+  display:flex; align-items:center; gap:8px;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  cursor:pointer;
+}
+.seg-item input{ transform: scale(1.05); }
+
+.hint{
+  margin-top: 8px;
+  font-size: 13px;
+  opacity: .85;
+  line-height: 1.4;
+}
+
+.stepper{
+  display:flex; align-items:center; gap:8px;
+}
+.stepper-input, .stepper input[type="number"]{
+  width: 90px;
+  text-align:center;
+}
+.stepper-unit{ opacity:.8; font-size: 13px; }
+
+.ladder-sub{
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.toggles{ display:flex; gap:12px; flex-wrap:wrap; margin: 10px 0; }
+.toggle{ display:flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid rgba(255,255,255,.12); border-radius:999px; }
+
+.row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.muted{ opacity:.8; font-size: 13px; }
