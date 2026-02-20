@@ -1,4 +1,4 @@
-// /assets/js/app.js
+// /assets/js/app-en.js
 (() => {
   const PRICE_MULTIPLIER = 1;
 
@@ -9,7 +9,7 @@
   const supabase = window.supabase?.createClient?.(CFG.supabaseUrl, CFG.supabaseKey);
 
   /* =========================
-     확정 슬롯 조회/반영
+     Confirmed slots fetch/apply
   ========================= */
   async function fetchConfirmedSlots(dateStr) {
     if (!supabase || !dateStr) return new Set();
@@ -39,15 +39,15 @@
     const span = label.querySelector("span");
     if (!span) return;
 
-    const baseText = span.getAttribute("data-base-text") || span.textContent.replace(" (마감)", "");
+    const baseText = span.getAttribute("data-base-text") || span.textContent.replace(" (Closed)", "");
     span.setAttribute("data-base-text", baseText);
-    span.textContent = disabled ? `${baseText} (마감)` : baseText;
+    span.textContent = disabled ? `${baseText} (Closed)` : baseText;
 
     if (disabled && el.checked) el.checked = false;
   }
 
   /* =========================
-     가격 테이블
+     Price tables
   ========================= */
   const VEHICLE_MAP = {
     "1톤 카고": "truck",
@@ -59,42 +59,42 @@
   const PER_KM_PRICE = { truck: 1550, van: 1550, lorry: 1550 };
 
   const FURNITURE_PRICE = {
-    "전자레인지": { label: "전자레인지", price: 1500 },
-    "공기청정기": { label: "공기청정기", price: 3000 },
-    "청소기": { label: "청소기", price: 2000 },
-    "TV/모니터": { label: "TV/모니터", price: 5000 },
-    "정수기(이동만)": { label: "정수기(이동만)", price: 3000 },
+    "전자레인지": { label: "Microwave", price: 1500 },
+    "공기청정기": { label: "Air Purifier", price: 3000 },
+    "청소기": { label: "Vacuum", price: 2000 },
+    "TV/모니터": { label: "TV/Monitor", price: 5000 },
+    "정수기(이동만)": { label: "Water Purifier (move only)", price: 3000 },
 
-    "세탁기(12kg이하)": { label: "세탁기(12kg 이하)", price: 10000 },
-    "건조기(12kg이하)": { label: "건조기(12kg 이하)", price: 10000 },
-    "냉장고(380L이하)": { label: "냉장고(380L 이하)", price: 10000 },
+    "세탁기(12kg이하)": { label: "Washer (≤12kg)", price: 10000 },
+    "건조기(12kg이하)": { label: "Dryer (≤12kg)", price: 10000 },
+    "냉장고(380L이하)": { label: "Fridge (≤380L)", price: 10000 },
 
-    "의자": { label: "의자", price: 3000 },
-    "행거": { label: "행거", price: 3000 },
-    "협탁/사이드테이블(소형)": { label: "협탁/사이드테이블(소형)", price: 3000 },
-    "화장대(소형)": { label: "화장대(소형)", price: 5000 },
-    "책상/테이블(일반)": { label: "책상/테이블(일반)", price: 5000 },
-    "서랍장(3~5단)": { label: "서랍장(3~5단)", price: 5000 },
-    "책장(일반)": { label: "책장(일반)", price: 10000 },
-    "수납장/TV장(일반)": { label: "수납장/TV장(일반)", price: 10000 },
-    "소파(2~3인)": { label: "소파(2~3인)", price: 10000 },
-    "소파(4인이상)": { label: "소파(4인 이상)", price: 15000 },
-    "침대매트리스(킹제외)": { label: "침대 매트리스(킹 제외)", price: 10000 },
-    "침대프레임(분해/조립)": { label: "침대 프레임 분해/조립", price: 30000 },
+    "의자": { label: "Chair", price: 3000 },
+    "행거": { label: "Clothes Rack", price: 3000 },
+    "협탁/사이드테이블(소형)": { label: "Small Side Table", price: 3000 },
+    "화장대(소형)": { label: "Small Vanity", price: 5000 },
+    "책상/테이블(일반)": { label: "Desk/Table", price: 5000 },
+    "서랍장(3~5단)": { label: "Drawer (3–5 tiers)", price: 5000 },
+    "책장(일반)": { label: "Bookshelf", price: 10000 },
+    "수납장/TV장(일반)": { label: "Cabinet/TV Stand", price: 10000 },
+    "소파(2~3인)": { label: "Sofa (2–3 seater)", price: 10000 },
+    "소파(4인이상)": { label: "Sofa (4+ seater)", price: 15000 },
+    "침대매트리스(킹제외)": { label: "Mattress (except King)", price: 10000 },
+    "침대프레임(분해/조립)": { label: "Bed Frame (disassembly/assembly)", price: 30000 },
   };
 
   const LOAD_MAP_GENERAL = {
-    1: { label: "1~5개", price: 10000 },
-    2: { label: "6~10개", price: 20000 },
-    3: { label: "11~15개", price: 30000 },
-    4: { label: "16~20개", price: 40000 },
+    1: { label: "1–5 boxes", price: 10000 },
+    2: { label: "6–10 boxes", price: 20000 },
+    3: { label: "11–15 boxes", price: 30000 },
+    4: { label: "16–20 boxes", price: 40000 },
   };
 
   const LOAD_MAP_HALF = {
-    1: { label: "1~5개", price: 20000 },
-    2: { label: "6~10개", price: 35000 },
-    3: { label: "11~15개", price: 50000 },
-    4: { label: "16~20개", price: 65000 },
+    1: { label: "1–5 boxes", price: 20000 },
+    2: { label: "6–10 boxes", price: 35000 },
+    3: { label: "11–15 boxes", price: 50000 },
+    4: { label: "16–20 boxes", price: 65000 },
   };
 
   function toNumberSafe(v, fallback = 0) {
@@ -108,31 +108,31 @@
 
   function moveTypeLabel(moveType, storageBase, storageDays) {
     if (moveType === "storage") {
-      const base = storageBase === "half" ? "반포장" : "일반";
-      return `보관이사 (보관-${base}, ${Math.max(1, storageDays)}일 / 보관료 2만원×일수 옵션)`;
+      const base = storageBase === "half" ? "Semi-Packing" : "Standard";
+      return `Storage Move (storage-${base}, ${Math.max(1, storageDays)} day(s) / storage fee option ₩20,000 × days)`;
     }
-    return moveType === "half"
-      ? "반포장 이사"
-      : "일반이사";
+    return moveType === "half" ? "Semi-Packing Move" : "Standard Move";
   }
 
-  function formatTimeSlotKR(v) {
+  function formatTimeSlotEN(v) {
     const s = String(v || "");
-    if (!s) return "미선택";
+    if (!s) return "Not selected";
     const hour = toNumberSafe(s, NaN);
-    if (!Number.isFinite(hour)) return "미선택";
-    if (hour === 12) return "오후 12시";
-    if (hour >= 13) return `오후 ${hour - 12}시`;
-    return `오전 ${hour}시`;
+    if (!Number.isFinite(hour)) return "Not selected";
+
+    // slots are 7..15 (KST), show like 7:00 AM / 1:00 PM
+    const isPM = hour >= 12;
+    const h12 = hour === 12 ? 12 : hour % 12;
+    return `${h12}:00 ${isPM ? "PM" : "AM"}`;
   }
 
   function buildLaborLabel(st) {
     const parts = [];
-    if (st.cantCarryFrom) parts.push("출발지 기사 혼자 나르기 어려움(+3만)");
-    if (st.cantCarryTo) parts.push("도착지 기사 혼자 나르기 어려움(+3만)");
-    if (st.helperFrom) parts.push("출발지 인부 추가(+4만)");
-    if (st.helperTo) parts.push("도착지 인부 추가(+4만)");
-    return parts.length ? parts.join(", ") : "없음";
+    if (st.cantCarryFrom) parts.push("Pickup: hard to carry alone (+₩30,000)");
+    if (st.cantCarryTo) parts.push("Drop-off: hard to carry alone (+₩30,000)");
+    if (st.helperFrom) parts.push("Pickup: add helper (+₩40,000)");
+    if (st.helperTo) parts.push("Drop-off: add helper (+₩40,000)");
+    return parts.length ? parts.join(", ") : "None";
   }
 
   function sumQtyMaps(...maps) {
@@ -150,30 +150,31 @@
     const labels = [];
     Object.entries(qtyMap).forEach(([k, qty]) => {
       const q = Math.max(0, Number(qty) || 0);
-      if (q > 0) labels.push(`${FURNITURE_PRICE[k]?.label || k}×${q}`);
+      if (q > 0) labels.push(`${FURNITURE_PRICE[k]?.label || k} × ${q}`);
     });
-    return labels.length ? labels.join(", ") : "없음";
+    return labels.length ? labels.join(", ") : "None";
   }
 
   /* =========================
-     ✅ 보관이사/사다리차 규칙(확정)
+     ✅ Storage / Ladder rules
   ========================= */
-  const STORAGE_PER_DAY = 20000; // 하루 2만 (옵션비)
-function ladderPriceByFloor(floor) {
-  const f = Math.max(1, parseInt(floor || 1, 10));
-  if (f <= 6) return 100000;      // 1~6층
-  if (f <= 12) return 120000;     // 7~12층
-  return 140000;                  // 13층 이상
-}
+  const STORAGE_PER_DAY = 20000; // ₩20,000 per day (option)
+
+  function ladderPriceByFloor(floor) {
+    const f = Math.max(1, parseInt(floor || 1, 10));
+    if (f <= 6) return 100000;  // 1–6F
+    if (f <= 12) return 120000; // 7–12F
+    return 140000;              // 13F+
+  }
 
   /* =========================
-     상태
+     State
   ========================= */
   const state = {
     vehicle: null,
     distance: 0,
 
-    // 경유지 모델 1
+    // waypoint model 1
     hasWaypoint: false,
     waypointAddress: "",
 
@@ -191,7 +192,7 @@ function ladderPriceByFloor(floor) {
     noTo: false,
     toFloor: 1,
 
-    // 사다리차 분리
+    // ladder separated
     ladderFromEnabled: false,
     ladderToEnabled: false,
     ladderFromFloor: 6,
@@ -218,7 +219,7 @@ function ladderPriceByFloor(floor) {
   };
 
   /* =========================
-     DOM 요소
+     DOM
   ========================= */
   const priceEl = document.getElementById("price");
   const summaryEl = document.getElementById("summary");
@@ -231,7 +232,7 @@ function ladderPriceByFloor(floor) {
   const endAddressInput = document.getElementById("endAddress");
   const calcDistanceBtn = document.getElementById("calcDistance");
 
-  // ✅ waypoint
+  // waypoint
   const hasWaypointEl = document.getElementById("hasWaypoint");
   const waypointWrapEl = document.getElementById("waypointWrap");
   const waypointAddressInput = document.getElementById("waypointAddress");
@@ -279,7 +280,7 @@ function ladderPriceByFloor(floor) {
   const TIME_SLOTS = ["7", "8", "9", "10", "11", "12", "13", "14", "15"];
 
   /* =========================
-     채널톡
+     ChannelTalk
   ========================= */
   function bootChannelIO() {
     const pluginKey = CFG.channelPluginKey;
@@ -288,7 +289,7 @@ function ladderPriceByFloor(floor) {
     try {
       window.ChannelIO("boot", { pluginKey, hideChannelButtonOnBoot: false });
     } catch (e) {
-      console.error("[ChannelIO] boot 실패:", e);
+      console.error("[ChannelIO] boot failed:", e);
     }
   }
 
@@ -305,20 +306,20 @@ function ladderPriceByFloor(floor) {
   }
 
   /* =========================
-     초기화
+     Init
   ========================= */
   window.addEventListener("DOMContentLoaded", async () => {
     const ok = await waitForChannelIO(6000);
     if (ok) bootChannelIO();
 
-    // 첫 차량 자동 선택
+    // auto pick first vehicle
     const firstVehicle = document.querySelector(".vehicle");
     if (firstVehicle) {
       firstVehicle.classList.add("active");
       state.vehicle = firstVehicle.dataset.vehicle;
     }
 
-    // ✅ 경유지 토글
+    // waypoint toggle
     if (hasWaypointEl && waypointWrapEl) {
       const syncWaypointUI = () => {
         state.hasWaypoint = !!hasWaypointEl.checked;
@@ -356,18 +357,21 @@ function ladderPriceByFloor(floor) {
       });
     }
 
-    // storageDays 기본 1일
+    // storageDays default 1
     if (storageDaysEl) {
       const normalize = () => {
         const v = Math.max(1, parseInt(String(storageDaysEl.value || "1"), 10) || 1);
         storageDaysEl.value = String(v);
         state.storageDays = v;
       };
-      storageDaysEl.addEventListener("input", () => { normalize(); calc(); });
+      storageDaysEl.addEventListener("input", () => {
+        normalize();
+        calc();
+      });
       normalize();
     }
 
-    // 차량 선택
+    // vehicle select
     document.querySelectorAll(".vehicle").forEach((v) => {
       v.addEventListener("click", () => {
         document.querySelectorAll(".vehicle").forEach((x) => x.classList.remove("active"));
@@ -377,7 +381,7 @@ function ladderPriceByFloor(floor) {
       });
     });
 
-    // 날짜 → 마감 반영
+    // date -> apply closed slots
     if (moveDateEl) {
       moveDateEl.addEventListener("change", async (e) => {
         state.moveDate = e.target.value || "";
@@ -389,7 +393,7 @@ function ladderPriceByFloor(floor) {
       });
     }
 
-    // 시간 선택
+    // time select
     if (timeSlotEls?.length) {
       timeSlotEls.forEach((el) => {
         el.addEventListener("change", (e) => {
@@ -399,7 +403,7 @@ function ladderPriceByFloor(floor) {
       });
     }
 
-    // 옵션 이벤트
+    // options
     if (noFromEl) noFromEl.addEventListener("change", (e) => { state.noFrom = e.target.checked; calc(); });
     if (noToEl) noToEl.addEventListener("change", (e) => { state.noTo = e.target.checked; calc(); });
     if (fromFloorEl) fromFloorEl.addEventListener("input", (e) => { state.fromFloor = Math.max(1, toNumberSafe(e.target.value, 1)); calc(); });
@@ -454,7 +458,7 @@ function ladderPriceByFloor(floor) {
       ladderToFloorEl.value = String(state.ladderToFloor);
     }
 
-    // 짐양
+    // load
     document.querySelectorAll('input[name="load"]').forEach((el) => {
       el.addEventListener("change", (e) => { state.load = e.target.value; calc(); });
     });
@@ -506,8 +510,7 @@ function ladderPriceByFloor(floor) {
     });
 
     /* =========================
-       ✅ 스텝퍼 공통 처리 (마이너스/플러스 전부 정상화)
-       - 네가 쓰는 구조가 data-dir 방식이라 이걸 “단일 규칙”으로 통일
+       Stepper common handler
     ========================= */
     document.addEventListener("click", (e) => {
       const btn = e.target.closest(".stepper-btn");
@@ -563,7 +566,7 @@ function ladderPriceByFloor(floor) {
       }
     });
 
-    // 플로팅바
+    // floating bar
     if (quoteSectionEl && stickyBarEl) {
       const io = new IntersectionObserver(
         (entries) => {
@@ -580,7 +583,7 @@ function ladderPriceByFloor(floor) {
       kakao.maps.load(() => {
         try {
           if (!kakao.maps.services) {
-            console.error("카카오 services 미로드: sdk.js에 libraries=services 확인 필요");
+            console.error("Kakao services not loaded: check sdk.js libraries=services");
             calc();
             return;
           }
@@ -592,11 +595,11 @@ function ladderPriceByFloor(floor) {
         }
       });
     } else {
-      console.error("카카오 SDK 로드 실패");
+      console.error("Kakao SDK load failed");
       calc();
     }
 
-    // 날짜 선택돼 있으면 마감 반영
+    // if date preselected
     if (moveDateEl?.value) {
       state.moveDate = moveDateEl.value;
       const confirmed = await fetchConfirmedSlots(state.moveDate);
@@ -605,7 +608,7 @@ function ladderPriceByFloor(floor) {
       state.timeSlot = checked ? checked.value : "";
     }
 
-    // 옮겨주세요 토글
+    // move toggle (UI)
     if (moveToggleEl && moveBodyEl) {
       const syncMoveUI = () => { moveBodyEl.style.display = moveToggleEl.checked ? "block" : "none"; };
       moveToggleEl.addEventListener("change", syncMoveUI);
@@ -616,7 +619,7 @@ function ladderPriceByFloor(floor) {
   });
 
   /* =========================
-     거리 계산 (경유지 모델1 포함)
+     Distance calc (waypoint model 1)
   ========================= */
   if (calcDistanceBtn) {
     calcDistanceBtn.addEventListener("click", async () => {
@@ -625,19 +628,19 @@ function ladderPriceByFloor(floor) {
       const waypoint = (waypointAddressInput?.value || "").trim();
 
       if (!start || !end) {
-        alert("출발지와 도착지를 모두 입력해주세요.");
+        alert("Please enter both pickup and drop-off addresses.");
         return;
       }
       if (state.hasWaypoint && !waypoint) {
-        alert("경유지를 선택하셨습니다. 경유지 주소를 입력해주세요.");
+        alert("Waypoint is enabled. Please enter the waypoint address.");
         return;
       }
       if (!geocoder) {
-        alert("거리 계산을 위한 카카오맵 초기화에 실패했습니다.\n(카카오 개발자센터에 도메인 등록 확인)");
+        alert("Failed to initialize Kakao Maps.\n(Check domain registration in Kakao Developers).");
         return;
       }
 
-      calcDistanceBtn.textContent = "계산 중...";
+      calcDistanceBtn.textContent = "Calculating...";
       calcDistanceBtn.disabled = true;
 
       try {
@@ -660,9 +663,9 @@ function ladderPriceByFloor(floor) {
         if (distanceText) distanceText.textContent = `${state.distance} km`;
         calc();
       } catch (error) {
-        alert(error.message || "주소를 찾을 수 없습니다. 정확한 주소를 입력해주세요.");
+        alert(error.message || "Address not found. Please enter an accurate address.");
       } finally {
-        calcDistanceBtn.textContent = "거리 계산하기";
+        calcDistanceBtn.textContent = "Calculate distance";
         calcDistanceBtn.disabled = false;
       }
     });
@@ -674,7 +677,7 @@ function ladderPriceByFloor(floor) {
         if (status === kakao.maps.services.Status.OK) {
           resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) });
         } else {
-          reject(new Error(`"${address}" 주소를 찾을 수 없습니다.`));
+          reject(new Error(`Address not found: "${address}"`));
         }
       });
     });
@@ -689,12 +692,12 @@ function ladderPriceByFloor(floor) {
     const res = await fetch(`/.netlify/functions/kakaoDirections?${params.toString()}`, { method: "GET" });
     if (!res.ok) {
       const t = await res.text().catch(() => "");
-      throw new Error(`도로거리 계산 실패: ${res.status} ${t}`);
+      throw new Error(`Road distance failed: ${res.status} ${t}`);
     }
 
     const data = await res.json();
     const meter = data?.routes?.[0]?.summary?.distance;
-    if (!Number.isFinite(meter)) throw new Error("도로거리 데이터가 없습니다.");
+    if (!Number.isFinite(meter)) throw new Error("No road distance data.");
     return Math.max(0, Math.round(meter / 1000));
   }
 
@@ -702,7 +705,7 @@ function ladderPriceByFloor(floor) {
     try {
       return await getRoadDistanceKmByKakaoMobility(startCoord, endCoord);
     } catch (e) {
-      console.warn("[거리] 도로거리 실패 → 직선거리로 백업:", e);
+      console.warn("[distance] Road distance failed → fallback to straight line:", e);
       const straight = calculateDistance(startCoord, endCoord);
       return Math.max(0, Math.round(straight));
     }
@@ -728,41 +731,43 @@ function ladderPriceByFloor(floor) {
     const endAddr = (endAddressInput?.value || "").trim();
     const waypoint = (waypointAddressInput?.value || "").trim();
 
-    const vehicleLabel = state.vehicle || "미선택";
+    const vehicleLabel = state.vehicle || "Not selected";
     const moveLabel = moveTypeLabel(state.moveType, state.storageBase, state.storageDays);
 
-    const stairsFrom = state.noFrom ? `${state.fromFloor}층(엘베없음)` : "엘베있음";
-    const stairsTo = state.noTo ? `${state.toFloor}층(엘베없음)` : "엘베있음";
+    const stairsFrom = state.noFrom ? `${state.fromFloor}F (no elevator)` : "Elevator available";
+    const stairsTo = state.noTo ? `${state.toFloor}F (no elevator)` : "Elevator available";
 
     const effectiveMoveType = state.moveType === "storage" ? state.storageBase : state.moveType;
     const loadMap = getLoadMap(effectiveMoveType);
-    const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : "미선택";
+    const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : "Not selected";
 
-    const distanceLabel = state.distance > 0 ? `${state.distance}km` : "미계산";
-    const scheduleLabel = state.moveDate || "미선택";
-    const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
+    const distanceLabel = state.distance > 0 ? `${state.distance} km` : "Not calculated";
+    const scheduleLabel = state.moveDate || "Not selected";
+    const timeSlotLabel = formatTimeSlotEN(state.timeSlot);
     const laborLabel = buildLaborLabel(state);
 
     const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
     const moveItemsLabel = getSelectedQtyLabel(mergedAllItems);
 
-    // 사다리차
+    // ladder
     const ladderParts = [];
     let ladderCost = 0;
     if (state.ladderFromEnabled) {
       const p = ladderPriceByFloor(state.ladderFromFloor);
       ladderCost += p;
-      ladderParts.push(`출발 ${state.ladderFromFloor}층(₩${p.toLocaleString("ko-KR")})`);
+      ladderParts.push(`Pickup ${state.ladderFromFloor}F (₩${p.toLocaleString("ko-KR")})`);
     }
     if (state.ladderToEnabled) {
       const p = ladderPriceByFloor(state.ladderToFloor);
       ladderCost += p;
-      ladderParts.push(`도착 ${state.ladderToFloor}층(₩${p.toLocaleString("ko-KR")})`);
+      ladderParts.push(`Drop-off ${state.ladderToFloor}F (₩${p.toLocaleString("ko-KR")})`);
     }
-    const ladderLabel = ladderParts.length ? `${ladderParts.join(" / ")} (합계 ₩${ladderCost.toLocaleString("ko-KR")})` : "불필요";
+    const ladderLabel = ladderParts.length
+      ? `${ladderParts.join(" / ")} (Total ₩${ladderCost.toLocaleString("ko-KR")})`
+      : "Not needed";
 
-    // 보관료(옵션)
+    // storage fee option
     const storageFee = state.moveType === "storage"
       ? Math.max(1, parseInt(state.storageDays || 1, 10)) * STORAGE_PER_DAY
       : 0;
@@ -772,28 +777,28 @@ function ladderPriceByFloor(floor) {
     const balance = total - deposit;
 
     const lines = [
-      "안녕하세요. 디디운송 견적 문의드립니다.",
+      "Hello, I'd like to request a DDLOGI moving quote.",
       "",
-      `[조건]`,
-      `- 이사 방식: ${moveLabel}`,
-      `- 차량: ${vehicleLabel}`,
-      `- 거리: ${distanceLabel}`,
-      `- 일정: ${scheduleLabel}`,
-      `- 희망 시간: ${timeSlotLabel}`,
-      startAddr ? `- 출발지: ${startAddr}` : null,
-      state.hasWaypoint && waypoint ? `- 경유지: ${waypoint}` : null,
-      endAddr ? `- 도착지: ${endAddr}` : null,
-      `- 계단: 출발 ${stairsFrom} / 도착 ${stairsTo}`,
-      `- 짐양(박스): ${loadLabel}`,
-      `- 가구·가전(합산): ${moveItemsLabel}`,
-      `- 사다리차: ${ladderLabel}`,
-      state.moveType === "storage" ? `- 보관료(옵션): ₩${storageFee.toLocaleString("ko-KR")}` : null,
+      "[Details]",
+      `- Move type: ${moveLabel}`,
+      `- Vehicle: ${vehicleLabel}`,
+      `- Distance: ${distanceLabel}`,
+      `- Date: ${scheduleLabel}`,
+      `- Preferred time: ${timeSlotLabel}`,
+      startAddr ? `- Pickup: ${startAddr}` : null,
+      state.hasWaypoint && waypoint ? `- Waypoint: ${waypoint}` : null,
+      endAddr ? `- Drop-off: ${endAddr}` : null,
+      `- Stairs/Elevator: Pickup ${stairsFrom} / Drop-off ${stairsTo}`,
+      `- Boxes (est.): ${loadLabel}`,
+      `- Furniture/Appliances (total): ${moveItemsLabel}`,
+      `- Ladder truck: ${ladderLabel}`,
+      state.moveType === "storage" ? `- Storage fee (option): ₩${storageFee.toLocaleString("ko-KR")}` : null,
       "",
-      `[예상금액] ₩${total.toLocaleString("ko-KR")}`,
-      `[예약금(20%)] ₩${deposit.toLocaleString("ko-KR")}`,
-      `[잔금(80%)] ₩${balance.toLocaleString("ko-KR")}`,
-      "※ 예약금 입금 시 예약 확정되며, 잔금은 운송 당일 결제합니다.",
-      "※ 현장 상황에 따라 금액이 변동될 수 있습니다.",
+      `[Estimated total] ₩${total.toLocaleString("ko-KR")}`,
+      `[Deposit (20%)] ₩${deposit.toLocaleString("ko-KR")}`,
+      `[Balance (80%)] ₩${balance.toLocaleString("ko-KR")}`,
+      "※ Reservation is confirmed after deposit. Balance is paid on moving day.",
+      "※ Price may change depending on on-site conditions.",
       "",
     ].filter(Boolean);
 
@@ -801,9 +806,9 @@ function ladderPriceByFloor(floor) {
   }
 
   /* =========================
-     가격 계산
-     ✅ 보관이사: 보관료(2만원×일수)만 옵션비로 추가
-     ✅ 사다리차: 출/도착 각각 합산
+     Price calc
+     - Storage: add ₩20,000×days as option
+     - Ladder: sum pickup+drop-off
   ========================= */
   function calc() {
     if (!state.vehicle) return;
@@ -844,7 +849,7 @@ function ladderPriceByFloor(floor) {
       (state.noFrom ? calcStairCostOneSide(state.fromFloor) : 0) +
       (state.noTo ? calcStairCostOneSide(state.toFloor) : 0);
 
-    // 3) items (기존+throw 합산)
+    // 3) items (itemQty + throw)
     const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
     const totalItemCount = Object.values(mergedAllItems).reduce((a, v) => a + Math.max(0, Number(v) || 0), 0);
@@ -869,7 +874,7 @@ function ladderPriceByFloor(floor) {
         ? Math.round(rawItemCost * Math.pow(1 + ITEM_COUNT_GROWTH_RATE, Math.max(0, totalItemCount - 1)))
         : 0;
 
-    // 4) load (보관이면 storageBase 기준)
+    // 4) load (for storage, use storageBase)
     const effectiveMoveType = state.moveType === "storage" ? state.storageBase : state.moveType;
     const loadMap = getLoadMap(effectiveMoveType);
 
@@ -889,13 +894,13 @@ function ladderPriceByFloor(floor) {
     if (state.helperFrom) optionCost += 40000;
     if (state.helperTo) optionCost += 40000;
 
-    // ✅ 보관료: 2만원×일수 (옵션비로만)
+    // storage fee option
     if (state.moveType === "storage") {
       const days = Math.max(1, parseInt(state.storageDays || 1, 10));
       optionCost += days * STORAGE_PER_DAY;
     }
 
-    // ✅ 사다리차: 출/도착 각각 합산
+    // ladder cost (sum)
     let ladderCost = 0;
     if (state.ladderFromEnabled) ladderCost += ladderPriceByFloor(state.ladderFromFloor);
     if (state.ladderToEnabled) ladderCost += ladderPriceByFloor(state.ladderToFloor);
@@ -903,71 +908,71 @@ function ladderPriceByFloor(floor) {
     // 6) baseTotal
     let total = core + work + optionCost;
 
-    // 반포장 프리미엄 (storageBase 포함)
+    // semi-packing premium (including storageBase)
     if (effectiveMoveType === "half") {
       total = Math.round(total * HALF_PREMIUM_MULTIPLIER);
     }
 
-    // 표시배율
+    // display multiplier
     total = Math.round(total * DISPLAY_MULTIPLIER);
 
-    // 운영 배율
+    // operation multiplier
     total = Math.round(total * PRICE_MULTIPLIER);
 
-    // 사다리차 합산
+    // add ladder
     total = Math.round(total + ladderCost);
 
     lastPrice = total;
 
     // -----------------------------
-    // 요약
+    // Summary (EN)
     // -----------------------------
     if (summaryEl) {
-      const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : "미선택";
+      const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : "Not selected";
       const laborLabel = buildLaborLabel(state);
 
       const ladderTextParts = [];
-      if (state.ladderFromEnabled) ladderTextParts.push(`출발 ${state.ladderFromFloor}층`);
-      if (state.ladderToEnabled) ladderTextParts.push(`도착 ${state.ladderToFloor}층`);
-      const ladderText = ladderTextParts.length ? ladderTextParts.join(" / ") : "불필요";
+      if (state.ladderFromEnabled) ladderTextParts.push(`Pickup ${state.ladderFromFloor}F`);
+      if (state.ladderToEnabled) ladderTextParts.push(`Drop-off ${state.ladderToFloor}F`);
+      const ladderText = ladderTextParts.length ? ladderTextParts.join(" / ") : "Not needed";
 
       const storageText = state.moveType === "storage"
-        ? ` / 보관 ${Math.max(1, parseInt(state.storageDays || 1, 10))}일(+${(Math.max(1, parseInt(state.storageDays || 1, 10))*STORAGE_PER_DAY).toLocaleString("ko-KR")}원)`
+        ? ` / Storage ${Math.max(1, parseInt(state.storageDays || 1, 10))} day(s) (+₩${(Math.max(1, parseInt(state.storageDays || 1, 10)) * STORAGE_PER_DAY).toLocaleString("ko-KR")})`
         : "";
 
       summaryEl.innerHTML = `
-        <b>🚚 이사 조건 요약</b><br><br>
+        <b>🚚 Move Summary</b><br><br>
 
-        ▪ 이사 방식: ${moveTypeLabel(state.moveType, state.storageBase, state.storageDays)}${storageText}<br><br>
+        ▪ Move type: ${moveTypeLabel(state.moveType, state.storageBase, state.storageDays)}${storageText}<br><br>
 
-        ▪ 차량: ${state.vehicle}<br>
-        ▪ 거리: ${dist > 0 ? dist + " km" : "미계산"}<br>
-        ▪ 경유지: ${state.hasWaypoint ? "있음(모델1)" : "없음"}<br><br>
+        ▪ Vehicle: ${state.vehicle}<br>
+        ▪ Distance: ${dist > 0 ? dist + " km" : "Not calculated"}<br>
+        ▪ Waypoint: ${state.hasWaypoint ? "Yes (Model 1)" : "No"}<br><br>
 
-        ▪ 일정: ${state.moveDate ? state.moveDate : "미선택"}<br>
-        ▪ 희망 시간: ${formatTimeSlotKR(state.timeSlot)}<br><br>
+        ▪ Date: ${state.moveDate ? state.moveDate : "Not selected"}<br>
+        ▪ Time: ${formatTimeSlotEN(state.timeSlot)}<br><br>
 
-        ▪ 계단:<br>
-        &nbsp;&nbsp;- 출발지: ${state.noFrom ? `${state.fromFloor}층 (엘베 없음)` : "엘베 있음"}<br>
-        &nbsp;&nbsp;- 도착지: ${state.noTo ? `${state.toFloor}층 (엘베 없음)` : "엘베 있음"}<br><br>
+        ▪ Stairs/Elevator:<br>
+        &nbsp;&nbsp;- Pickup: ${state.noFrom ? `${state.fromFloor}F (no elevator)` : "Elevator available"}<br>
+        &nbsp;&nbsp;- Drop-off: ${state.noTo ? `${state.toFloor}F (no elevator)` : "Elevator available"}<br><br>
 
-        ▪ 짐양: ${loadLabel}<br>
-        ▪ 가구·가전(합산): ${getSelectedQtyLabel(mergedAllItems)}<br><br>
+        ▪ Boxes: ${loadLabel}<br>
+        ▪ Furniture/Appliances (total): ${getSelectedQtyLabel(mergedAllItems)}<br><br>
 
-        ▪ 사다리차: ${ladderText}<br>
-        ▪ 야간/주말: ${state.night ? "해당" : "미해당"}<br>
-        ▪ 동승 인원: ${state.ride > 0 ? `${state.ride}명` : "없음"}<br><br>
+        ▪ Ladder truck: ${ladderText}<br>
+        ▪ Night/Weekend: ${state.night ? "Yes" : "No"}<br>
+        ▪ Passengers: ${state.ride > 0 ? `${state.ride}` : "None"}<br><br>
 
-        ▪ 인부/작업: ${laborLabel}
+        ▪ Helpers/Notes: ${laborLabel}
       `;
     }
 
-    // 가격 표시
+    // price UI
     const formatted = `₩${total.toLocaleString("ko-KR")}`;
     if (priceEl) priceEl.innerText = formatted;
     if (stickyPriceEl) stickyPriceEl.innerText = formatted;
 
-    // 플로팅바 표시
+    // floating bar visibility
     if (stickyBarEl && quoteSectionEl) {
       const rect = quoteSectionEl.getBoundingClientRect();
       const quoteVisible = rect.top < window.innerHeight * 0.88 && rect.bottom > 0;
@@ -976,25 +981,25 @@ function ladderPriceByFloor(floor) {
   }
 
   /* =========================
-     채널톡 문의 버튼
+     Channel inquiry button
   ========================= */
   if (channelInquiryBtn) {
     channelInquiryBtn.addEventListener("click", async (e) => {
       e.preventDefault();
 
-      if (!state.moveDate) return alert("이사 날짜를 선택해주세요.");
-      if (!state.timeSlot) return alert("시간을 선택해주세요.");
+      if (!state.moveDate) return alert("Please select a moving date.");
+      if (!state.timeSlot) return alert("Please select a time.");
 
       const confirmed = await fetchConfirmedSlots(state.moveDate);
       if (confirmed.has(String(state.timeSlot))) {
-        alert("방금 해당 시간이 마감되었습니다. 다른 시간을 선택해주세요.");
+        alert("That time slot has just been closed. Please choose another time.");
         setTimeSlotDisabled(String(state.timeSlot), true);
         const checked = document.querySelector('input[name="timeSlot"]:checked');
         state.timeSlot = checked ? checked.value : "";
         return;
       }
 
-      if (!window.ChannelIO) return alert("채널톡 로딩에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      if (!window.ChannelIO) return alert("ChannelTalk failed to load. Please try again.");
 
       bootChannelIO();
 

@@ -1,13 +1,14 @@
-<!-- /en/index.html -->
+<!-- /en/index.html : KR 완성본 구조 1:1 반영 (EN) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <!-- 🔍 SEO -->
   <title>DDLOGI | 1-Ton Cargo Moving & Delivery | Transparent Quote</title>
-  <meta name="description" content="DDLOGI provides 1-ton cargo moving and delivery. Get an instant estimate by selecting distance and options." />
-  <meta name="keywords" content="DDLOGI, moving, delivery, 1-ton truck, cargo, relocation" />
+  <meta name="description" content="DDLOGI provides 1-ton cargo moving and delivery in Korea. Get an instant estimate by distance and options." />
+  <meta name="keywords" content="DDLOGI, moving, delivery, 1-ton truck, cargo, relocation, Korea" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://ddlogi.netlify.app/en/" />
 
@@ -30,10 +31,11 @@
 
   <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
+
 <body data-lang="en">
   <div class="container">
 
-    <!-- ✅ Language Toggle (must be inside body + container) -->
+    <!-- Language -->
     <div class="langbar" role="navigation" aria-label="Language switch">
       <a class="lang-pill" href="/" data-lang="ko">KR</a>
       <a class="lang-pill" href="/en/" data-lang="en" aria-current="page">EN</a>
@@ -55,9 +57,9 @@
 
           <p class="hero-desc">
             Moving costs are <span class="hl">not a secret</span><br /><br />
-            Get it fast with <span class="hl2">Auto Estimate</span><br /><br />
-            Choose <span class="hl2">options transparently</span><br /><br />
-            and finish with <span class="hl2">AI</span>
+            Fast with <span class="hl2">Auto Estimate</span><br /><br />
+            Options are <span class="hl2">transparent</span><br /><br />
+            and we even have <span class="hl2">AI</span>
           </p>
 
           <div class="hero-callout">
@@ -70,18 +72,22 @@
             <div class="owner-profile">
               <img src="/assets/img/hero-bin.jpg" alt="DDLOGI Owner" />
             </div>
-            <div class="hero-owner">DDLOGI Owner Sangbin</div>
+
+            “I hate tricks.<br>
+            I’ll show the price transparently,<br>
+            so you can move without getting overcharged.”<br><br>
+
+            <div class="hero-owner">- DDLOGI Owner Sangbin</div>
           </div>
         </div>
       </div>
     </section>
 
-  
-
     <!-- Vehicle -->
-    <section class="section">
+    <section class="section" id="vehicleSection">
       <h2>Vehicle</h2>
       <div class="card">
+        <!-- ✅ data-vehicle 값은 기존 로직과 호환 위해 KR 키 유지 -->
         <div class="vehicle" data-vehicle="1톤 카고">🛻 1-ton Cargo (Open)</div>
         <div class="vehicle" data-vehicle="1톤 저상탑">🚚 1-ton Box Truck</div>
         <div class="vehicle" data-vehicle="1톤 카고+저상탑">🛻🚚 2+ Vehicles (Inquiry)</div>
@@ -89,16 +95,33 @@
     </section>
 
     <!-- Distance -->
-    <section class="section">
+    <section class="section" id="distanceSection">
       <h2>Distance</h2>
       <div class="card">
         <div class="sub">Start address</div>
         <input type="text" id="startAddress" class="address-input" placeholder="e.g., Teheran-ro 152, Gangnam-gu, Seoul" />
+
+        <!-- ✅ Waypoint (same as KR) -->
+        <div class="option" style="margin-top:12px;">
+          <div>
+            Check if you have a stopover
+            <div class="sub" style="margin:6px 0 0;">Start → Stopover → Destination (total distance)</div>
+          </div>
+          <input type="checkbox" id="hasWaypoint" />
+        </div>
+
+        <div id="waypointWrap" style="display:none; margin-top:10px;">
+          <div class="sub">Stopover address</div>
+          <input type="text" id="waypointAddress" class="address-input" placeholder="e.g., Bundang-gu, Seongnam-si..." />
+        </div>
+
         <div class="sub" style="margin-top: 15px;">Destination address</div>
         <input type="text" id="endAddress" class="address-input" placeholder="e.g., Sangdong-ro 87, Bucheon-si, Gyeonggi-do" />
+
         <button id="calcDistance" class="calc-btn">Calculate distance</button>
+
         <div id="distanceResult" class="distance-result">
-          <div class="sub">Calculated: <b id="distanceText">Please enter addresses</b></div>
+          <div class="sub">Calculated distance: <b id="distanceText">Please enter addresses</b></div>
         </div>
       </div>
     </section>
@@ -108,10 +131,7 @@
       <h2>Schedule</h2>
       <div class="card">
 
-        <div class="section-center">
-          <div class="sub">Moving date</div>
-        </div>
-
+        <div class="section-center"><div class="sub">Moving date</div></div>
         <div class="date-wrap">
           <input type="date" id="moveDate" class="address-input date-input" required />
           <span class="date-icon" aria-hidden="true"></span>
@@ -119,9 +139,7 @@
 
         <hr style="margin: 16px 0; border: none; border-top: 1px solid #ffffff;" />
 
-        <div class="section-center">
-          <div class="sub">Preferred time</div>
-        </div>
+        <div class="section-center"><div class="sub">Preferred time</div></div>
 
         <div class="time-grid" aria-label="Preferred time selection">
           <label class="time-chip"><input type="radio" name="timeSlot" value="7" /><span>7 AM</span></label>
@@ -154,7 +172,7 @@
           <div>
             Moving Estimate Calculator
             <div class="sub" style="margin:6px 0 0;">
-              Use DDLOGI’s transparent calculator<br>
+              Use DDLOGI’s transparent calculator<br />
               to get a quick estimate.
             </div>
           </div>
@@ -167,15 +185,12 @@
 
         <hr />
 
-        <!-- Always visible: Move type -->
         <div class="sub">Service type</div>
 
         <div class="option">
           <div>
             Basic Move
-            <div class="sub" style="margin:6px 0 0;">
-              (You must pack all boxes in advance.)
-            </div>
+            <div class="sub" style="margin:6px 0 0;">(You must pack all boxes in advance.)</div>
           </div>
           <input type="radio" name="moveType" value="general" checked />
         </div>
@@ -184,10 +199,49 @@
           <div>
             Semi-Packed Move
             <div class="sub" style="margin:6px 0 0;">
-              (You pack most items. We provide up to 5 boxes for items used until moving day.)
+              (You pack most items. We provide up to 5 boxes for essential items until moving day.)
             </div>
           </div>
           <input type="radio" name="moveType" value="half" />
+        </div>
+
+        <!-- ✅ Storage move (same as KR) -->
+        <div class="option">
+          <div>
+            Storage Move
+            <div class="sub" style="margin:6px 0 0;">
+              (Storage fee: ₩20,000 × days / added as option only)
+            </div>
+          </div>
+          <input type="radio" name="moveType" value="storage" />
+        </div>
+
+        <!-- Storage options -->
+        <div class="card-sub" id="storageBody" hidden>
+          <div class="field">
+            <label>Storage type</label>
+            <div class="seg">
+              <label class="seg-item">
+                <input type="radio" name="storageBase" value="general" checked />
+                <span>Storage + Basic</span>
+              </label>
+              <label class="seg-item">
+                <input type="radio" name="storageBase" value="half" />
+                <span>Storage + Semi-Packed</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Storage days</label>
+            <div class="stepper" data-stepper="storageDays">
+              <button type="button" class="stepper-btn" data-dir="-1" data-stepper="storageDays">−</button>
+              <input type="number" class="stepper-input" id="storageDays" value="1" min="1" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-dir="1" data-stepper="storageDays">+</button>
+              <span class="stepper-unit">day(s)</span>
+            </div>
+            <div class="hint">Storage fee is <b>₩20,000 per day</b>. (min 1 day)</div>
+          </div>
         </div>
 
         <hr />
@@ -198,7 +252,7 @@
           <div class="sub">No elevator?<br>Please check.</div>
 
           <div class="option">
-            Start
+            <div>Start</div>
             <div class="option-controls">
               <input type="checkbox" id="noFrom" />
               <div class="stepper">
@@ -210,7 +264,7 @@
           </div>
 
           <div class="option">
-            Destination
+            <div>Destination</div>
             <div class="option-controls">
               <input type="checkbox" id="noTo" />
               <div class="stepper">
@@ -224,9 +278,9 @@
           <hr />
 
           <div class="sub">Appliances & Furniture</div>
-
           <div class="sub" style="margin-top:10px;">Appliances</div>
 
+          <!-- ✅ 표시만 영어 / data-item은 KR 유지 -->
           <div class="option item-qty-row">
             <div>Microwave</div>
             <div class="stepper">
@@ -393,48 +447,87 @@
             </div>
           </div>
 
-          <div class="option item-qty-row">
-            <div>Bed frame disassembly/assembly</div>
-            <div class="stepper">
-              <button type="button" class="stepper-btn" data-stepper-item="침대프레임(분해/조립)" data-dir="-1">−</button>
-              <input type="number" class="itemQty" data-item="침대프레임(분해/조립)" min="0" value="0" inputmode="numeric" />
-              <button type="button" class="stepper-btn" data-stepper-item="침대프레임(분해/조립)" data-dir="1">+</button>
-            </div>
-          </div>
-
           <div class="sub" style="margin-top:10px;">
             ※ Large/special items and disassembly/installation are confirmed after consultation.
           </div>
 
           <hr />
 
-          <div class="sub">Box count (Standard moving box)</div>
-          <div class="option">1–5 <input type="radio" name="load" value="1" /></div>
-          <div class="option">6–10 <input type="radio" name="load" value="2" /></div>
-          <div class="option">11–15 <input type="radio" name="load" value="3" /></div>
-          <div class="option">16–20 <input type="radio" name="load" value="4" /></div>
+          <div class="sub">Box count (standard moving box)</div>
+          <div class="option"><div>1–5</div><input type="radio" name="load" value="1" /></div>
+          <div class="option"><div>6–10</div><input type="radio" name="load" value="2" /></div>
+          <div class="option"><div>11–15</div><input type="radio" name="load" value="3" /></div>
+          <div class="option"><div>16–20</div><input type="radio" name="load" value="4" /></div>
 
           <hr />
 
           <div class="sub">If you can’t carry items yourself<br>(Check if driver alone can help)</div>
-          <div class="option">Hard to carry at start <input type="checkbox" id="cantCarryFrom" /></div>
-          <div class="option">Hard to carry at destination <input type="checkbox" id="cantCarryTo" /></div>
+          <div class="option"><div>Hard to carry at start</div><input type="checkbox" id="cantCarryFrom" /></div>
+          <div class="option"><div>Hard to carry at destination</div><input type="checkbox" id="cantCarryTo" /></div>
 
           <hr />
 
           <div class="sub">Add helper<br>(Check if driver alone is not enough)</div>
-          <div class="option">Add helper at start <input type="checkbox" id="helperFrom" /></div>
-          <div class="option">Add helper at destination <input type="checkbox" id="helperTo" /></div>
+          <div class="option"><div>Add helper at start</div><input type="checkbox" id="helperFrom" /></div>
+          <div class="option"><div>Add helper at destination</div><input type="checkbox" id="helperTo" /></div>
 
           <hr />
 
-          <div class="option">Ladder truck (+₩80,000) <input type="checkbox" id="ladder" /></div>
-          <div class="option">Night/Weekend (Free) <input type="checkbox" id="night" /></div>
+          <!-- ✅ Ladder truck block (same as KR) -->
+          <div class="field" id="ladderBlock">
+            <label>Ladder truck</label>
+
+            <div class="toggles">
+              <label class="toggle">
+                <input type="checkbox" id="ladderFromEnabled" />
+                <span>Needed at start</span>
+              </label>
+
+              <label class="toggle">
+                <input type="checkbox" id="ladderToEnabled" />
+                <span>Needed at destination</span>
+              </label>
+            </div>
+
+            <div class="ladder-sub" id="ladderFromBody" hidden>
+              <div class="row">
+                <div class="muted">Start floor</div>
+                <div class="stepper">
+                  <button type="button" class="stepper-btn" data-stepper="ladderFromFloor" data-dir="-1">−</button>
+                  <input type="number" class="stepper-input" id="ladderFromFloor" value="6" min="1" inputmode="numeric" />
+                  <button type="button" class="stepper-btn" data-stepper="ladderFromFloor" data-dir="1">+</button>
+                  <span class="stepper-unit">floor</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ladder-sub" id="ladderToBody" hidden>
+              <div class="row">
+                <div class="muted">Destination floor</div>
+                <div class="stepper">
+                  <button type="button" class="stepper-btn" data-stepper="ladderToFloor" data-dir="-1">−</button>
+                  <input type="number" class="stepper-input" id="ladderToFloor" value="6" min="1" inputmode="numeric" />
+                  <button type="button" class="stepper-btn" data-stepper="ladderToFloor" data-dir="1">+</button>
+                  <span class="stepper-unit">floor</span>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+          </div>
+
+          <div class="option">
+            <div>Night/Weekend (Free)</div>
+            <input type="checkbox" id="night" />
+          </div>
 
           <hr />
 
           <div class="option">
-            Passengers (If 2+ please ask for a deal)
+            <div>
+              Passengers<br />
+              (If 2+ please ask for a deal)
+            </div>
             <div class="stepper">
               <button type="button" class="stepper-btn" data-stepper="ride" data-dir="-1">−</button>
               <input type="number" id="ride" min="0" value="0" inputmode="numeric" />
@@ -442,8 +535,8 @@
             </div>
           </div>
 
-        </div>
-      </div>
+        </div><!-- /#moveBody -->
+      </div><!-- /.card -->
     </section>
 
     <!-- Throw away -->
@@ -454,7 +547,6 @@
         <div class="option throw-toggle-row">
           <div>
             Items to discard on the 1st floor
-
             <div class="sub" style="margin:6px 0 0;">
               Heavy items you can’t handle alone,<br>do it with the driver.
             </div>
@@ -469,8 +561,8 @@
         <div id="throwBody" style="display:none; margin-top:14px;">
 
           <div class="sub">Work needed (start/destination)</div>
-          <div class="option">Work at start <input type="checkbox" id="workFrom" /></div>
-          <div class="option">Work at destination <input type="checkbox" id="workTo" /></div>
+          <div class="option"><div>Work at start</div><input type="checkbox" id="workFrom" /></div>
+          <div class="option"><div>Work at destination</div><input type="checkbox" id="workTo" /></div>
 
           <hr />
 
@@ -577,14 +669,33 @@
           </div>
 
           <hr />
+
           <div class="sub">Destination-side items (qty)</div>
-          <!-- to (same as from; you can duplicate later if needed) -->
+
+          <!-- to : KR처럼 필요한 항목을 계속 추가해서 쓰면 됨 (일단 동일 구조 예시 2개) -->
+          <div class="option item-qty-row">
+            <div>Washer (≤12kg)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="to" data-stepper-item="세탁기(12kg이하)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="to" data-item="세탁기(12kg이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="to" data-stepper-item="세탁기(12kg이하)" data-dir="1">+</button>
+            </div>
+          </div>
+
+          <div class="option item-qty-row">
+            <div>Refrigerator (≤380L)</div>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-stepper-loc="to" data-stepper-item="냉장고(380L이하)" data-dir="-1">−</button>
+              <input type="number" class="throwQty" data-loc="to" data-item="냉장고(380L이하)" min="0" value="0" inputmode="numeric" />
+              <button type="button" class="stepper-btn" data-stepper-loc="to" data-stepper-item="냉장고(380L이하)" data-dir="1">+</button>
+            </div>
+          </div>
 
           <div class="sub" style="margin-top:10px;">
             ※ “Throw mode” is for quick selection. Final cost may vary depending on on-site conditions.
           </div>
-        </div>
-      </div>
+        </div><!-- /#throwBody -->
+      </div><!-- /.card -->
     </section>
 
     <!-- Quote -->
@@ -594,10 +705,11 @@
       <div class="card" id="summary">Select conditions</div>
 
       <div class="card price-card" id="priceCardStatic">
-        <div class="price" id="price">₩0</div>
-
-        <div class="price-under" id="priceUnder">
-          This estimate is <b>13.8% lower than the market average.</b>
+        <div>
+          <div class="price" id="price">₩0</div>
+          <div class="price-under" id="priceUnder">
+            This estimate is<br><b>about 13.8% lower than the market average.</b>
+          </div>
         </div>
       </div>
 
@@ -616,7 +728,7 @@
     </section>
 
     <!-- Footer -->
-    <section class="section">
+    <section class="section" id="footerSection">
       <div class="card sub">
         Business No.: 876-28-01550<br />
         Address: 803-102, 87 Sangdong-ro, Bucheon-si, Gyeonggi-do, Korea<br />
@@ -624,44 +736,44 @@
       </div>
     </section>
 
-  </div>
+  </div><!-- /.container -->
 
   <!-- Sticky price bar -->
   <div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
     <div class="sticky-price" id="stickyPrice">₩0</div>
     <div class="sticky-under">
-      This estimate is <b>13.8% lower than the market average.</b>
+      This estimate is <b>about 13.8% lower than the market average.</b>
     </div>
   </div>
 
-  <!-- Load Supabase, config, and app script -->
+  <!-- scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/config.js"></script>
   <script type="module" src="/assets/js/app-en.js"></script>
 
   <!-- ChannelIO loader -->
   <script>
-  (function(){
-    var w=window;
-    if(w.ChannelIO){return;}
-    var ch=function(){ch.c(arguments);};
-    ch.q=[]; ch.c=function(args){ch.q.push(args);};
-    w.ChannelIO=ch;
+    (function(){
+      var w=window;
+      if(w.ChannelIO){return;}
+      var ch=function(){ch.c(arguments);};
+      ch.q=[]; ch.c=function(args){ch.q.push(args);};
+      w.ChannelIO=ch;
 
-    function l(){
-      if(w.ChannelIOInitialized){return;}
-      w.ChannelIOInitialized=true;
-      var s=document.createElement("script");
-      s.type="text/javascript";
-      s.async=true;
-      s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";
-      var x=document.getElementsByTagName("script")[0];
-      if(x.parentNode){x.parentNode.insertBefore(s,x);}
-    }
+      function l(){
+        if(w.ChannelIOInitialized){return;}
+        w.ChannelIOInitialized=true;
+        var s=document.createElement("script");
+        s.type="text/javascript";
+        s.async=true;
+        s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";
+        var x=document.getElementsByTagName("script")[0];
+        if(x.parentNode){x.parentNode.insertBefore(s,x);}
+      }
 
-    if(document.readyState==="complete"){l();}
-    else{w.addEventListener("DOMContentLoaded",l); w.addEventListener("load",l);}
-  })();
+      if(document.readyState==="complete"){l();}
+      else{w.addEventListener("DOMContentLoaded",l); w.addEventListener("load",l);}
+    })();
   </script>
 
   <script>
@@ -670,6 +782,5 @@
       hideChannelButtonOnBoot: false
     });
   </script>
-
 </body>
 </html>
