@@ -64,7 +64,7 @@
   const BASE_PRICE = { truck: 50000, van: 50000, lorry: 90000 };
   const PER_KM_PRICE = { truck: 1550, van: 1550, lorry: 1550 };
 
-  // 가구/가전 기본 단가 (여기에 멀티플/리스크가 calc()에서 적용됨)
+  // 가구/가전 기본 단가 (calc()에서 멀티플/리스크 적용)
   const FURNITURE_PRICE = {
     "전자레인지": { label: "전자레인지", price: 1500 },
     "공기청정기": { label: "공기청정기", price: 3000 },
@@ -161,9 +161,9 @@
   }
 
   /* =========================
-     ✅ 보관이사/사다리차 규칙(확정)
+     ✅ 보관이사/사다리차 규칙
   ========================= */
-  const STORAGE_PER_DAY = 20000; // 하루 2만 (옵션비)
+  const STORAGE_PER_DAY = 20000;
   function ladderPriceByFloor(floor) {
     const f = Math.max(1, parseInt(String(floor || 1), 10) || 1);
     if (f <= 6) return 100000;     // 1~6층
@@ -204,8 +204,8 @@
     helperFrom: false,
     helperTo: false,
 
-    ride: 0,  // 동승 인원
-    load: null, // 박스밴드
+    ride: 0,
+    load: null,
 
     itemQty: {},
 
@@ -252,14 +252,6 @@
 
   const channelInquiryBtn = document.getElementById("channelInquiry");
 
-  const throwToggleEl = document.getElementById("throwToggle");
-  const throwBodyEl = document.getElementById("throwBody");
-  const workFromEl = document.getElementById("workFrom");
-  const workToEl = document.getElementById("workTo");
-
-  const moveToggleEl = document.getElementById("moveToggle");
-  const moveBodyEl = document.getElementById("moveBody");
-
   // storage
   const storageBodyEl = document.getElementById("storageBody");
   const storageDaysEl = document.getElementById("storageDays");
@@ -273,6 +265,20 @@
   const ladderFromFloorEl = document.getElementById("ladderFromFloor");
   const ladderToFloorEl = document.getElementById("ladderToFloor");
 
+  // modals
+  const itemsModalEl = document.getElementById("itemsModal");
+  const openItemsModalBtn = document.getElementById("openItemsModalBtn");
+  const itemsMiniSummaryEl = document.getElementById("itemsMiniSummary");
+
+  const throwModalEl = document.getElementById("throwModal");
+  const openThrowModalBtn = document.getElementById("openThrowModalBtn");
+  const throwMiniWrapEl = document.getElementById("throwMiniWrap");
+  const throwMiniSummaryEl = document.getElementById("throwMiniSummary");
+
+  const throwToggleEl = document.getElementById("throwToggle");
+  const workFromEl = document.getElementById("workFrom");
+  const workToEl = document.getElementById("workTo");
+
   // wizard UI
   const wizardProgressBar = document.getElementById("wizardProgressBar");
   const wizardStepText = document.getElementById("wizardStepText");
@@ -283,14 +289,14 @@
   let geocoder = null;
   let lastPrice = 0;
 
-  const TIME_SLOTS = ["7", "8", "9", "10", "11", "12", "13", "14", "15"];
+  const TIME_SLOTS = ["7","8","9","10","11","12","13","14","15"];
 
   /* =========================
      ✅ 단계형 UI (Wizard)
-     - 진행단계: 1~6
-     - hero(step0)에서 "견적 시작하기"로 step1 진입
+     - hero(step0) → step1
+     - step: 1~12(quote)
   ========================= */
-  const STEP_ORDER = [1, 2, 3, 4, 5, 6];
+  const STEP_ORDER = [1,2,3,4,5,6,7,8,9,10,11,12];
   let currentStepIndex = 0;
 
   function getStepEl(stepNo) {
@@ -299,7 +305,6 @@
 
   function setActiveStep(stepNo) {
     document.querySelectorAll(".step-card").forEach((el) => el.classList.remove("is-active"));
-
     const el = getStepEl(stepNo);
     if (el) el.classList.add("is-active");
 
@@ -356,6 +361,45 @@
   }
 
   /* =========================
+     Modal helpers
+  ========================= */
+  function openModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+  function bindModalClosers() {
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-close]");
+      if (!btn) return;
+      const id = btn.getAttribute("data-close");
+      if (id) closeModal(id);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      if (itemsModalEl && itemsModalEl.getAttribute("aria-hidden") === "false") closeModal("itemsModal");
+      else if (throwModalEl && throwModalEl.getAttribute("aria-hidden") === "false") closeModal("throwModal");
+    });
+  }
+
+  function syncMiniSummaries() {
+    const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
+    const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
+
+    if (itemsMiniSummaryEl) itemsMiniSummaryEl.textContent = getSelectedQtyLabel(mergedAllItems);
+
+    const throwLabel = getSelectedQtyLabel(mergedThrow);
+    if (throwMiniSummaryEl) throwMiniSummaryEl.textContent = throwLabel;
+  }
+
+  /* =========================
      ChannelTalk
   ========================= */
   function bootChannelIO() {
@@ -383,14 +427,62 @@
   }
 
   /* =========================
+     ✅ 날짜 피커 유틸 (안전)
+     - showPicker 지원 시 showPicker
+     - 아니면 focus+click
+  ========================= */
+  function openDatePickerSafe(inputEl) {
+    if (!inputEl) return;
+    inputEl.focus();
+
+    if (typeof inputEl.showPicker === "function") {
+      try {
+        inputEl.showPicker();
+        return;
+      } catch (_) {
+        // iOS Safari 등에서 예외 가능 → fallback
+      }
+    }
+    try { inputEl.click(); } catch (_) {}
+  }
+
+  /* =========================
      초기화
   ========================= */
   window.addEventListener("DOMContentLoaded", async () => {
-    // 채널톡 로더가 늦게 붙는 경우 대비
+    bindModalClosers();
+
     const ok = await waitForChannelIO(6000);
     if (ok) bootChannelIO();
 
-    // hero 우선 표시
+   // ✅ 날짜: 칸 전체(.date-wrap) 클릭하면 달력 열기
+const dateWrapEl = document.querySelector(".date-wrap");
+
+function openDatePickerSafe(inputEl) {
+  if (!inputEl) return;
+  inputEl.focus();
+  if (typeof inputEl.showPicker === "function") {
+    try { inputEl.showPicker(); return; } catch (_) {}
+  }
+  try { inputEl.click(); } catch (_) {}
+}
+
+if (dateWrapEl && moveDateEl) {
+  // 칸 어디를 눌러도 열리게
+  dateWrapEl.addEventListener("click", (e) => {
+    // ✅ 이건 중요: 아이콘/여백 클릭도 다 포함해서 무조건 열기
+    e.preventDefault();
+    openDatePickerSafe(moveDateEl);
+  });
+
+  // 모바일에서 클릭이 애매하게 씹히는 경우 대비 (선택)
+  dateWrapEl.addEventListener("pointerup", (e) => {
+    e.preventDefault();
+    openDatePickerSafe(moveDateEl);
+  });
+}
+
+    // hero 표시
     const heroEl = getStepEl(0);
     if (heroEl) {
       document.querySelectorAll(".step-card").forEach((el) => el.classList.remove("is-active"));
@@ -401,10 +493,7 @@
       setActiveStep(1);
     }
 
-    if (heroStartBtn) {
-      heroStartBtn.addEventListener("click", () => setActiveStep(1));
-    }
-
+    if (heroStartBtn) heroStartBtn.addEventListener("click", () => setActiveStep(1));
     if (wizardPrev) wizardPrev.addEventListener("click", gotoPrev);
     if (wizardNext) wizardNext.addEventListener("click", gotoNext);
 
@@ -414,6 +503,17 @@
       firstVehicle.classList.add("active");
       state.vehicle = firstVehicle.dataset.vehicle || null;
     }
+
+    // 차량 선택
+    document.querySelectorAll(".vehicle").forEach((v) => {
+      v.addEventListener("click", () => {
+        document.querySelectorAll(".vehicle").forEach((x) => x.classList.remove("active"));
+        v.classList.add("active");
+        state.vehicle = v.dataset.vehicle || null;
+        calc();
+        syncWizardButtons();
+      });
+    });
 
     // ✅ 경유지 토글
     if (hasWaypointEl && waypointWrapEl) {
@@ -469,17 +569,6 @@
       normalize();
     }
 
-    // 차량 선택
-    document.querySelectorAll(".vehicle").forEach((v) => {
-      v.addEventListener("click", () => {
-        document.querySelectorAll(".vehicle").forEach((x) => x.classList.remove("active"));
-        v.classList.add("active");
-        state.vehicle = v.dataset.vehicle || null;
-        calc();
-        syncWizardButtons();
-      });
-    });
-
     // 날짜 변경 → 마감 반영
     if (moveDateEl) {
       moveDateEl.addEventListener("change", async (e) => {
@@ -504,7 +593,7 @@
       });
     }
 
-    // 옵션 이벤트
+    // 계단/엘베
     if (noFromEl) noFromEl.addEventListener("change", (e) => { state.noFrom = e.target.checked; calc(); });
     if (noToEl) noToEl.addEventListener("change", (e) => { state.noTo = e.target.checked; calc(); });
 
@@ -517,12 +606,14 @@
       calc();
     });
 
-    if (nightEl) nightEl.addEventListener("change", (e) => { state.night = e.target.checked; calc(); });
+    // 직접 나르기 어려움 / 인부
     if (cantCarryFromEl) cantCarryFromEl.addEventListener("change", (e) => { state.cantCarryFrom = e.target.checked; calc(); });
     if (cantCarryToEl) cantCarryToEl.addEventListener("change", (e) => { state.cantCarryTo = e.target.checked; calc(); });
     if (helperFromEl) helperFromEl.addEventListener("change", (e) => { state.helperFrom = e.target.checked; calc(); });
     if (helperToEl) helperToEl.addEventListener("change", (e) => { state.helperTo = e.target.checked; calc(); });
 
+    // 야간/주말, 동승
+    if (nightEl) nightEl.addEventListener("change", (e) => { state.night = e.target.checked; calc(); });
     if (rideEl) rideEl.addEventListener("input", (e) => {
       state.ride = Math.max(0, toNumberSafe(e.target.value, 0));
       calc();
@@ -580,67 +671,34 @@
       if (el.checked) state.load = el.value;
     });
 
-    // itemQty
-    document.querySelectorAll(".itemQty").forEach((el) => {
-      el.addEventListener("input", (e) => {
-        const key = e.target.getAttribute("data-item");
-        if (!key) return;
-        const v = Math.max(0, toNumberSafe(e.target.value, 0));
-        state.itemQty[key] = v;
-        calc();
-      });
-      const key = el.getAttribute("data-item");
-      if (key) state.itemQty[key] = Math.max(0, toNumberSafe(el.value, 0));
-    });
+    // items modal open
+    if (openItemsModalBtn) {
+      openItemsModalBtn.addEventListener("click", () => openModal("itemsModal"));
+    }
 
-    // throw mode
-    if (throwToggleEl && throwBodyEl) {
-      throwToggleEl.addEventListener("change", (e) => {
-        state.throwEnabled = !!e.target.checked;
-        throwBodyEl.style.display = state.throwEnabled ? "block" : "none";
+    // throw toggle + modal open
+    if (throwToggleEl && throwMiniWrapEl) {
+      const syncThrow = () => {
+        state.throwEnabled = !!throwToggleEl.checked;
+        throwMiniWrapEl.style.display = state.throwEnabled ? "block" : "none";
         calc();
+        syncMiniSummaries();
+      };
+      throwToggleEl.addEventListener("change", syncThrow);
+      syncThrow();
+    }
+    if (openThrowModalBtn) {
+      openThrowModalBtn.addEventListener("click", () => {
+        if (!state.throwEnabled) return;
+        openModal("throwModal");
       });
-      state.throwEnabled = !!throwToggleEl.checked;
-      throwBodyEl.style.display = state.throwEnabled ? "block" : "none";
     }
 
     if (workFromEl) workFromEl.addEventListener("change", (e) => { state.workFrom = e.target.checked; calc(); });
     if (workToEl) workToEl.addEventListener("change", (e) => { state.workTo = e.target.checked; calc(); });
 
-    document.querySelectorAll(".throwQty").forEach((el) => {
-      el.addEventListener("input", (e) => {
-        const loc = e.target.getAttribute("data-loc");
-        const key = e.target.getAttribute("data-item");
-        const v = Math.max(0, toNumberSafe(e.target.value, 0));
-        if (!loc || !key) return;
-        if (loc === "from") state.throwFromQty[key] = v;
-        if (loc === "to") state.throwToQty[key] = v;
-        calc();
-      });
-
-      const loc = el.getAttribute("data-loc");
-      const key = el.getAttribute("data-item");
-      if (loc && key) {
-        const v = Math.max(0, toNumberSafe(el.value, 0));
-        if (loc === "from") state.throwFromQty[key] = v;
-        if (loc === "to") state.throwToQty[key] = v;
-      }
-    });
-
-    // 옮겨주세요 토글
-    if (moveToggleEl && moveBodyEl) {
-      const syncMoveUI = () => {
-        moveBodyEl.style.display = moveToggleEl.checked ? "block" : "none";
-      };
-      moveToggleEl.addEventListener("change", syncMoveUI);
-      syncMoveUI();
-    }
-
     /* =========================
        ✅ 스텝퍼 공통 처리
-       - data-stepper="id" 우선
-       - itemQty / throwQty는 data-stepper-item / data-stepper-loc로 처리
-       - 그 외는 같은 래퍼(.stepper) 안의 number input 자동 증감
     ========================= */
     document.addEventListener("click", (e) => {
       const btn = e.target.closest(".stepper-btn");
@@ -711,6 +769,42 @@
       input.dispatchEvent(new Event("change", { bubbles: true }));
     });
 
+    // itemQty input
+    document.querySelectorAll(".itemQty").forEach((el) => {
+      el.addEventListener("input", (e) => {
+        const key = e.target.getAttribute("data-item");
+        if (!key) return;
+        const v = Math.max(0, toNumberSafe(e.target.value, 0));
+        state.itemQty[key] = v;
+        calc();
+        syncMiniSummaries();
+      });
+      const key = el.getAttribute("data-item");
+      if (key) state.itemQty[key] = Math.max(0, toNumberSafe(el.value, 0));
+    });
+
+    // throwQty input
+    document.querySelectorAll(".throwQty").forEach((el) => {
+      el.addEventListener("input", (e) => {
+        const loc = e.target.getAttribute("data-loc");
+        const key = e.target.getAttribute("data-item");
+        const v = Math.max(0, toNumberSafe(e.target.value, 0));
+        if (!loc || !key) return;
+        if (loc === "from") state.throwFromQty[key] = v;
+        if (loc === "to") state.throwToQty[key] = v;
+        calc();
+        syncMiniSummaries();
+      });
+
+      const loc = el.getAttribute("data-loc");
+      const key = el.getAttribute("data-item");
+      if (loc && key) {
+        const v = Math.max(0, toNumberSafe(el.value, 0));
+        if (loc === "from") state.throwFromQty[key] = v;
+        if (loc === "to") state.throwToQty[key] = v;
+      }
+    });
+
     // 플로팅바: quoteSection 보이면 숨김
     if (quoteSectionEl && stickyBarEl) {
       const io = new IntersectionObserver(
@@ -755,6 +849,7 @@
       state.timeSlot = checked ? checked.value : "";
     }
 
+    syncMiniSummaries();
     calc();
     syncWizardButtons();
   });
@@ -867,10 +962,7 @@
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
-
-  function toRad(deg) {
-    return deg * (Math.PI / 180);
-  }
+  function toRad(deg) { return deg * (Math.PI / 180); }
 
   /* =========================
      문의 메시지 (ChannelTalk)
@@ -893,8 +985,6 @@
     const distanceLabel = state.distance > 0 ? `${state.distance}km` : "미계산";
     const scheduleLabel = state.moveDate || "미선택";
     const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
-
-    const laborLabel = buildLaborLabel(state);
 
     const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
@@ -961,16 +1051,14 @@
 
   /* =========================
      가격 계산
-     ✅ 보관이사: 보관료(2만원×일수) 옵션비로 추가
-     ✅ 사다리차: 출/도착 각각 합산
   ========================= */
   function calc() {
     if (!state.vehicle) {
-      // 가격/요약 초기화
       if (priceEl) priceEl.innerText = "₩0";
       if (stickyPriceEl) stickyPriceEl.innerText = "₩0";
       if (summaryEl) summaryEl.innerHTML = "조건을 선택하세요";
       if (stickyBarEl) stickyBarEl.style.display = "none";
+      syncWizardButtons();
       return;
     }
 
@@ -981,7 +1069,7 @@
     const perKm = toNumberSafe(PER_KM_PRICE[key], 0);
     const dist = Math.max(0, toNumberSafe(state.distance, 0));
 
-    // 표시용(사이트에서 “13.8% 저렴” 문구) 느낌 살리기
+    // 표시용(“13.8% 저렴” 문구 느낌)
     const DISPLAY_MULTIPLIER = 0.95;
 
     // 반포장 프리미엄
@@ -1062,10 +1150,10 @@
 
     const work = loadCost + itemCost + stairCost;
 
-    // 5) optionCost
+    // 5) optionCost (보관료 제외한 옵션들만)
     let optionCost = 0;
 
-    // 동승(1명 2만원, 2명 이상은 “네고 문의”라 했지만 계산은 일단 적용)
+    // 동승(1명 2만원)
     optionCost += toNumberSafe(state.ride, 0) * 20000;
 
     if (state.cantCarryFrom) optionCost += 30000;
@@ -1073,33 +1161,33 @@
     if (state.helperFrom) optionCost += 40000;
     if (state.helperTo) optionCost += 40000;
 
-    // ✅ 보관료: 2만원×일수 (옵션비)
-    if (state.moveType === "storage") {
-      const days = Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1);
-      optionCost += days * STORAGE_PER_DAY;
-    }
+    // ✅ 보관료: add-on
+    const storageFee =
+      state.moveType === "storage"
+        ? Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1) * STORAGE_PER_DAY
+        : 0;
 
-    // ✅ 사다리차: 출/도착 각각 합산 (최종에 더함)
+    // ✅ 사다리차: add-on
     let ladderCost = 0;
     if (state.ladderFromEnabled) ladderCost += ladderPriceByFloor(state.ladderFromFloor);
     if (state.ladderToEnabled) ladderCost += ladderPriceByFloor(state.ladderToFloor);
 
-    // 6) baseTotal
-    let total = core + work + optionCost;
+    // 6) baseTotal (이사 서비스 금액)
+    let serviceTotal = core + work + optionCost;
 
-    // 반포장 프리미엄 (storageBase 포함)
+    // 반포장 프리미엄 (보관-반포장도 포함)
     if (effectiveMoveType === "half") {
-      total = Math.round(total * HALF_PREMIUM_MULTIPLIER);
+      serviceTotal = Math.round(serviceTotal * HALF_PREMIUM_MULTIPLIER);
     }
 
-    // 표시배율
-    total = Math.round(total * DISPLAY_MULTIPLIER);
+    // 표시배율(저렴해 보이기용)
+    serviceTotal = Math.round(serviceTotal * DISPLAY_MULTIPLIER);
 
     // 운영 배율
-    total = Math.round(total * PRICE_MULTIPLIER);
+    serviceTotal = Math.round(serviceTotal * PRICE_MULTIPLIER);
 
-    // 사다리차 합산
-    total = Math.round(total + ladderCost);
+    // ✅ 최종 = 서비스 + 보관료 + 사다리차
+    let total = Math.round(serviceTotal + storageFee + ladderCost);
 
     lastPrice = total;
 
@@ -1149,7 +1237,7 @@
     if (priceEl) priceEl.innerText = formatted;
     if (stickyPriceEl) stickyPriceEl.innerText = formatted;
 
-    // 플로팅바 표시 (quoteSection이 화면에 보이면 숨김)
+    // 플로팅바 표시
     if (stickyBarEl && quoteSectionEl) {
       const rect = quoteSectionEl.getBoundingClientRect();
       const quoteVisible = rect.top < window.innerHeight * 0.88 && rect.bottom > 0;
@@ -1158,6 +1246,7 @@
       stickyBarEl.setAttribute("aria-hidden", show ? "false" : "true");
     }
 
+    syncMiniSummaries();
     syncWizardButtons();
   }
 
@@ -1190,13 +1279,10 @@
       const msg = buildInquiryMessage(lastPrice);
 
       try {
-        // 대부분 이 형태로 잘 열림
         window.ChannelIO("openChat", undefined, msg);
       } catch (err) {
         console.error("ChannelIO openChat error:", err);
-        try {
-          window.ChannelIO("showMessenger");
-        } catch (_) {}
+        try { window.ChannelIO("showMessenger"); } catch (_) {}
       }
     });
   }
