@@ -878,3 +878,73 @@ body{
 .container{
   padding-bottom: var(--bottom-safe);
 }
+/* =========================
+   ✅ iOS/모바일 Date input 깨짐 방지 (FINAL PATCH)
+   - input[type="date"] 기본 UI 충돌 제거
+   - 높이/정렬/패딩 고정
+   - 우측 캘린더 아이콘 겹침 해결
+========================= */
+
+/* date wrap이 카드 안에서 삐져나가지 않게 */
+.date-wrap{
+  width: 100%;
+  max-width: 100%;
+}
+
+/* date input 공통 안정화 */
+.date-wrap .date-input,
+input[type="date"].date-input,
+input[type="date"]{
+  width: 100%;
+  max-width: 100%;
+  display: block;
+
+  /* 모바일에서 높이/정렬 깨짐 방지 */
+  height: 52px;
+  line-height: 52px;
+
+  /* 오른쪽 아이콘 영역 확보 */
+  padding-right: 54px;
+
+  /* iOS 기본 스타일 제거 */
+  -webkit-appearance: none;
+  appearance: none;
+
+  /* 글자 baseline 흔들림 방지 */
+  font-size: 16px; /* iOS 확대(zoom) 방지도 같이 됨 */
+}
+
+/* iOS 기본 캘린더 아이콘(인디케이터) 때문에 겹치는 문제 해결 */
+input[type="date"]::-webkit-calendar-picker-indicator{
+  opacity: 0;          /* 보이지 않게 */
+  display: block;
+  width: 54px;         /* 우리가 확보한 padding-right 영역과 맞춤 */
+  height: 52px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+/* iOS 내부 텍스트 영역 정렬(간헐적으로 글자가 아래로 쳐짐 방지) */
+input[type="date"]::-webkit-datetime-edit{
+  padding: 0 12px;
+}
+input[type="date"]::-webkit-datetime-edit-fields-wrapper{
+  display: flex;
+  align-items: center;
+}
+
+/* 네가 올린 date-icon이 클릭을 막으면 안 됨(이미 pointer-events none이라 OK)
+   그래도 위치/크기 안전하게 보정 */
+.date-icon{
+  width: 18px;
+  height: 18px;
+  right: 14px;
+  border-width: 2px;
+  opacity: .55;
+}
+
+/* 어떤 폰에서든 라운드/보더가 카드 밖으로 튀어나오는 경우 방지 */
+.card, .card-sub, .wizard-top{
+  overflow: hidden;
+}
