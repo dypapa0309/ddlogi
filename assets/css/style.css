@@ -828,3 +828,36 @@ code{
   );
   opacity: 0.9;
 }
+/* =========================
+   ✅ FIXED 하단 네비로 본문 가림 방지 (iOS 포함)
+========================= */
+
+/* 1) 하단 네비 실제 높이 변수로 관리 */
+:root{
+  --bottomnav-h: 86px; /* 버튼 높이+패딩 합산 느낌 (76~96 사이 조절) */
+}
+
+/* 2) 본문에 안전 여백 추가 (가장 중요) */
+body{
+  padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 16px);
+}
+
+/* 3) 하단 네비 위치를 safe-area 반영 */
+.wizard-nav{
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+/* 4) iOS에서 input 포커스 시(키보드 올라올 때) 하단바가 너무 방해되면 */
+@media (max-width: 520px){
+  body:has(input:focus),
+  body:has(textarea:focus),
+  body:has(select:focus){
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  body:has(input:focus) .wizard-nav,
+  body:has(textarea:focus) .wizard-nav,
+  body:has(select:focus) .wizard-nav{
+    opacity: .25;
+    pointer-events: none; /* 키보드 열렸을 때 오작동 방지 */
+  }
+}
