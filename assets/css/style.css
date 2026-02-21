@@ -29,7 +29,10 @@
 }
 
 *{ box-sizing:border-box; }
-html,body{ height:100%; }
+html, body{
+  height: auto;
+  min-height: 100%;
+}
 
 body{
   margin:0;
@@ -860,4 +863,18 @@ body{
     opacity: .25;
     pointer-events: none; /* 키보드 열렸을 때 오작동 방지 */
   }
+}
+:root{
+  --bottomnav-h: 86px;
+  --bottom-safe: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 20px);
+}
+
+/* body에도 주고 */
+body{
+  padding-bottom: var(--bottom-safe);
+}
+
+/* ✅ 핵심: 실제 스크롤 컨텐츠(.container)에도 바닥 여백 확보 */
+.container{
+  padding-bottom: var(--bottom-safe);
 }
