@@ -1,33 +1,42 @@
-/* /assets/css/style.css */
+/* /assets/css/style.css (CHATGPT DARK STYLE - DROP-IN)
+   - 구조(HTML/클래스/ID) 변경 없음
+   - ChatGPT-like dark surface + subtle borders + flat buttons
+*/
+
 :root{
-  --bg:#0b0c10;
-  --card:#12141c;
-  --card2:#0f1118;
-  --text:#f2f4ff;
-  --muted:#b7bdd6;
-  --line:rgba(255,255,255,0.12);
-  --line2:rgba(255,255,255,0.18);
-  --accent:#6ee7ff;
-  --accent2:#a78bfa;
+  /* ===== ChatGPT-ish neutrals ===== */
+  --bg:#0b0f14;              /* page background */
+  --card:#111827;            /* main surface */
+  --card2:#0f172a;           /* deeper surface */
+  --text:#E6EDF6;            /* primary text */
+  --muted:#9AA4B2;           /* secondary */
+  --line:rgba(255,255,255,0.10);
+  --line2:rgba(255,255,255,0.16);
+
+  /* accents (keep minimal) */
+  --accent:#E6EDF6;          /* mostly white */
+  --accent2:#CBD5E1;         /* soft */
   --danger:#ff6b6b;
   --ok:#7CFFB2;
 
-  --radius:18px;
-  --shadow: 0 18px 55px rgba(0,0,0,0.55);
-  --shadow2: 0 10px 30px rgba(0,0,0,0.4);
+  /* shape */
+  --radius:16px;             /* ChatGPT vibe: less “pill”, more clean */
+  --shadow:none;
+  --shadow2:none;
 
-  --max: 520px;
+  --max: 720px;              /* PC에서 덜 휑하게 */
+  --topbar-h: 86px;
 }
 
 *{ box-sizing:border-box; }
 html,body{ height:100%; }
+
 body{
   margin:0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
-  background: radial-gradient(1200px 500px at 20% 0%, rgba(110,231,255,0.10), transparent 70%),
-              radial-gradient(1200px 500px at 80% 10%, rgba(167,139,250,0.10), transparent 70%),
-              var(--bg);
+  background: var(--bg);
   color:var(--text);
+  padding-top: var(--topbar-h);
 }
 
 a{ color:inherit; text-decoration:none; }
@@ -35,10 +44,30 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
 
 .container{
   width:min(var(--max), calc(100% - 24px));
-  margin: 18px auto 120px;
+  margin: 18px auto 24px;
 }
 
-/* language bar */
+/* =========================
+   Global code blocks (ChatGPT vibe)
+========================= */
+pre, code{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+pre{
+  margin: 12px 0;
+  padding: 14px 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  overflow:auto;
+}
+code{
+  color: rgba(230,237,246,0.92);
+}
+
+/* =========================
+   Language bar
+========================= */
 .langbar{
   display:flex;
   gap:8px;
@@ -49,28 +78,31 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   padding:8px 12px;
   border-radius:999px;
   border:1px solid var(--line);
-  background: rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.03);
   color:var(--muted);
-  font-weight:700;
+  font-weight:800;
   font-size:12px;
 }
 .lang-pill[aria-current="page"]{
   color:var(--text);
-  border-color: rgba(110,231,255,0.35);
-  background: rgba(110,231,255,0.10);
+  border-color: rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.06);
 }
 
-/* wizard top */
+/* =========================
+   Wizard top (sticky)
+========================= */
 .wizard-top{
   position: sticky;
   top: 10px;
   z-index: 5;
-  background: rgba(11,12,16,0.72);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.08);
+
+  background: rgba(17,24,39,0.92);
+  border: 1px solid rgba(255,255,255,0.10);
   border-radius: 16px;
   padding: 12px 12px 10px;
-  box-shadow: var(--shadow2);
+  box-shadow: none;
+  backdrop-filter: blur(10px);
   margin-bottom: 10px;
 }
 .wizard-meta{
@@ -85,7 +117,7 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
 }
 .wizard-step{
   color: var(--muted);
-  font-weight:800;
+  font-weight:900;
   font-size: 12px;
 }
 .wizard-progress{
@@ -99,23 +131,27 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   height:100%;
   width:0%;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(110,231,255,0.95), rgba(167,139,250,0.95));
+  background: rgba(230,237,246,0.90);
   transition: width .22s ease;
 }
 
-/* sections/cards */
+/* =========================
+   Sections / Cards
+========================= */
 .section{ margin: 12px 0 16px; }
 .section h2{
   margin: 6px 6px 10px;
   font-size: 20px;
   letter-spacing: -0.02em;
 }
+
 .card{
-  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+  background: rgba(17,24,39,0.90);
   border: 1px solid rgba(255,255,255,0.10);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow2);
-  padding: 14px;
+  border-radius: 18px;
+  box-shadow: none;
+  padding: 16px;
+  backdrop-filter: blur(10px);
 }
 .card.sub{
   color: var(--muted);
@@ -125,27 +161,28 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
 .card-sub{
   margin-top: 12px;
   padding: 12px;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.18);
+  background: rgba(255,255,255,0.04);
 }
-.sub{ color: var(--muted); font-weight: 700; font-size: 13px; line-height: 1.5; }
-.hint{ color: rgba(255,255,255,0.70); font-size: 12px; line-height: 1.5; }
+
+.sub{ color: var(--muted); font-weight: 800; font-size: 13px; line-height: 1.5; }
+.hint{ color: rgba(230,237,246,0.72); font-size: 12px; line-height: 1.5; }
 
 /* wizard step show/hide */
 .step-card{ display:none; }
 .step-card.is-active{ display:block; }
 
-/* hero */
+/* =========================
+   Hero
+========================= */
 .hero-card{
-  border-radius: var(--radius);
-  border:1px solid rgba(255,255,255,0.10);
-  background:
-    radial-gradient(800px 400px at 30% 0%, rgba(110,231,255,0.14), transparent 70%),
-    radial-gradient(800px 400px at 70% 10%, rgba(167,139,250,0.14), transparent 70%),
-    rgba(255,255,255,0.03);
-  box-shadow: var(--shadow);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(17,24,39,0.90);
+  box-shadow: none;
   padding: 18px;
+  backdrop-filter: blur(10px);
 }
 .hero-content h1{
   margin: 4px 0 8px;
@@ -155,31 +192,31 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
 }
 .hero-desc{
   margin: 12px 0;
-  color: rgba(255,255,255,0.90);
+  color: rgba(230,237,246,0.90);
   line-height: 1.6;
 }
-.hl{ color: #ffffff; font-weight: 900; }
-.hl2{ color: rgba(110,231,255,0.95); font-weight: 900; }
+.hl{ color: #ffffff; font-weight: 1000; }
+.hl2{ color: rgba(230,237,246,0.92); font-weight: 1000; }
 .hero-pills{ display:flex; gap:8px; flex-wrap:wrap; }
 .pill{
-  border:1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.05);
-  color: var(--muted);
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  color: rgba(230,237,246,0.78);
   padding: 7px 10px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
 }
 .hero-callout{
   margin-top: 10px;
   padding: 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(110,231,255,0.25);
-  background: rgba(110,231,255,0.08);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
 }
 .hero-signature{
   margin-top: 12px;
-  color: rgba(255,255,255,0.88);
+  color: rgba(230,237,246,0.88);
   line-height:1.6;
 }
 .owner-profile{
@@ -191,32 +228,38 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   margin-bottom: 10px;
 }
 .owner-profile img{ width:100%; height:100%; object-fit:cover; }
-.hero-owner{ color: var(--muted); font-weight: 800; }
+.hero-owner{ color: var(--muted); font-weight: 900; }
 
-/* buttons */
+/* =========================
+   Buttons (flat, ChatGPT-like)
+========================= */
 .wizard-primary{
   width: 100%;
-  border: none;
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 14px;
   padding: 14px 14px;
-  font-weight: 900;
+  font-weight: 1000;
   font-size: 15px;
-  color: #081018;
-  background: linear-gradient(90deg, rgba(110,231,255,0.95), rgba(167,139,250,0.95));
-  box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+  color: var(--text);
+  background: rgba(255,255,255,0.06);
+  box-shadow: none;
   cursor:pointer;
 }
+.wizard-primary:hover{ background: rgba(255,255,255,0.08); }
+.wizard-primary:active{ transform: translateY(1px); }
+
 .calc-btn{
   width:100%;
   margin-top: 12px;
-  border:1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
   color: var(--text);
   border-radius: 14px;
   padding: 12px;
-  font-weight: 900;
+  font-weight: 1000;
   cursor:pointer;
 }
+.calc-btn:hover{ background: rgba(255,255,255,0.06); }
 .calc-btn:disabled{ opacity:.55; cursor:not-allowed; }
 
 .address-input{
@@ -225,50 +268,56 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   padding: 12px 12px;
   border-radius: 14px;
   border:1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.28);
+  background: rgba(255,255,255,0.03);
   color: var(--text);
   outline:none;
 }
-.address-input::placeholder{ color: rgba(255,255,255,0.45); }
+.address-input::placeholder{ color: rgba(230,237,246,0.45); }
+
 .distance-result{
   margin-top: 12px;
   padding: 12px;
-  border-radius: 14px;
-  border: 1px dashed rgba(255,255,255,0.18);
-  background: rgba(0,0,0,0.18);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
 }
 
-/* vehicle */
+/* =========================
+   Vehicle
+========================= */
 .vehicle{
   padding: 14px 12px;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.03);
   margin-top: 10px;
   cursor:pointer;
-  font-weight: 900;
+  font-weight: 1000;
 }
 .vehicle.active{
-  border-color: rgba(110,231,255,0.35);
-  background: rgba(110,231,255,0.10);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
 }
 
-/* option rows */
+/* =========================
+   Option rows
+========================= */
 .option{
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap: 12px;
   padding: 12px 10px;
-  border-radius: 14px;
-  border:1px solid rgba(255,255,255,0.08);
-  background: rgba(0,0,0,0.16);
+  border-radius: 16px;
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
   margin-top: 10px;
 }
 .option-controls{ display:flex; align-items:center; gap: 10px; }
 .item-qty-row{ align-items:center; }
 .section-center{ text-align:center; }
 
+/* time chips */
 .time-grid{
   display:grid;
   grid-template-columns: repeat(3, 1fr);
@@ -279,25 +328,35 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   position:relative;
   display:block;
   padding: 12px 10px;
-  border-radius: 14px;
+  border-radius: 16px;
   border:1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.03);
   text-align:center;
   cursor:pointer;
   user-select:none;
 }
 .time-chip input{ position:absolute; opacity:0; pointer-events:none; }
-.time-chip span{ font-weight: 900; color: var(--text); }
+.time-chip span{ font-weight: 1000; color: var(--text); }
+.time-chip *{ pointer-events:none; }
+
 .time-chip:has(input:checked){
-  border-color: rgba(110,231,255,0.35);
-  background: rgba(110,231,255,0.12);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
 }
 .time-chip:has(input:disabled){
   opacity: .45;
   cursor:not-allowed;
 }
+.time-chip.is-disabled{ opacity:.45; pointer-events:none; }
+.time-chip.is-selected{ outline: 2px solid rgba(255,255,255,.22); }
 
-/* stepper */
+/* option states */
+.option.is-disabled{ opacity:.45; pointer-events:none; }
+.option.is-selected{ outline: 2px solid rgba(255,255,255,.22); }
+
+/* =========================
+   Stepper
+========================= */
 .stepper{
   display:flex;
   align-items:center;
@@ -308,29 +367,33 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   height: 34px;
   border-radius: 12px;
   border:1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.04);
   color: var(--text);
-  font-weight: 900;
+  font-weight: 1000;
   cursor:pointer;
 }
+.stepper-btn:hover{ background: rgba(255,255,255,0.06); }
+
 .stepper input{
   width: 64px;
   text-align:center;
   padding: 8px 10px;
   border-radius: 12px;
   border:1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.25);
+  background: rgba(255,255,255,0.03);
   color: var(--text);
   outline:none;
 }
 .stepper-unit{
   color: var(--muted);
-  font-weight: 900;
+  font-weight: 1000;
   font-size: 12px;
 }
 
-/* segmented (storage) */
-.field label{ display:block; font-weight: 900; margin-bottom: 8px; }
+/* =========================
+   Segmented (storage)
+========================= */
+.field label{ display:block; font-weight: 1000; margin-bottom: 8px; }
 .seg{ display:flex; gap:8px; }
 .seg-item{
   flex:1;
@@ -338,19 +401,22 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   justify-content:center;
   align-items:center;
   padding: 12px 10px;
-  border-radius: 14px;
+  border-radius: 16px;
   border:1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.03);
   cursor:pointer;
+  position: relative;
 }
 .seg-item input{ position:absolute; opacity:0; pointer-events:none; }
 .seg-item:has(input:checked){
-  border-color: rgba(110,231,255,0.35);
-  background: rgba(110,231,255,0.12);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
 }
-.seg-item span{ font-weight: 900; color: var(--text); font-size: 13px; }
+.seg-item span{ font-weight: 1000; color: var(--text); font-size: 13px; }
 
-/* toggle + switch */
+/* =========================
+   Toggle + Switch
+========================= */
 .toggles{ display:flex; gap:10px; margin-top: 10px; }
 .toggle{
   flex:1;
@@ -359,12 +425,13 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   justify-content:space-between;
   gap:10px;
   padding: 12px 10px;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.16);
+  background: rgba(255,255,255,0.03);
   cursor:pointer;
 }
-.toggle span{ font-weight: 900; color: var(--text); }
+.toggle span{ font-weight: 1000; color: var(--text); }
+
 .switch{
   position:relative;
   width: 54px;
@@ -375,8 +442,8 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
 .slider{
   position:absolute; inset:0;
   border-radius: 999px;
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.14);
   transition: .18s ease;
 }
 .slider:before{
@@ -385,29 +452,33 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   width: 24px; height: 24px;
   left: 3px; top: 2px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.92);
   transition: .18s ease;
 }
 .switch input:checked + .slider{
-  background: rgba(110,231,255,0.25);
-  border-color: rgba(110,231,255,0.35);
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.22);
 }
 .switch input:checked + .slider:before{
   transform: translateX(24px);
 }
 
-/* ladder blocks */
+/* =========================
+   Ladder blocks
+========================= */
 .ladder-sub{
   margin-top: 10px;
   padding: 12px;
-  border-radius: 14px;
+  border-radius: 16px;
   border:1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.18);
+  background: rgba(255,255,255,0.03);
 }
 .row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-.muted{ color: var(--muted); font-weight: 900; }
+.muted{ color: var(--muted); font-weight: 1000; }
 
-/* price */
+/* =========================
+   Price
+========================= */
 .price-card{
   margin-top: 12px;
   text-align:center;
@@ -416,11 +487,11 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
 .price{
   font-size: 34px;
   letter-spacing:-0.04em;
-  font-weight: 1000;
+  font-weight: 1100;
 }
 .price-under{
   margin-top: 8px;
-  color: rgba(255,255,255,0.85);
+  color: rgba(230,237,246,0.78);
   line-height:1.5;
 }
 .contact-actions{
@@ -435,48 +506,104 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   justify-content:center;
   border-radius: 16px;
   padding: 14px 14px;
-  font-weight: 900;
+  font-weight: 1100;
   border:1px solid rgba(255,255,255,0.12);
 }
 .contact-btn.mega{
-  background: linear-gradient(90deg, rgba(110,231,255,0.18), rgba(167,139,250,0.18));
-  border-color: rgba(110,231,255,0.22);
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.14);
 }
 .contact-btn.ghost{
-  background: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.03);
 }
 .cta-text{ display:flex; flex-direction:column; gap:4px; text-align:center; }
 .cta-text .title{ font-size: 15px; }
-.cta-text .desc{ font-size: 12px; color: var(--muted); font-weight: 800; }
+.cta-text .desc{ font-size: 12px; color: var(--muted); font-weight: 900; }
 
-/* sticky price bar */
-.sticky-pricebar{
+/* =========================
+   TOP STICKY BAR
+   - ChatGPT 느낌: 어두운 카드 + 얇은 테두리
+========================= */
+#stickyPriceBar{
   position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: 74px;
-  max-width: var(--max);
-  margin: 0 auto;
-  border-radius: 18px;
-  padding: 12px 14px;
-  border:1px solid rgba(255,255,255,0.12);
-  background: rgba(15,17,24,0.82);
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow);
-  display:none;
-  z-index: 8;
-}
-.sticky-price{
-  font-weight: 1000;
-  font-size: 22px;
-}
-.sticky-under{
-  margin-top: 4px;
-  color: rgba(255,255,255,0.85);
-  font-size: 12px;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+
+  width: min(var(--max), calc(100% - 24px));
+  pointer-events: none;
 }
 
-/* wizard bottom nav */
+#stickyPriceBar .sticky-inner{
+  pointer-events: auto;
+  width: 100%;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+
+  padding: 12px 12px;
+  border-radius: 16px;
+
+  background: rgba(17,24,39,0.92);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+}
+
+#stickyPriceBar .sticky-left{ display:flex; flex-direction:column; gap:2px; }
+
+#stickyPriceBar .sticky-label{
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--muted);
+}
+
+#stickyPriceBar .sticky-price{
+  font-size: 20px;
+  font-weight: 1100;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+#stickyPriceBar .sticky-under{
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(230,237,246,0.70);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#stickyPriceBar .sticky-actions{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+
+#stickyPriceBar .sticky-btn{
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 1100;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+}
+#stickyPriceBar .sticky-btn.primary{
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.16);
+}
+
+/* legacy hooks */
+.sticky-price{ font-weight: 1100; font-size: 22px; }
+.sticky-under{ margin-top: 4px; color: rgba(230,237,246,0.70); font-size: 12px; }
+
+/* =========================
+   Wizard bottom nav
+========================= */
 .wizard-nav{
   position: fixed;
   left: 12px;
@@ -486,42 +613,44 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   margin: 0 auto;
   display:flex;
   gap: 10px;
-  z-index: 10;
+  z-index: 20;
 }
 .wizard-btn{
   flex:1;
-  border:none;
+  border:1px solid rgba(255,255,255,0.12);
   border-radius: 16px;
   padding: 14px 14px;
-  font-weight: 1000;
-  background: linear-gradient(90deg, rgba(110,231,255,0.95), rgba(167,139,250,0.95));
-  color: #081018;
-  cursor:pointer;
-  box-shadow: var(--shadow2);
-}
-.wizard-btn.ghost{
+  font-weight: 1100;
   background: rgba(255,255,255,0.06);
   color: var(--text);
-  border:1px solid rgba(255,255,255,0.12);
+  cursor:pointer;
+  box-shadow: none;
+}
+.wizard-btn.ghost{
+  background: rgba(255,255,255,0.03);
 }
 .wizard-btn:disabled{
   opacity:.55;
   cursor:not-allowed;
 }
 
-/* mini summary */
+/* =========================
+   Mini summary
+========================= */
 .mini-summary{
   margin-top: 10px;
   padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px dashed rgba(255,255,255,0.18);
-  background: rgba(0,0,0,0.18);
-  color: rgba(255,255,255,0.88);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  color: rgba(230,237,246,0.88);
   font-size: 13px;
   line-height:1.5;
 }
 
-/* modal */
+/* =========================
+   Modal
+========================= */
 .modal{
   position: fixed;
   inset: 0;
@@ -544,12 +673,13 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   margin: 0 auto;
   border-radius: 18px;
   border:1px solid rgba(255,255,255,0.12);
-  background: rgba(15,17,24,0.95);
-  box-shadow: var(--shadow);
+  background: rgba(17,24,39,0.95);
+  box-shadow: none;
   overflow:hidden;
   max-height: calc(100vh - 24px);
   display:flex;
   flex-direction:column;
+  backdrop-filter: blur(10px);
 }
 .modal-head{
   display:flex;
@@ -560,7 +690,7 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   border-bottom: 1px solid rgba(255,255,255,0.10);
 }
 .modal-title{
-  font-weight: 1000;
+  font-weight: 1100;
   letter-spacing:-0.02em;
 }
 .modal-x{
@@ -568,7 +698,7 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   height: 38px;
   border-radius: 14px;
   border:1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.04);
   color: var(--text);
   font-size: 22px;
   line-height: 1;
@@ -585,53 +715,116 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   gap: 10px;
 }
 
-/* date */
-.date-wrap{ position:relative; }
-.date-input{ padding-right: 40px; }
-.date-icon{
-  position:absolute;
-  right: 12px; top: 50%;
-  transform: translateY(-50%);
-  width: 16px; height: 16px;
-  opacity: .6;
-  border-radius: 4px;
-  border: 2px solid rgba(255,255,255,0.35);
-}
-.time-chip.is-disabled,
-.option.is-disabled {
-  opacity: .45;
-  pointer-events: none;
-}
-
-.time-chip.is-selected,
-.option.is-selected {
-  outline: 2px solid rgba(255,255,255,.85);
-}
-.time-chip { cursor: pointer; }
-.time-chip * { pointer-events: none; }   /* label 전체가 클릭됨 */
-.time-chip.is-disabled { opacity: .45; pointer-events: none; }
-/* date */
+/* =========================
+   ✅ DATE PICKER (FULL CLICK)
+========================= */
 .date-wrap{
   position: relative;
-  display: block;            /* ✅ 라벨이 블록 영역으로 꽉 차게 */
+  display: block;
   width: 100%;
   cursor: pointer;
 }
-
 .date-input{
   width: 100%;
-  cursor: pointer;           /* ✅ 입력칸 자체도 클릭 커서 */
-  padding-right: 46px;       /* 아이콘 영역 확보 */
+  cursor: pointer;
+  padding-right: 46px;
 }
-
-/* ✅ 아이콘은 '보이기만' 하고 클릭을 막지 않게 */
 .date-icon{
-  pointer-events: none;      /* ✅ 핵심: 아이콘이 클릭 이벤트 먹지 못함 */
+  pointer-events: none;
   position:absolute;
-  right: 12px; top: 50%;
+  right: 12px;
+  top: 50%;
   transform: translateY(-50%);
-  width: 16px; height: 16px;
+  width: 16px;
+  height: 16px;
   opacity: .6;
   border-radius: 4px;
-  border: 2px solid rgba(255,255,255,0.35);
+  border: 2px solid rgba(255,255,255,0.30);
+}
+.section h2{ font-size:18px; font-weight:1000; }
+.card{ padding:18px; }
+@media (min-width: 1100px){
+  :root{ --max: 820px; }
+}
+/* =========================
+   CTA: "AI로 견적 보내기" 더 눈에 띄게
+   - 구조 변경 없음 (기존 클래스 활용)
+========================= */
+
+/* 1) mega 버튼을 '진짜' primary로 */
+.contact-btn.mega{
+  position: relative;
+  border-radius: 18px;
+  padding: 16px 16px;
+  min-height: 58px;
+
+  /* 강한 대비 + 은근한 그라디언트 (ChatGPT 다크 톤 유지) */
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.14),
+    rgba(255,255,255,0.09)
+  );
+  border: 1px solid rgba(255,255,255,0.22);
+  color: #ffffff;
+
+  /* "버튼이 떠 보이는" 포인트 */
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(255,255,255,0.06) inset;
+}
+
+/* 2) 텍스트 계층 강화 (제목 크게, 설명은 은근하게) */
+.contact-btn.mega .cta-text .title{
+  font-size: 16px;
+  font-weight: 1100;
+  letter-spacing: -0.02em;
+}
+.contact-btn.mega .cta-text .desc{
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(230,237,246,0.78);
+}
+
+/* 3) Hover/Active: 클릭감 + “반응하는 버튼” */
+.contact-btn.mega:hover{
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.18),
+    rgba(255,255,255,0.11)
+  );
+  border-color: rgba(255,255,255,0.28);
+  transform: translateY(-1px);
+}
+.contact-btn.mega:active{
+  transform: translateY(0px);
+  filter: brightness(0.98);
+}
+
+/* 4) 키보드/모바일 탭 접근성: 포커스 링 */
+.contact-btn.mega:focus,
+.contact-btn.mega:focus-visible{
+  outline: none;
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.45),
+    0 0 0 3px rgba(255,255,255,0.18);
+}
+
+/* 5) 주변 버튼(ghost)은 살짝 눌러서 대비 만들기 */
+.contact-btn.ghost{
+  opacity: 0.85;
+}
+.contact-btn.ghost:hover{
+  opacity: 1;
+}
+
+/* 6) (선택) CTA에 은근한 "글로우" 하이라이트 */
+.contact-btn.mega::before{
+  content:"";
+  position:absolute;
+  inset: -1px;
+  border-radius: 18px;
+  pointer-events:none;
+  background: radial-gradient(600px 120px at 30% 0%,
+    rgba(255,255,255,0.16),
+    transparent 55%
+  );
+  opacity: 0.9;
 }

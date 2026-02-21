@@ -84,9 +84,9 @@
             "속임수를 싫어합니다.<br>이사비용, 투명하게 알려드릴테니<br>바가지 없이 이사하세요"<br><br>
             <div class="hero-owner">-디디운송 대표 이상빈</div>
           </div>
-
+<br><br><br><br><br>
           <div style="margin-top:18px;">
-            <button class="wizard-primary" type="button" id="heroStartBtn">견적 시작하기</button>
+            <button class="wizard-primary" type="button" id="heroStartBtn"></button>
           </div>
         </div>
       </div>
@@ -280,7 +280,7 @@
     <section class="section step-card" id="itemsSection" data-step="6">
       <h2>가구·가전</h2>
       <div class="card">
-        <div class="sub">가구·가전은 팝업에서 깔끔하게 선택합니다</div>
+        <div class="sub"></div>
 
         <button type="button" class="wizard-primary" id="openItemsModalBtn">가구·가전 선택하기</button>
         <div class="mini-summary" id="itemsMiniSummary">선택 없음</div>
@@ -303,7 +303,7 @@
     <section class="section step-card" id="cantCarrySection" data-step="7">
       <h2>직접 나르기 어려움</h2>
       <div class="card">
-        <div class="sub">기사 1인이 가능한 경우 체크해주세요</div>
+        <div class="sub">고객님이 못 도와 주시는 경우 체크 해주세요. 다만,<br>기사님 한분이 하실 수 있을 정도여야 합니다.</div>
         <div class="option"><div>출발지에서 어려움</div><input type="checkbox" id="cantCarryFrom" /></div>
         <div class="option"><div>도착지에서 어려움</div><input type="checkbox" id="cantCarryTo" /></div>
       </div>
@@ -313,7 +313,7 @@
     <section class="section step-card" id="helperSection" data-step="8">
       <h2>인부 추가</h2>
       <div class="card">
-        <div class="sub">기사 1인이 불가능할 경우 체크해주세요</div>
+        <div class="sub">기사 1인이 불가능할 경우 짐 양과 부피, 무게일 경우체크해주세요</div>
         <div class="option"><div>출발지 인부 추가</div><input type="checkbox" id="helperFrom" /></div>
         <div class="option"><div>도착지 인부 추가</div><input type="checkbox" id="helperTo" /></div>
       </div>
@@ -463,13 +463,21 @@
 
   </div><!-- /.container -->
 
-  <!-- 하단 플로팅 가격바 -->
-  <div class="sticky-pricebar" id="stickyPriceBar" aria-hidden="true">
-    <div class="sticky-price" id="stickyPrice">₩0</div>
-    <div class="sticky-under">
-      예상 견적은 <b>시장 평균가격보다 약 13.8% 저렴합니다.</b>
+ <div id="stickyPriceBar" aria-hidden="true">
+  <div class="sticky-inner">
+
+    <div class="sticky-left">
+      <div class="sticky-label">현재 예상 금액</div>
+      <div class="sticky-price" id="stickyPrice">₩0</div>
+      <div class="sticky-under">
+        <br>예상 견적은 <br>시장 평균 가격보다 <br>약 <b>13.8% 저렴합니다</b>
+      </div>
     </div>
+
+  
+
   </div>
+</div>
 
   <!-- ✅ 위저드 하단 네비게이션 -->
   <div class="wizard-nav" id="wizardNav" aria-label="단계 이동">
