@@ -1,22 +1,21 @@
 // /assets/js/app.js
 (() => {
-  // ✅ 내가 임의로 조정하는 전체 가격 배율
-  // 기본값 1 (변화 없음)
-  // 예: 1.05 → 5% 인상 / 0.97 → 3% 인하
+  "use strict";
+
+  // ✅ 전체 가격 배율 (운영 중 조정)
   const PRICE_MULTIPLIER = 1;
 
   /* =========================
-     Supabase client
+     Supabase client (optional)
   ========================= */
   const CFG = window.DDLOGI_CONFIG || {};
   const supabase = window.supabase?.createClient?.(CFG.supabaseUrl, CFG.supabaseKey);
 
   /* =========================
-     확정 슬롯 조회/반영
+     확정 슬롯 조회/반영 (optional)
   ========================= */
   async function fetchConfirmedSlots(dateStr) {
     if (!supabase || !dateStr) return new Set();
-
     const { data, error } = await supabase
       .from("confirmed_slots")
       .select("time_slot")
@@ -31,9 +30,8 @@
   }
 
   function setTimeSlotDisabled(slotValue, disabled) {
-    const el = document.querySelector(
-      `input[name="timeSlot"][value="${CSS.escape(String(slotValue))}"]`
-    );
+    const sel = `input[name="timeSlot"][value="${CSS.escape(String(slotValue))}"]`;
+    const el = document.querySelector(sel);
     if (!el) return;
 
     el.disabled = !!disabled;
@@ -46,7 +44,7 @@
 
     const baseText =
       span.getAttribute("data-base-text") ||
-      span.textContent.replace(" (마감)", "");
+      span.textContent.replace(" (마감)", "").trim();
 
     span.setAttribute("data-base-text", baseText);
     span.textContent = disabled ? `${baseText} (마감)` : baseText;
@@ -66,6 +64,7 @@
   const BASE_PRICE = { truck: 50000, van: 50000, lorry: 90000 };
   const PER_KM_PRICE = { truck: 1550, van: 1550, lorry: 1550 };
 
+  // 가구/가전 기본 단가 (여기에 멀티플/리스크가 calc()에서 적용됨)
   const FURNITURE_PRICE = {
     "전자레인지": { label: "전자레인지", price: 1500 },
     "공기청정기": { label: "공기청정기", price: 3000 },
@@ -75,6 +74,7 @@
     "세탁기(12kg이하)": { label: "세탁기(12kg 이하)", price: 10000 },
     "건조기(12kg이하)": { label: "건조기(12kg 이하)", price: 10000 },
     "냉장고(380L이하)": { label: "냉장고(380L 이하)", price: 10000 },
+
     "의자": { label: "의자", price: 3000 },
     "행거": { label: "행거", price: 3000 },
     "협탁/사이드테이블(소형)": { label: "협탁/사이드테이블(소형)", price: 3000 },
@@ -115,7 +115,8 @@
   function moveTypeLabel(moveType, storageBase, storageDays) {
     if (moveType === "storage") {
       const base = storageBase === "half" ? "반포장" : "일반";
-      return `보관이사 (보관-${base}, ${Math.max(1, storageDays)}일 / 보관료 2만원×일수 옵션)`;
+      const days = Math.max(1, parseInt(String(storageDays || 1), 10) || 1);
+      return `보관이사 (보관-${base}, ${days}일 / 보관료 2만원×일수 옵션)`;
     }
     return moveType === "half" ? "반포장 이사" : "일반이사";
   }
@@ -163,12 +164,11 @@
      ✅ 보관이사/사다리차 규칙(확정)
   ========================= */
   const STORAGE_PER_DAY = 20000; // 하루 2만 (옵션비)
-
   function ladderPriceByFloor(floor) {
-    const f = Math.max(1, parseInt(floor || 1, 10));
-    if (f <= 6) return 100000;   // 1~6층
-    if (f <= 12) return 120000;  // 7~12층
-    return 140000;               // 13층 이상
+    const f = Math.max(1, parseInt(String(floor || 1), 10) || 1);
+    if (f <= 6) return 100000;     // 1~6층
+    if (f <= 12) return 120000;    // 7~12층
+    return 140000;                // 13층 이상
   }
 
   /* =========================
@@ -178,15 +178,11 @@
     vehicle: null,
     distance: 0,
 
-    // 경유지 모델1
     hasWaypoint: false,
     waypointAddress: "",
 
-    // moveType: general | half | storage
-    moveType: "general",
-
-    // storageBase: general | half
-    storageBase: "general",
+    moveType: "general",      // general | half | storage
+    storageBase: "general",   // general | half
     storageDays: 1,
 
     moveDate: "",
@@ -197,7 +193,6 @@
     noTo: false,
     toFloor: 1,
 
-    // 사다리차 분리
     ladderFromEnabled: false,
     ladderToEnabled: false,
     ladderFromFloor: 6,
@@ -208,12 +203,13 @@
     cantCarryTo: false,
     helperFrom: false,
     helperTo: false,
-    ride: 0,
 
-    load: null,
+    ride: 0,  // 동승 인원
+    load: null, // 박스밴드
+
     itemQty: {},
 
-    // throw
+    // throw mode
     throwEnabled: false,
     workFrom: false,
     workTo: false,
@@ -222,11 +218,10 @@
   };
 
   /* =========================
-     DOM 요소
+     DOM
   ========================= */
   const priceEl = document.getElementById("price");
   const summaryEl = document.getElementById("summary");
-
   const stickyBarEl = document.getElementById("stickyPriceBar");
   const stickyPriceEl = document.getElementById("stickyPrice");
   const quoteSectionEl = document.getElementById("quoteSection");
@@ -236,7 +231,6 @@
   const endAddressInput = document.getElementById("endAddress");
   const calcDistanceBtn = document.getElementById("calcDistance");
 
-  // ✅ waypoint
   const hasWaypointEl = document.getElementById("hasWaypoint");
   const waypointWrapEl = document.getElementById("waypointWrap");
   const waypointAddressInput = document.getElementById("waypointAddress");
@@ -279,18 +273,96 @@
   const ladderFromFloorEl = document.getElementById("ladderFromFloor");
   const ladderToFloorEl = document.getElementById("ladderToFloor");
 
+  // wizard UI
+  const wizardProgressBar = document.getElementById("wizardProgressBar");
+  const wizardStepText = document.getElementById("wizardStepText");
+  const wizardPrev = document.getElementById("wizardPrev");
+  const wizardNext = document.getElementById("wizardNext");
+  const heroStartBtn = document.getElementById("heroStartBtn");
+
   let geocoder = null;
   let lastPrice = 0;
 
   const TIME_SLOTS = ["7", "8", "9", "10", "11", "12", "13", "14", "15"];
 
   /* =========================
-     채널톡
+     ✅ 단계형 UI (Wizard)
+     - 진행단계: 1~6
+     - hero(step0)에서 "견적 시작하기"로 step1 진입
+  ========================= */
+  const STEP_ORDER = [1, 2, 3, 4, 5, 6];
+  let currentStepIndex = 0;
+
+  function getStepEl(stepNo) {
+    return document.querySelector(`.step-card[data-step="${stepNo}"]`);
+  }
+
+  function setActiveStep(stepNo) {
+    document.querySelectorAll(".step-card").forEach((el) => el.classList.remove("is-active"));
+
+    const el = getStepEl(stepNo);
+    if (el) el.classList.add("is-active");
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    const idx = STEP_ORDER.indexOf(stepNo);
+    if (idx >= 0) {
+      currentStepIndex = idx;
+      const cur = idx + 1;
+      const total = STEP_ORDER.length;
+
+      if (wizardStepText) wizardStepText.textContent = `${cur} / ${total}`;
+      if (wizardProgressBar) {
+        const pct = total <= 1 ? 100 : (idx / (total - 1)) * 100;
+        wizardProgressBar.style.width = `${pct}%`;
+      }
+    }
+    syncWizardButtons();
+  }
+
+  function canGoNext(stepNo) {
+    if (stepNo === 1) return !!state.vehicle;
+    if (stepNo === 2) return Number(state.distance) > 0;
+    if (stepNo === 3) return !!state.moveDate && !!state.timeSlot;
+    return true;
+  }
+
+  function syncWizardButtons() {
+    if (!wizardPrev || !wizardNext) return;
+
+    wizardPrev.disabled = currentStepIndex <= 0;
+
+    if (currentStepIndex >= STEP_ORDER.length - 1) {
+      wizardNext.disabled = true;
+      wizardNext.textContent = "완료";
+      return;
+    }
+
+    const stepNo = STEP_ORDER[currentStepIndex];
+    wizardNext.textContent = "다음";
+    wizardNext.disabled = !canGoNext(stepNo);
+  }
+
+  function gotoNext() {
+    const stepNo = STEP_ORDER[currentStepIndex];
+    if (!canGoNext(stepNo)) return;
+    const nextIdx = Math.min(STEP_ORDER.length - 1, currentStepIndex + 1);
+    setActiveStep(STEP_ORDER[nextIdx]);
+  }
+
+  function gotoPrev() {
+    const prevIdx = Math.max(0, currentStepIndex - 1);
+    setActiveStep(STEP_ORDER[prevIdx]);
+  }
+
+  /* =========================
+     ChannelTalk
   ========================= */
   function bootChannelIO() {
     const pluginKey = CFG.channelPluginKey;
     if (!pluginKey) return;
     if (!window.ChannelIO) return;
+
     try {
       window.ChannelIO("boot", { pluginKey, hideChannelButtonOnBoot: false });
     } catch (e) {
@@ -314,14 +386,33 @@
      초기화
   ========================= */
   window.addEventListener("DOMContentLoaded", async () => {
+    // 채널톡 로더가 늦게 붙는 경우 대비
     const ok = await waitForChannelIO(6000);
     if (ok) bootChannelIO();
 
-    // 첫 차량 자동 선택
+    // hero 우선 표시
+    const heroEl = getStepEl(0);
+    if (heroEl) {
+      document.querySelectorAll(".step-card").forEach((el) => el.classList.remove("is-active"));
+      heroEl.classList.add("is-active");
+      if (wizardPrev) wizardPrev.disabled = true;
+      if (wizardNext) wizardNext.disabled = true;
+    } else {
+      setActiveStep(1);
+    }
+
+    if (heroStartBtn) {
+      heroStartBtn.addEventListener("click", () => setActiveStep(1));
+    }
+
+    if (wizardPrev) wizardPrev.addEventListener("click", gotoPrev);
+    if (wizardNext) wizardNext.addEventListener("click", gotoNext);
+
+    // 차량: 첫 항목 자동 선택
     const firstVehicle = document.querySelector(".vehicle");
     if (firstVehicle) {
       firstVehicle.classList.add("active");
-      state.vehicle = firstVehicle.dataset.vehicle;
+      state.vehicle = firstVehicle.dataset.vehicle || null;
     }
 
     // ✅ 경유지 토글
@@ -330,6 +421,7 @@
         state.hasWaypoint = !!hasWaypointEl.checked;
         waypointWrapEl.style.display = state.hasWaypoint ? "block" : "none";
         calc();
+        syncWizardButtons();
       };
       hasWaypointEl.addEventListener("change", syncWaypointUI);
       syncWaypointUI();
@@ -337,7 +429,7 @@
 
     if (waypointAddressInput) {
       waypointAddressInput.addEventListener("input", (e) => {
-        state.waypointAddress = (e.target.value || "").trim();
+        state.waypointAddress = String(e.target.value || "").trim();
       });
     }
 
@@ -363,7 +455,7 @@
       });
     }
 
-    // storageDays 기본 1일
+    // storageDays
     if (storageDaysEl) {
       const normalize = () => {
         const v = Math.max(1, parseInt(String(storageDaysEl.value || "1"), 10) || 1);
@@ -382,21 +474,22 @@
       v.addEventListener("click", () => {
         document.querySelectorAll(".vehicle").forEach((x) => x.classList.remove("active"));
         v.classList.add("active");
-        state.vehicle = v.dataset.vehicle;
+        state.vehicle = v.dataset.vehicle || null;
         calc();
+        syncWizardButtons();
       });
     });
 
-    // 날짜 → 마감 반영
+    // 날짜 변경 → 마감 반영
     if (moveDateEl) {
       moveDateEl.addEventListener("change", async (e) => {
         state.moveDate = e.target.value || "";
         const confirmed = await fetchConfirmedSlots(state.moveDate);
         TIME_SLOTS.forEach((slot) => setTimeSlotDisabled(slot, confirmed.has(slot)));
-
         const checked = document.querySelector('input[name="timeSlot"]:checked');
         state.timeSlot = checked ? checked.value : "";
         calc();
+        syncWizardButtons();
       });
     }
 
@@ -406,6 +499,7 @@
         el.addEventListener("change", (e) => {
           state.timeSlot = e.target.value || "";
           calc();
+          syncWizardButtons();
         });
       });
     }
@@ -418,7 +512,6 @@
       state.fromFloor = Math.max(1, toNumberSafe(e.target.value, 1));
       calc();
     });
-
     if (toFloorEl) toFloorEl.addEventListener("input", (e) => {
       state.toFloor = Math.max(1, toNumberSafe(e.target.value, 1));
       calc();
@@ -484,6 +577,7 @@
         state.load = e.target.value;
         calc();
       });
+      if (el.checked) state.load = el.value;
     });
 
     // itemQty
@@ -499,7 +593,7 @@
       if (key) state.itemQty[key] = Math.max(0, toNumberSafe(el.value, 0));
     });
 
-    // throw
+    // throw mode
     if (throwToggleEl && throwBodyEl) {
       throwToggleEl.addEventListener("change", (e) => {
         state.throwEnabled = !!e.target.checked;
@@ -533,9 +627,20 @@
       }
     });
 
+    // 옮겨주세요 토글
+    if (moveToggleEl && moveBodyEl) {
+      const syncMoveUI = () => {
+        moveBodyEl.style.display = moveToggleEl.checked ? "block" : "none";
+      };
+      moveToggleEl.addEventListener("change", syncMoveUI);
+      syncMoveUI();
+    }
+
     /* =========================
-       ✅ 스텝퍼 공통 처리 (마이너스/플러스 전부 정상화)
-       - data-dir 방식 단일 규칙
+       ✅ 스텝퍼 공통 처리
+       - data-stepper="id" 우선
+       - itemQty / throwQty는 data-stepper-item / data-stepper-loc로 처리
+       - 그 외는 같은 래퍼(.stepper) 안의 number input 자동 증감
     ========================= */
     document.addEventListener("click", (e) => {
       const btn = e.target.closest(".stepper-btn");
@@ -544,73 +649,83 @@
       const dir = Number(btn.getAttribute("data-dir") || "0");
       if (!dir) return;
 
-      // 1) id 기반 스텝퍼
+      // 1) id 기반
       const targetId = btn.getAttribute("data-stepper");
       if (targetId) {
         const input = document.getElementById(targetId);
         if (!input) return;
-
         const min = Number(input.min || "0");
         const max = input.max ? Number(input.max) : Infinity;
         const cur = Number(input.value || "0");
         const next = Math.min(max, Math.max(min, cur + dir));
-
         input.value = String(next);
         input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
         return;
       }
 
-      // 2) itemQty 스텝퍼
+      // 2) itemQty
       const itemKey = btn.getAttribute("data-stepper-item");
       const loc = btn.getAttribute("data-stepper-loc");
-
       if (itemKey && !loc) {
-        const input = document.querySelector(
-          `.itemQty[data-item="${CSS.escape(itemKey)}"]`
-        );
+        const input = document.querySelector(`.itemQty[data-item="${CSS.escape(itemKey)}"]`);
         if (!input) return;
-
         const min = Number(input.min || "0");
         const max = input.max ? Number(input.max) : Infinity;
         const cur = Number(input.value || "0");
         const next = Math.min(max, Math.max(min, cur + dir));
-
         input.value = String(next);
         input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
         return;
       }
 
-      // 3) throwQty 스텝퍼
+      // 3) throwQty
       if (loc && itemKey) {
         const input = document.querySelector(
           `.throwQty[data-loc="${CSS.escape(loc)}"][data-item="${CSS.escape(itemKey)}"]`
         );
         if (!input) return;
-
         const min = Number(input.min || "0");
         const max = input.max ? Number(input.max) : Infinity;
         const cur = Number(input.value || "0");
         const next = Math.min(max, Math.max(min, cur + dir));
-
         input.value = String(next);
         input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
         return;
       }
+
+      // 4) 일반 number input 자동
+      const wrapper = btn.closest(".stepper") || btn.parentElement;
+      if (!wrapper) return;
+      const input = wrapper.querySelector('input[type="number"]');
+      if (!input) return;
+
+      const min = Number(input.min || "0");
+      const max = input.max ? Number(input.max) : Infinity;
+      const cur = Number(input.value || "0");
+      const next = Math.min(max, Math.max(min, cur + dir));
+      input.value = String(next);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
     });
 
-    // 플로팅바 (quoteSection 보이면 숨김)
+    // 플로팅바: quoteSection 보이면 숨김
     if (quoteSectionEl && stickyBarEl) {
       const io = new IntersectionObserver(
         (entries) => {
           const entry = entries[0];
-          stickyBarEl.style.display = entry.isIntersecting ? "none" : state.vehicle ? "block" : "none";
+          const show = !entry.isIntersecting && !!state.vehicle;
+          stickyBarEl.style.display = show ? "block" : "none";
+          stickyBarEl.setAttribute("aria-hidden", show ? "false" : "true");
         },
         { threshold: 0.12 }
       );
       io.observe(quoteSectionEl);
     }
 
-    // kakao load
+    // 카카오 geocoder init
     if (typeof kakao !== "undefined" && kakao.maps && typeof kakao.maps.load === "function") {
       kakao.maps.load(() => {
         try {
@@ -631,7 +746,7 @@
       calc();
     }
 
-    // 날짜 선택돼 있으면 마감 반영
+    // 날짜가 이미 선택돼있으면 마감 반영
     if (moveDateEl?.value) {
       state.moveDate = moveDateEl.value;
       const confirmed = await fetchConfirmedSlots(state.moveDate);
@@ -640,16 +755,8 @@
       state.timeSlot = checked ? checked.value : "";
     }
 
-    // 옮겨주세요 토글
-    if (moveToggleEl && moveBodyEl) {
-      const syncMoveUI = () => {
-        moveBodyEl.style.display = moveToggleEl.checked ? "block" : "none";
-      };
-      moveToggleEl.addEventListener("change", syncMoveUI);
-      syncMoveUI();
-    }
-
     calc();
+    syncWizardButtons();
   });
 
   /* =========================
@@ -694,6 +801,7 @@
 
         if (distanceText) distanceText.textContent = `${state.distance} km`;
         calc();
+        syncWizardButtons();
       } catch (error) {
         alert(error?.message || "주소를 찾을 수 없습니다. 정확한 주소를 입력해주세요.");
       } finally {
@@ -743,7 +851,7 @@
     try {
       return await getRoadDistanceKmByKakaoMobility(startCoord, endCoord);
     } catch (e) {
-      console.warn("[거리] 도로거리 실패 → 직선거리로 백업:", e);
+      console.warn("[거리] 도로거리 실패 → 직선거리 백업:", e);
       const straight = calculateDistance(startCoord, endCoord);
       return Math.max(0, Math.round(straight));
     }
@@ -755,9 +863,7 @@
     const dLng = toRad(coord2.lng - coord1.lng);
     const a =
       Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(coord1.lat)) *
-        Math.cos(toRad(coord2.lat)) *
-        Math.sin(dLng / 2) ** 2;
+      Math.cos(toRad(coord1.lat)) * Math.cos(toRad(coord2.lat)) * Math.sin(dLng / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
@@ -766,6 +872,9 @@
     return deg * (Math.PI / 180);
   }
 
+  /* =========================
+     문의 메시지 (ChannelTalk)
+  ========================= */
   function buildInquiryMessage(priceNumber) {
     const startAddr = (startAddressInput?.value || "").trim();
     const endAddr = (endAddressInput?.value || "").trim();
@@ -791,7 +900,7 @@
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
     const moveItemsLabel = getSelectedQtyLabel(mergedAllItems);
 
-    // 사다리차
+    // 사다리차 표시
     const ladderParts = [];
     let ladderCost = 0;
     if (state.ladderFromEnabled) {
@@ -811,7 +920,7 @@
     // 보관료(옵션)
     const storageFee =
       state.moveType === "storage"
-        ? Math.max(1, parseInt(state.storageDays || 1, 10)) * STORAGE_PER_DAY
+        ? Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1) * STORAGE_PER_DAY
         : 0;
 
     const total = Math.max(0, Number(priceNumber) || 0);
@@ -834,15 +943,15 @@
       `- 짐양(박스): ${loadLabel}`,
       `- 가구·가전(합산): ${moveItemsLabel}`,
       `- 사다리차: ${ladderLabel}`,
-      state.moveType === "storage"
-        ? `- 보관료(옵션): ₩${storageFee.toLocaleString("ko-KR")}`
-        : null,
+      state.moveType === "storage" ? `- 보관료(옵션): ₩${storageFee.toLocaleString("ko-KR")}` : null,
       "",
       "[예상금액]",
       `₩${total.toLocaleString("ko-KR")}`,
       `[예약금(20%)] ₩${deposit.toLocaleString("ko-KR")}`,
       `[잔금(80%)] ₩${balance.toLocaleString("ko-KR")}`,
+      "",
       "※ 예약금 입금 시 예약 확정되며, 잔금은 운송 당일 결제합니다.",
+      "※ 예약금은 일정 확보 및 기사 배정을 위한 비용으로, 입금 후 고객 사정에 의한 취소/변경 시 환불이 어렵습니다.",
       "※ 현장 상황에 따라 금액이 변동될 수 있습니다.",
       "",
     ].filter(Boolean);
@@ -852,11 +961,18 @@
 
   /* =========================
      가격 계산
-     ✅ 보관이사: 보관료(2만원×일수)만 옵션비로 추가
+     ✅ 보관이사: 보관료(2만원×일수) 옵션비로 추가
      ✅ 사다리차: 출/도착 각각 합산
   ========================= */
   function calc() {
-    if (!state.vehicle) return;
+    if (!state.vehicle) {
+      // 가격/요약 초기화
+      if (priceEl) priceEl.innerText = "₩0";
+      if (stickyPriceEl) stickyPriceEl.innerText = "₩0";
+      if (summaryEl) summaryEl.innerHTML = "조건을 선택하세요";
+      if (stickyBarEl) stickyBarEl.style.display = "none";
+      return;
+    }
 
     const key = VEHICLE_MAP[state.vehicle];
     if (!key) return;
@@ -865,18 +981,23 @@
     const perKm = toNumberSafe(PER_KM_PRICE[key], 0);
     const dist = Math.max(0, toNumberSafe(state.distance, 0));
 
+    // 표시용(사이트에서 “13.8% 저렴” 문구) 느낌 살리기
     const DISPLAY_MULTIPLIER = 0.95;
+
+    // 반포장 프리미엄
     const HALF_PREMIUM_MULTIPLIER = 1.18;
 
+    // 박스 밴드 multiplier
     const LOAD_BAND_MULT = { 1: 1.0, 2: 1.25, 3: 1.55, 4: 1.95 };
 
+    // 계단 tiers
     const STAIR_TIER_1 = 7000;
     const STAIR_TIER_2 = 9000;
     const STAIR_TIER_3 = 12000;
 
+    // 품목 리스크/멀티
     const ITEM_PRICE_MULTIPLIER = 1.28;
     const ITEM_COUNT_GROWTH_RATE = 0.02;
-
     const FRAGILE_RISK_MULTIPLIER = 1.45;
     const APPLIANCE_RISK_MULTIPLIER = 1.25;
 
@@ -887,11 +1008,9 @@
     function calcStairCostOneSide(floor) {
       const f = Math.max(1, toNumberSafe(floor, 1));
       const flights = Math.max(0, f - 1);
-
       const tier1 = Math.min(flights, 1);
       const tier2 = Math.min(Math.max(flights - 1, 0), 2);
       const tier3 = Math.max(flights - 3, 0);
-
       return tier1 * STAIR_TIER_1 + tier2 * STAIR_TIER_2 + tier3 * STAIR_TIER_3;
     }
 
@@ -899,7 +1018,7 @@
       (state.noFrom ? calcStairCostOneSide(state.fromFloor) : 0) +
       (state.noTo ? calcStairCostOneSide(state.toFloor) : 0);
 
-    // 3) items (기존+throw 합산)
+    // 3) items (기존 + throw 합산)
     const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
 
@@ -929,22 +1048,16 @@
 
     const itemCost =
       totalItemCount > 0
-        ? Math.round(
-            rawItemCost *
-              Math.pow(1 + ITEM_COUNT_GROWTH_RATE, Math.max(0, totalItemCount - 1))
-          )
+        ? Math.round(rawItemCost * Math.pow(1 + ITEM_COUNT_GROWTH_RATE, Math.max(0, totalItemCount - 1)))
         : 0;
 
     // 4) load (보관이면 storageBase 기준)
     const effectiveMoveType = state.moveType === "storage" ? state.storageBase : state.moveType;
     const loadMap = getLoadMap(effectiveMoveType);
-
     const loadBase =
       state.load && loadMap[state.load] ? toNumberSafe(loadMap[state.load].price, 0) : 0;
-
     const band = toNumberSafe(state.load, 0);
     const bandMult = LOAD_BAND_MULT[band] ?? 1.0;
-
     const loadCost = Math.round(loadBase * bandMult);
 
     const work = loadCost + itemCost + stairCost;
@@ -952,19 +1065,21 @@
     // 5) optionCost
     let optionCost = 0;
 
+    // 동승(1명 2만원, 2명 이상은 “네고 문의”라 했지만 계산은 일단 적용)
     optionCost += toNumberSafe(state.ride, 0) * 20000;
+
     if (state.cantCarryFrom) optionCost += 30000;
     if (state.cantCarryTo) optionCost += 30000;
     if (state.helperFrom) optionCost += 40000;
     if (state.helperTo) optionCost += 40000;
 
-    // ✅ 보관료: 2만원×일수 (옵션비로만)
+    // ✅ 보관료: 2만원×일수 (옵션비)
     if (state.moveType === "storage") {
-      const days = Math.max(1, parseInt(state.storageDays || 1, 10));
+      const days = Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1);
       optionCost += days * STORAGE_PER_DAY;
     }
 
-    // ✅ 사다리차: 출/도착 각각 합산
+    // ✅ 사다리차: 출/도착 각각 합산 (최종에 더함)
     let ladderCost = 0;
     if (state.ladderFromEnabled) ladderCost += ladderPriceByFloor(state.ladderFromFloor);
     if (state.ladderToEnabled) ladderCost += ladderPriceByFloor(state.ladderToFloor);
@@ -992,7 +1107,9 @@
     // 요약
     // -----------------------------
     if (summaryEl) {
-      const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : "미선택";
+      const loadLabel =
+        state.load && loadMap[state.load] ? loadMap[state.load].label : "미선택";
+
       const laborLabel = buildLaborLabel(state);
 
       const ladderTextParts = [];
@@ -1002,8 +1119,8 @@
 
       const storageText =
         state.moveType === "storage"
-          ? ` / 보관 ${Math.max(1, parseInt(state.storageDays || 1, 10))}일(+${(
-              Math.max(1, parseInt(state.storageDays || 1, 10)) * STORAGE_PER_DAY
+          ? ` / 보관 ${Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1)}일(+${(
+              Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1) * STORAGE_PER_DAY
             ).toLocaleString("ko-KR")}원)`
           : "";
 
@@ -1032,12 +1149,16 @@
     if (priceEl) priceEl.innerText = formatted;
     if (stickyPriceEl) stickyPriceEl.innerText = formatted;
 
-    // 플로팅바 표시
+    // 플로팅바 표시 (quoteSection이 화면에 보이면 숨김)
     if (stickyBarEl && quoteSectionEl) {
       const rect = quoteSectionEl.getBoundingClientRect();
       const quoteVisible = rect.top < window.innerHeight * 0.88 && rect.bottom > 0;
-      stickyBarEl.style.display = quoteVisible ? "none" : "block";
+      const show = !quoteVisible;
+      stickyBarEl.style.display = show ? "block" : "none";
+      stickyBarEl.setAttribute("aria-hidden", show ? "false" : "true");
     }
+
+    syncWizardButtons();
   }
 
   /* =========================
@@ -1050,12 +1171,15 @@
       if (!state.moveDate) return alert("이사 날짜를 선택해주세요.");
       if (!state.timeSlot) return alert("시간을 선택해주세요.");
 
+      // 마감 재확인
       const confirmed = await fetchConfirmedSlots(state.moveDate);
       if (confirmed.has(String(state.timeSlot))) {
         alert("방금 해당 시간이 마감되었습니다. 다른 시간을 선택해주세요.");
         setTimeSlotDisabled(String(state.timeSlot), true);
         const checked = document.querySelector('input[name="timeSlot"]:checked');
         state.timeSlot = checked ? checked.value : "";
+        calc();
+        syncWizardButtons();
         return;
       }
 
@@ -1066,6 +1190,7 @@
       const msg = buildInquiryMessage(lastPrice);
 
       try {
+        // 대부분 이 형태로 잘 열림
         window.ChannelIO("openChat", undefined, msg);
       } catch (err) {
         console.error("ChannelIO openChat error:", err);

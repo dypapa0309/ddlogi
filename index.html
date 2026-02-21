@@ -1,4 +1,4 @@
-<!-- /index.html (KR) : 정리/완성본 -->
+<!-- /index.html (KR) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -26,6 +26,7 @@
     src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e72755495282830e0006d49708dabe5b&libraries=services&autoload=false">
   </script>
 
+  <!-- ✅ CSS (분리) -->
   <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
 
@@ -38,8 +39,19 @@
       <a class="lang-pill" href="/en/" data-lang="en">EN</a>
     </div>
 
-    <!-- HERO -->
-    <section class="section" id="hero">
+    <!-- ✅ STEP PROGRESS (위저드 상단) -->
+    <div class="wizard-top" aria-label="견적 단계 진행">
+      <div class="wizard-meta">
+        <div class="wizard-title">견적 단계</div>
+        <div class="wizard-step" id="wizardStepText">1 / 6</div>
+      </div>
+      <div class="wizard-progress">
+        <div class="wizard-progress-bar" id="wizardProgressBar"></div>
+      </div>
+    </div>
+
+    <!-- HERO (Step 0: 소개, 스킵 가능) -->
+    <section class="section step-card" id="hero" data-step="0">
       <div class="hero-card">
         <div class="hero-content">
           <h1>이사 견적이 <br>다 다른 이유,<br><br />아시나요?</h1>
@@ -72,22 +84,30 @@
             "속임수를 싫어합니다.<br>이사비용, 투명하게 알려드릴테니<br>바가지 없이 이사하세요"<br><br>
             <div class="hero-owner">-디디운송 대표 이상빈</div>
           </div>
+
+          <div style="margin-top:18px;">
+            <button class="wizard-primary" type="button" id="heroStartBtn">견적 시작하기</button>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 차량 선택 -->
-    <section class="section" id="vehicleSection">
+    <!-- Step 1: 차량 선택 -->
+    <section class="section step-card" id="vehicleSection" data-step="1">
       <h2>차량 선택</h2>
       <div class="card">
         <div class="vehicle" data-vehicle="1톤 카고">🛻 1톤 카고 (오픈카)</div>
         <div class="vehicle" data-vehicle="1톤 저상탑">🚚 1톤 탑차 (박스카)</div>
         <div class="vehicle" data-vehicle="1톤 카고+저상탑">🛻🚚 1대 이상 (문의)</div>
+
+        <div class="hint" style="margin-top:10px;">
+          ※ 차량을 선택하면 다음 단계로 이동할 수 있어요.
+        </div>
       </div>
     </section>
 
-    <!-- 거리 입력 -->
-    <section class="section" id="distanceSection">
+    <!-- Step 2: 거리 입력 -->
+    <section class="section step-card" id="distanceSection" data-step="2">
       <h2>이동 거리</h2>
       <div class="card">
         <div class="sub">출발지 주소</div>
@@ -110,7 +130,7 @@
         <div class="sub" style="margin-top: 15px;">도착지 주소</div>
         <input type="text" id="endAddress" class="address-input" placeholder="예: 경기도 부천시 상동로 87" />
 
-        <button id="calcDistance" class="calc-btn">거리 계산하기</button>
+        <button id="calcDistance" class="calc-btn" type="button">거리 계산하기</button>
 
         <div id="distanceResult" class="distance-result">
           <div class="sub">계산된 거리: <b id="distanceText">주소를 입력해주세요</b></div>
@@ -118,8 +138,8 @@
       </div>
     </section>
 
-    <!-- 예약 정보 -->
-    <section class="section" id="reserveSection">
+    <!-- Step 3: 예약 정보 -->
+    <section class="section step-card" id="reserveSection" data-step="3">
       <h2>예약 정보</h2>
       <div class="card">
 
@@ -154,8 +174,8 @@
       </div>
     </section>
 
-    <!-- 추가 옵션 -->
-    <section class="section" id="optionsSection">
+    <!-- Step 4: 추가 옵션 -->
+    <section class="section step-card" id="optionsSection" data-step="4">
       <h2>옮겨주세요!</h2>
       <div class="card">
 
@@ -468,7 +488,7 @@
 
           <hr />
 
-          <!-- ✅ 사다리차(단 1번만 존재) -->
+          <!-- ✅ 사다리차 -->
           <div class="field" id="ladderBlock">
             <label>사다리차</label>
 
@@ -507,8 +527,9 @@
                 </div>
               </div>
             </div>
+          </div><!-- /#ladderBlock -->
 
-            <hr>
+          <hr />
 
           <div class="option">
             <div>야간/주말 (무료)</div>
@@ -533,8 +554,8 @@
       </div><!-- /.card -->
     </section>
 
-    <!-- ✅ 버려주세요! (옵션 ↔ 견적 사이, 섹션 구조 정상화) -->
-    <section class="section" id="throwSection">
+    <!-- Step 5: 버려주세요 -->
+    <section class="section step-card" id="throwSection" data-step="5">
       <h2>버려주세요!</h2>
       <div class="card">
 
@@ -666,7 +687,7 @@
 
           <div class="sub">도착지 짐(수량)</div>
 
-          <!-- to : from과 동일한 항목을 data-loc="to"로 복붙 -->
+          <!-- to -->
           <div class="option item-qty-row">
             <div>세탁기 (12kg 이하)</div>
             <div class="stepper">
@@ -693,8 +714,8 @@
       </div><!-- /.card -->
     </section>
 
-    <!-- 견적 -->
-    <section class="section" id="quoteSection">
+    <!-- Step 6: 견적 -->
+    <section class="section step-card" id="quoteSection" data-step="6">
       <h2>예상 견적</h2>
 
       <div class="card" id="summary">조건을 선택하세요</div>
@@ -742,12 +763,27 @@
     </div>
   </div>
 
-  <!-- scripts -->
+  <!-- ✅ 위저드 하단 네비게이션 -->
+  <div class="wizard-nav" id="wizardNav" aria-label="단계 이동">
+    <button type="button" class="wizard-btn ghost" id="wizardPrev">이전</button>
+    <button type="button" class="wizard-btn" id="wizardNext">다음</button>
+  </div>
+
+  <!-- =========================
+       Scripts (순서 중요)
+       1) Supabase SDK
+       2) config.js (DDLOGI_CONFIG 제공)
+       3) app.js (메인 로직)
+  ========================= -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/config.js"></script>
-  <script type="module" src="/assets/js/app.js"></script>
+  <script src="/assets/js/app.js"></script>
 
-  <!-- 채널톡 로더 -->
+  <!-- =========================
+       ChannelTalk Loader
+       ※ boot은 app.js에서 CFG.channelPluginKey로 처리
+       ※ 여기서는 로더만 올림(중복 boot 방지)
+  ========================= -->
   <script>
     (function(){
       var w=window;
@@ -764,19 +800,12 @@
         s.async=true;
         s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";
         var x=document.getElementsByTagName("script")[0];
-        if(x.parentNode){x.parentNode.insertBefore(s,x);}
+        if(x && x.parentNode){x.parentNode.insertBefore(s,x);}
       }
 
       if(document.readyState==="complete"){l();}
       else{w.addEventListener("DOMContentLoaded",l); w.addEventListener("load",l);}
     })();
-  </script>
-
-  <script>
-    window.ChannelIO('boot', {
-      pluginKey: window.DDLOGI_CONFIG?.channelPluginKey || "여기에_채널톡_플러그인키",
-      hideChannelButtonOnBoot: false
-    });
   </script>
 
 </body>
