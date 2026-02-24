@@ -43,7 +43,8 @@
     <div class="wizard-top" aria-label="견적 단계 진행">
       <div class="wizard-meta">
         <div class="wizard-title">견적 단계</div>
-        <div class="wizard-step" id="wizardStepText">1 / 11</div>
+        <!-- ✅ step1~12 총 12단계 -->
+        <div class="wizard-step" id="wizardStepText">1 / 12</div>
       </div>
       <div class="wizard-progress">
         <div class="wizard-progress-bar" id="wizardProgressBar"></div>
@@ -83,6 +84,11 @@
             </div>
             "속임수를 싫어합니다.<br>이사비용, 투명하게 알려드릴테니<br>바가지 없이 이사하세요"<br><br>
             <div class="hero-owner">-디디운송 대표 이상빈</div>
+          </div>
+
+          <!-- ✅ heroStartBtn (JS에서 사용) -->
+          <div style="margin-top:16px;">
+            <button type="button" class="wizard-primary" id="heroStartBtn">견적 시작하기</button>
           </div>
 
         </div>
@@ -277,10 +283,13 @@
     <section class="section step-card" id="itemsSection" data-step="6">
       <h2>가구·가전</h2>
       <div class="card">
-        <div class="sub"></div>
-
         <button type="button" class="wizard-primary" id="openItemsModalBtn">가구·가전 선택하기</button>
         <div class="mini-summary" id="itemsMiniSummary">선택 없음</div>
+
+        <!-- ✅ 기타사항을 “스텝 화면에서도” 확인 가능하게 프리뷰 영역 추가 -->
+        <div class="mini-summary" id="itemsNotePreview" style="margin-top:10px; opacity:.9;">
+          기타사항: 없음
+        </div>
 
         <hr />
 
@@ -420,6 +429,11 @@
           <button type="button" class="wizard-primary" id="openThrowModalBtn">버릴 물건 선택하기</button>
           <div class="mini-summary" id="throwMiniSummary">선택 없음</div>
 
+          <!-- ✅ 기타사항을 스텝 화면에서도 확인 가능하게 프리뷰 영역 추가 -->
+          <div class="mini-summary" id="throwNotePreview" style="margin-top:10px; opacity:.9;">
+            기타사항: 없음
+          </div>
+
           <div class="sub" style="margin-top:10px;">
             ※ “버려주세요 모드”는 상담용 빠른 선택입니다. 정확한 금액은 현장 상황에 따라 달라질 수 있습니다.
           </div>
@@ -456,25 +470,20 @@
       </div>
     </section>
 
-
-
   </div><!-- /.container -->
 
- <div id="stickyPriceBar" aria-hidden="true">
-  <div class="sticky-inner">
-
-    <div class="sticky-left">
-      <div class="sticky-label">현재 예상 금액</div>
-      <div class="sticky-price" id="stickyPrice">₩0</div>
-      <div class="sticky-under">
-        <br>예상 견적은 <br>시장 평균 가격보다 <br>약 <b>13.8% 저렴합니다</b>
+  <!-- ✅ Sticky Price Bar -->
+  <div id="stickyPriceBar" aria-hidden="true">
+    <div class="sticky-inner">
+      <div class="sticky-left">
+        <div class="sticky-label">현재 예상 금액</div>
+        <div class="sticky-price" id="stickyPrice">₩0</div>
+        <div class="sticky-under">
+          <br>예상 견적은 <br>시장 평균 가격보다 <br>약 <b>13.8% 저렴합니다</b>
+        </div>
       </div>
     </div>
-
-  
-
   </div>
-</div>
 
   <!-- ✅ 위저드 하단 네비게이션 -->
   <div class="wizard-nav" id="wizardNav" aria-label="단계 이동">
@@ -673,19 +682,27 @@
         </div>
 
         <div class="option item-qty-row">
-  <div>침대 프레임 분해조립</div>
-  <div class="stepper">
-    <button type="button" class="stepper-btn" data-stepper-item="침대프레임(분해/조립)" data-dir="-1">−</button>
-    <input type="number" class="itemQty" data-item="침대프레임(분해/조립)" min="0" value="0" inputmode="numeric" />
-    <button type="button" class="stepper-btn" data-stepper-item="침대프레임(분해/조립)" data-dir="1">+</button>
-  </div>
-</div>
+          <div>침대 프레임 분해조립</div>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" data-stepper-item="침대프레임(분해/조립)" data-dir="-1">−</button>
+            <input type="number" class="itemQty" data-item="침대프레임(분해/조립)" min="0" value="0" inputmode="numeric" />
+            <button type="button" class="stepper-btn" data-stepper-item="침대프레임(분해/조립)" data-dir="1">+</button>
+          </div>
+        </div>
 
+        <hr />
+
+        <div class="sub">기타사항 (가구·가전 관련)</div>
+        <textarea
+          id="itemsNote"
+          class="address-input"
+          rows="3"
+          placeholder="예) TV 벽걸이 분리 필요 / 냉장고 문 분리 가능 / 엘베 예약 필요 / 주차 위치 등"></textarea>
 
         <div class="hint" style="margin-top:10px;">
           ※ 여기서 선택한 가구/가전은 즉시 견적에 반영됩니다.
         </div>
-      </div>
+      </div><!-- ✅ /modal-body (중요: 닫힘 누락 방지) -->
 
       <div class="modal-foot">
         <button type="button" class="wizard-btn ghost" data-close="itemsModal">닫기</button>
@@ -828,10 +845,19 @@
           </div>
         </div>
 
+        <hr />
+
+        <div class="sub">기타사항 (버리기 관련)</div>
+        <textarea
+          id="throwNote"
+          class="address-input"
+          rows="3"
+          placeholder="예) 1층 분리수거장 위치 / 엘베 사용 불가 시간 / 폐기물 봉투 필요 여부 / 기사님 도착 전 연락 요청"></textarea>
+
         <div class="hint" style="margin-top:10px;">
           ※ 버리기 수량은 “가구/가전 합산”에도 반영되어 견적에 포함됩니다.
         </div>
-      </div>
+      </div><!-- ✅ /modal-body -->
 
       <div class="modal-foot">
         <button type="button" class="wizard-btn ghost" data-close="throwModal">닫기</button>

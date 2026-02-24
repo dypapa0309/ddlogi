@@ -29,6 +29,7 @@
     return new Set((data || []).map((x) => String(x.time_slot)));
   }
 
+  // ✅ FIX: 마감 처리 시 "체크 해제 + state.timeSlot도 같이 비우기" (안 하면 버튼/검증이 꼬임)
   function setTimeSlotDisabled(slotValue, disabled) {
     const sel = `input[name="timeSlot"][value="${CSS.escape(String(slotValue))}"]`;
     const el = document.querySelector(sel);
@@ -49,11 +50,15 @@
     span.setAttribute("data-base-text", baseText);
     span.textContent = disabled ? `${baseText} (마감)` : baseText;
 
-    if (disabled && el.checked) el.checked = false;
+    if (disabled && el.checked) {
+      el.checked = false;
+      // ✅ state도 같이 정리
+      if (state.timeSlot === String(slotValue)) state.timeSlot = "";
+    }
   }
 
   /* =========================
-     가격 테이블
+     가격 테이블 (✅ 기존 유지)
   ========================= */
   const VEHICLE_MAP = {
     "1톤 카고": "truck",
@@ -86,7 +91,7 @@
     "소파(2~3인)": { label: "소파(2~3인)", price: 10000 },
     "소파(4인이상)": { label: "소파(4인 이상)", price: 15000 },
     "침대매트리스(킹제외)": { label: "침대 매트리스(킹 제외)", price: 10000 },
-    "침대프레임(분해/조립)": { label: "침대 프레임 분해/조립", price: 30000 },
+    "침대프레임(분해/조립)": { label: "침대프레임분해조립", price: 30000 },
   };
 
   const LOAD_MAP_GENERAL = {
@@ -161,7 +166,7 @@
   }
 
   /* =========================
-     ✅ 보관이사/사다리차 규칙
+     ✅ 보관이사/사다리차 규칙 (✅ 기존 유지)
   ========================= */
   const STORAGE_PER_DAY = 20000;
   function ladderPriceByFloor(floor) {
@@ -187,6 +192,9 @@
 
     moveDate: "",
     timeSlot: "",
+
+    itemsNote: "",
+    throwNote: "",
 
     noFrom: false,
     fromFloor: 1,
@@ -252,6 +260,13 @@
 
   const channelInquiryBtn = document.getElementById("channelInquiry");
 
+  const itemsNoteEl = document.getElementById("itemsNote");
+  const throwNoteEl = document.getElementById("throwNote");
+
+  // ✅ 프리뷰 영역 (Step 화면에 보이는 "기타사항: ~" 프리뷰)
+  const itemsNotePreviewEl = document.getElementById("itemsNotePreview");
+  const throwNotePreviewEl = document.getElementById("throwNotePreview");
+
   // storage
   const storageBodyEl = document.getElementById("storageBody");
   const storageDaysEl = document.getElementById("storageDays");
@@ -293,8 +308,6 @@
 
   /* =========================
      ✅ 단계형 UI (Wizard)
-     - hero(step0) → step1
-     - step: 1~12(quote)
   ========================= */
   const STEP_ORDER = [1,2,3,4,5,6,7,8,9,10,11,12];
   let currentStepIndex = 0;
@@ -374,6 +387,10 @@
     if (!el) return;
     el.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
+    // ✅ 모달 닫힐 때 요약/가격 갱신이 누락되는 케이스 방지
+    syncMiniSummaries();
+    calc();
+    syncWizardButtons();
   }
   function bindModalClosers() {
     document.addEventListener("click", (e) => {
@@ -388,15 +405,32 @@
       else if (throwModalEl && throwModalEl.getAttribute("aria-hidden") === "false") closeModal("throwModal");
     });
   }
-
+function escapeHtml(s) {
+  return String(s || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
   function syncMiniSummaries() {
     const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
 
+    // 수량 요약
     if (itemsMiniSummaryEl) itemsMiniSummaryEl.textContent = getSelectedQtyLabel(mergedAllItems);
 
     const throwLabel = getSelectedQtyLabel(mergedThrow);
     if (throwMiniSummaryEl) throwMiniSummaryEl.textContent = throwLabel;
+
+    // ✅ [핵심 FIX] 기타사항 프리뷰도 같이 갱신
+    if (itemsNotePreviewEl) {
+      itemsNotePreviewEl.textContent = `기타사항: ${state.itemsNote ? state.itemsNote : "없음"}`;
+    }
+    if (throwNotePreviewEl) {
+      const txt = state.throwEnabled && state.throwNote ? state.throwNote : "";
+      throwNotePreviewEl.textContent = `기타사항: ${txt ? txt : "없음"}`;
+    }
   }
 
   /* =========================
@@ -427,9 +461,7 @@
   }
 
   /* =========================
-     ✅ 날짜 피커 유틸 (안전)
-     - showPicker 지원 시 showPicker
-     - 아니면 focus+click
+     ✅ 날짜 피커 유틸 (중복 제거/단일화)
   ========================= */
   function openDatePickerSafe(inputEl) {
     if (!inputEl) return;
@@ -439,9 +471,7 @@
       try {
         inputEl.showPicker();
         return;
-      } catch (_) {
-        // iOS Safari 등에서 예외 가능 → fallback
-      }
+      } catch (_) {}
     }
     try { inputEl.click(); } catch (_) {}
   }
@@ -452,35 +482,42 @@
   window.addEventListener("DOMContentLoaded", async () => {
     bindModalClosers();
 
+    // ✅ itemsNote: 입력 즉시 state 반영 + 프리뷰 갱신 + 가격 갱신
+    if (itemsNoteEl) {
+      itemsNoteEl.addEventListener("input", (e) => {
+        state.itemsNote = String(e.target.value || "").trim();
+        syncMiniSummaries();
+        calc();
+      });
+      state.itemsNote = String(itemsNoteEl.value || "").trim();
+    }
+
+    // ✅ throwNote: 입력 즉시 state 반영 + 프리뷰 갱신 + 가격 갱신
+    if (throwNoteEl) {
+      throwNoteEl.addEventListener("input", (e) => {
+        state.throwNote = String(e.target.value || "").trim();
+        syncMiniSummaries();
+        calc();
+      });
+      state.throwNote = String(throwNoteEl.value || "").trim();
+    }
+
     const ok = await waitForChannelIO(6000);
     if (ok) bootChannelIO();
 
-   // ✅ 날짜: 칸 전체(.date-wrap) 클릭하면 달력 열기
-const dateWrapEl = document.querySelector(".date-wrap");
-
-function openDatePickerSafe(inputEl) {
-  if (!inputEl) return;
-  inputEl.focus();
-  if (typeof inputEl.showPicker === "function") {
-    try { inputEl.showPicker(); return; } catch (_) {}
-  }
-  try { inputEl.click(); } catch (_) {}
-}
-
-if (dateWrapEl && moveDateEl) {
-  // 칸 어디를 눌러도 열리게
-  dateWrapEl.addEventListener("click", (e) => {
-    // ✅ 이건 중요: 아이콘/여백 클릭도 다 포함해서 무조건 열기
-    e.preventDefault();
-    openDatePickerSafe(moveDateEl);
-  });
-
-  // 모바일에서 클릭이 애매하게 씹히는 경우 대비 (선택)
-  dateWrapEl.addEventListener("pointerup", (e) => {
-    e.preventDefault();
-    openDatePickerSafe(moveDateEl);
-  });
-}
+    // ✅ 날짜: 칸 전체(.date-wrap) 클릭하면 달력 열기 (중복 정의 제거)
+    const dateWrapEl = document.querySelector(".date-wrap");
+    if (dateWrapEl && moveDateEl) {
+      dateWrapEl.addEventListener("click", (e) => {
+        e.preventDefault();
+        openDatePickerSafe(moveDateEl);
+      });
+      // 모바일에서 클릭 씹힘 대비(선택)
+      dateWrapEl.addEventListener("pointerup", (e) => {
+        e.preventDefault();
+        openDatePickerSafe(moveDateEl);
+      });
+    }
 
     // hero 표시
     const heroEl = getStepEl(0);
@@ -539,6 +576,7 @@ if (dateWrapEl && moveDateEl) {
         state.moveType = e.target.value;
         if (storageBodyEl) storageBodyEl.hidden = state.moveType !== "storage";
         calc();
+        syncMiniSummaries(); // ✅ 프리뷰도 같이 반영
       });
       if (el.checked) state.moveType = el.value;
     });
@@ -555,7 +593,7 @@ if (dateWrapEl && moveDateEl) {
       });
     }
 
-    // storageDays
+    // ✅ storageDays (보관일수)
     if (storageDaysEl) {
       const normalize = () => {
         const v = Math.max(1, parseInt(String(storageDaysEl.value || "1"), 10) || 1);
@@ -563,6 +601,10 @@ if (dateWrapEl && moveDateEl) {
         state.storageDays = v;
       };
       storageDaysEl.addEventListener("input", () => {
+        normalize();
+        calc();
+      });
+      storageDaysEl.addEventListener("change", () => {
         normalize();
         calc();
       });
@@ -574,9 +616,12 @@ if (dateWrapEl && moveDateEl) {
       moveDateEl.addEventListener("change", async (e) => {
         state.moveDate = e.target.value || "";
         const confirmed = await fetchConfirmedSlots(state.moveDate);
+
         TIME_SLOTS.forEach((slot) => setTimeSlotDisabled(slot, confirmed.has(slot)));
+
         const checked = document.querySelector('input[name="timeSlot"]:checked');
         state.timeSlot = checked ? checked.value : "";
+
         calc();
         syncWizardButtons();
       });
@@ -640,26 +685,27 @@ if (dateWrapEl && moveDateEl) {
       if (ladderToBodyEl) ladderToBodyEl.hidden = !state.ladderToEnabled;
     }
 
+    // ✅ ladder floor (층수)
     if (ladderFromFloorEl) {
-      ladderFromFloorEl.addEventListener("input", () => {
+      const normalize = () => {
         const v = Math.max(1, parseInt(String(ladderFromFloorEl.value || "1"), 10) || 1);
         ladderFromFloorEl.value = String(v);
         state.ladderFromFloor = v;
-        calc();
-      });
-      state.ladderFromFloor = Math.max(1, parseInt(String(ladderFromFloorEl.value || "6"), 10) || 6);
-      ladderFromFloorEl.value = String(state.ladderFromFloor);
+      };
+      ladderFromFloorEl.addEventListener("input", () => { normalize(); calc(); });
+      ladderFromFloorEl.addEventListener("change", () => { normalize(); calc(); });
+      normalize();
     }
 
     if (ladderToFloorEl) {
-      ladderToFloorEl.addEventListener("input", () => {
+      const normalize = () => {
         const v = Math.max(1, parseInt(String(ladderToFloorEl.value || "1"), 10) || 1);
         ladderToFloorEl.value = String(v);
         state.ladderToFloor = v;
-        calc();
-      });
-      state.ladderToFloor = Math.max(1, parseInt(String(ladderToFloorEl.value || "6"), 10) || 6);
-      ladderToFloorEl.value = String(state.ladderToFloor);
+      };
+      ladderToFloorEl.addEventListener("input", () => { normalize(); calc(); });
+      ladderToFloorEl.addEventListener("change", () => { normalize(); calc(); });
+      normalize();
     }
 
     // 짐양
@@ -712,11 +758,15 @@ if (dateWrapEl && moveDateEl) {
       if (targetId) {
         const input = document.getElementById(targetId);
         if (!input) return;
-        const min = Number(input.min || "0");
-        const max = input.max ? Number(input.max) : Infinity;
+
+        const min = input.min !== "" ? Number(input.min) : 0;
+        const max = input.max !== "" ? Number(input.max) : Infinity;
+
         const cur = Number(input.value || "0");
         const next = Math.min(max, Math.max(min, cur + dir));
+
         input.value = String(next);
+
         input.dispatchEvent(new Event("input", { bubbles: true }));
         input.dispatchEvent(new Event("change", { bubbles: true }));
         return;
@@ -728,8 +778,8 @@ if (dateWrapEl && moveDateEl) {
       if (itemKey && !loc) {
         const input = document.querySelector(`.itemQty[data-item="${CSS.escape(itemKey)}"]`);
         if (!input) return;
-        const min = Number(input.min || "0");
-        const max = input.max ? Number(input.max) : Infinity;
+        const min = input.min !== "" ? Number(input.min) : 0;
+        const max = input.max !== "" ? Number(input.max) : Infinity;
         const cur = Number(input.value || "0");
         const next = Math.min(max, Math.max(min, cur + dir));
         input.value = String(next);
@@ -744,8 +794,8 @@ if (dateWrapEl && moveDateEl) {
           `.throwQty[data-loc="${CSS.escape(loc)}"][data-item="${CSS.escape(itemKey)}"]`
         );
         if (!input) return;
-        const min = Number(input.min || "0");
-        const max = input.max ? Number(input.max) : Infinity;
+        const min = input.min !== "" ? Number(input.min) : 0;
+        const max = input.max !== "" ? Number(input.max) : Infinity;
         const cur = Number(input.value || "0");
         const next = Math.min(max, Math.max(min, cur + dir));
         input.value = String(next);
@@ -760,8 +810,8 @@ if (dateWrapEl && moveDateEl) {
       const input = wrapper.querySelector('input[type="number"]');
       if (!input) return;
 
-      const min = Number(input.min || "0");
-      const max = input.max ? Number(input.max) : Infinity;
+      const min = input.min !== "" ? Number(input.min) : 0;
+      const max = input.max !== "" ? Number(input.max) : Infinity;
       const cur = Number(input.value || "0");
       const next = Math.min(max, Math.max(min, cur + dir));
       input.value = String(next);
@@ -849,7 +899,7 @@ if (dateWrapEl && moveDateEl) {
       state.timeSlot = checked ? checked.value : "";
     }
 
-    syncMiniSummaries();
+    syncMiniSummaries(); // ✅ 최초 1회 프리뷰도 세팅
     calc();
     syncWizardButtons();
   });
@@ -1032,6 +1082,9 @@ if (dateWrapEl && moveDateEl) {
       `- 계단: 출발 ${stairsFrom} / 도착 ${stairsTo}`,
       `- 짐양(박스): ${loadLabel}`,
       `- 가구·가전(합산): ${moveItemsLabel}`,
+      state.itemsNote ? `- 가구·가전 기타사항: ${state.itemsNote}` : null,
+      state.throwEnabled && state.throwNote ? `- 버리기 기타사항: ${state.throwNote}` : null,
+      `- 버려주세요 모드: ${state.throwEnabled ? "사용" : "미사용"}`,
       `- 사다리차: ${ladderLabel}`,
       state.moveType === "storage" ? `- 보관료(옵션): ₩${storageFee.toLocaleString("ko-KR")}` : null,
       "",
@@ -1050,7 +1103,7 @@ if (dateWrapEl && moveDateEl) {
   }
 
   /* =========================
-     가격 계산
+     가격 계산 (✅ 기존 유지)
   ========================= */
   function calc() {
     if (!state.vehicle) {
@@ -1192,45 +1245,48 @@ if (dateWrapEl && moveDateEl) {
     lastPrice = total;
 
     // -----------------------------
-    // 요약
-    // -----------------------------
-    if (summaryEl) {
-      const loadLabel =
-        state.load && loadMap[state.load] ? loadMap[state.load].label : "미선택";
+// 요약
+// -----------------------------
+if (summaryEl) {
+  const loadLabel =
+    state.load && loadMap[state.load] ? loadMap[state.load].label : "미선택";
 
-      const laborLabel = buildLaborLabel(state);
+  const laborLabel = buildLaborLabel(state);
 
-      const ladderTextParts = [];
-      if (state.ladderFromEnabled) ladderTextParts.push(`출발 ${state.ladderFromFloor}층`);
-      if (state.ladderToEnabled) ladderTextParts.push(`도착 ${state.ladderToFloor}층`);
-      const ladderText = ladderTextParts.length ? ladderTextParts.join(" / ") : "불필요";
+  const ladderTextParts = [];
+  if (state.ladderFromEnabled) ladderTextParts.push(`출발 ${state.ladderFromFloor}층`);
+  if (state.ladderToEnabled) ladderTextParts.push(`도착 ${state.ladderToFloor}층`);
+  const ladderText = ladderTextParts.length ? ladderTextParts.join(" / ") : "불필요";
 
-      const storageText =
-        state.moveType === "storage"
-          ? ` / 보관 ${Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1)}일(+${(
-              Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1) * STORAGE_PER_DAY
-            ).toLocaleString("ko-KR")}원)`
-          : "";
+  const storageText =
+    state.moveType === "storage"
+      ? ` / 보관 ${Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1)}일(+${(
+          Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1) * STORAGE_PER_DAY
+        ).toLocaleString("ko-KR")}원)`
+      : "";
 
-      summaryEl.innerHTML = `
-        <b>🚚 이사 조건 요약</b><br><br>
-        ▪ 이사 방식: ${moveTypeLabel(state.moveType, state.storageBase, state.storageDays)}${storageText}<br><br>
-        ▪ 차량: ${state.vehicle}<br>
-        ▪ 거리: ${dist > 0 ? dist + " km" : "미계산"}<br>
-        ▪ 경유지: ${state.hasWaypoint ? "있음(모델1)" : "없음"}<br><br>
-        ▪ 일정: ${state.moveDate ? state.moveDate : "미선택"}<br>
-        ▪ 희망 시간: ${formatTimeSlotKR(state.timeSlot)}<br><br>
-        ▪ 계단:<br>
-        &nbsp;&nbsp;- 출발지: ${state.noFrom ? `${state.fromFloor}층 (엘베 없음)` : "엘베 있음"}<br>
-        &nbsp;&nbsp;- 도착지: ${state.noTo ? `${state.toFloor}층 (엘베 없음)` : "엘베 있음"}<br><br>
-        ▪ 짐양: ${loadLabel}<br>
-        ▪ 가구·가전(합산): ${getSelectedQtyLabel(mergedAllItems)}<br><br>
-        ▪ 사다리차: ${ladderText}<br>
-        ▪ 야간/주말: ${state.night ? "해당" : "미해당"}<br>
-        ▪ 동승 인원: ${state.ride > 0 ? `${state.ride}명` : "없음"}<br><br>
-        ▪ 인부/작업: ${laborLabel}
-      `.trim();
-    }
+  summaryEl.innerHTML = `
+    <b>🚚 이사 조건 요약</b><br><br>
+    ▪ 이사 방식: ${moveTypeLabel(state.moveType, state.storageBase, state.storageDays)}${storageText}<br><br>
+    ▪ 차량: ${state.vehicle}<br>
+    ▪ 거리: ${dist > 0 ? dist + " km" : "미계산"}<br>
+    ▪ 경유지: ${state.hasWaypoint ? "있음(모델1)" : "없음"}<br><br>
+    ▪ 일정: ${state.moveDate ? state.moveDate : "미선택"}<br>
+    ▪ 희망 시간: ${formatTimeSlotKR(state.timeSlot)}<br><br>
+    ▪ 계단:<br>
+    &nbsp;&nbsp;- 출발지: ${state.noFrom ? `${state.fromFloor}층 (엘베 없음)` : "엘베 있음"}<br>
+    &nbsp;&nbsp;- 도착지: ${state.noTo ? `${state.toFloor}층 (엘베 없음)` : "엘베 있음"}<br><br>
+    ▪ 짐양: ${loadLabel}<br>
+    ▪ 가구·가전(합산): ${getSelectedQtyLabel(mergedAllItems)}<br>
+    ${state.itemsNote ? `▪ 가구·가전 기타사항: ${escapeHtml(state.itemsNote)}<br>` : ""}
+    ${state.throwEnabled && state.throwNote ? `▪ 버리기 기타사항: ${escapeHtml(state.throwNote)}<br>` : ""}
+    <br>
+    ▪ 사다리차: ${ladderText}<br>
+    ▪ 야간/주말: ${state.night ? "해당" : "미해당"}<br>
+    ▪ 동승 인원: ${state.ride > 0 ? `${state.ride}명` : "없음"}<br><br>
+    ▪ 인부/작업: ${laborLabel}
+  `.trim();
+}
 
     // 가격 표시
     const formatted = `₩${total.toLocaleString("ko-KR")}`;
@@ -1265,8 +1321,10 @@ if (dateWrapEl && moveDateEl) {
       if (confirmed.has(String(state.timeSlot))) {
         alert("방금 해당 시간이 마감되었습니다. 다른 시간을 선택해주세요.");
         setTimeSlotDisabled(String(state.timeSlot), true);
+
         const checked = document.querySelector('input[name="timeSlot"]:checked');
         state.timeSlot = checked ? checked.value : "";
+
         calc();
         syncWizardButtons();
         return;
