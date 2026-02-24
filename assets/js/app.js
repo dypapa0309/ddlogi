@@ -138,8 +138,8 @@
 
   function buildLaborLabel(st) {
     const parts = [];
-    if (st.cantCarryFrom) parts.push("출발지 기사 혼자 나르기 어려움(+3만)");
-    if (st.cantCarryTo) parts.push("도착지 기사 혼자 나르기 어려움(+3만)");
+    if (st.cantCarryFrom) parts.push("출발지 기사 혼자 운반(+3만)");
+    if (st.cantCarryTo) parts.push("도착지 기사 혼자 운반(+3만)");
     if (st.helperFrom) parts.push("출발지 인부 추가(+4만)");
     if (st.helperTo) parts.push("도착지 인부 추가(+4만)");
     return parts.length ? parts.join(", ") : "없음";
