@@ -471,6 +471,44 @@
     </section>
 
   </div><!-- /.container -->
+<!-- ✅ 시즌 팝업 (기숙사·사택 시즌 이벤트) -->
+<div id="seasonPopup" class="dd-popup" aria-hidden="true">
+  <div class="dd-popup__dim" data-popup-close></div>
+
+  <div class="dd-popup__card" role="dialog" aria-modal="true" aria-labelledby="ddPopupTitle">
+    <button type="button" class="dd-popup__x" aria-label="닫기" data-popup-close>✕</button>
+
+    <div class="dd-popup__body">
+      <div class="dd-popup__badge">기숙사·사택 시즌 이벤트</div>
+
+      <h3 id="ddPopupTitle" class="dd-popup__title">기숙사·사택 이사 시즌</h3>
+
+      <p class="dd-popup__text">
+        AI로 계산된 이사비용,<br>
+        전국 평균 대비 약 <b>13.8%</b> 낮은 구조.
+      </p>
+
+      <p class="dd-popup__text dd-popup__text--muted">
+        숨겨진 추가비 없이<br>
+        고객이 직접 확인하는 투명 견적.
+      </p>
+
+      <div class="dd-popup__actions">
+        <!-- ✅ 누르면 견적 시작(너는 heroStartBtn이 있으니까 그걸 누르는 방식으로 JS에서 연결할거야) -->
+        <button type="button" class="dd-popup__btn dd-popup__btn--primary" id="popupGoQuote">
+          10초 견적 확인하기
+        </button>
+
+        <button type="button" class="dd-popup__btn" data-popup-close>닫기</button>
+      </div>
+
+      <label class="dd-popup__today">
+        <input type="checkbox" id="popupToday">
+        오늘은 그만 보기
+      </label>
+    </div>
+  </div>
+</div>
 
   <!-- ✅ Sticky Price Bar -->
   <div id="stickyPriceBar" aria-hidden="true">

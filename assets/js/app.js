@@ -1345,3 +1345,52 @@ if (summaryEl) {
     });
   }
 })();
+  /* =========================
+     시즌 팝업 (메인 진입 시)
+  ========================= */
+  (function initSeasonPopup(){
+    const popup = document.getElementById("seasonPopup");
+    if (!popup) return;
+
+    const KEY = "ddlogi_popup_hide_until"; // YYYY-MM-DD
+    const todayStr = new Date().toISOString().slice(0,10); // 로컬/UTC 이슈 있지만 "오늘만 숨김" 정도는 OK
+
+    // 오늘 숨김이면 종료
+    const hideUntil = localStorage.getItem(KEY);
+    if (hideUntil === todayStr) return;
+
+    // 열기
+    popup.classList.add("is-open");
+    popup.setAttribute("aria-hidden","false");
+
+    function closePopup(){
+      popup.classList.remove("is-open");
+      popup.setAttribute("aria-hidden","true");
+
+      const chk = document.getElementById("popupToday");
+      if (chk && chk.checked) {
+        localStorage.setItem(KEY, todayStr);
+      }
+    }
+
+    // 닫기 버튼/딤 클릭
+    popup.querySelectorAll("[data-popup-close]").forEach((el)=>{
+      el.addEventListener("click", closePopup);
+    });
+
+    // CTA: 견적 시작하기 버튼으로 연결 (heroStartBtn 클릭 효과)
+    const go = document.getElementById("popupGoQuote");
+    if (go) {
+      go.addEventListener("click", () => {
+        closePopup();
+        const startBtn = document.getElementById("heroStartBtn");
+        if (startBtn) startBtn.click();
+        else location.hash = "#vehicleSection";
+      });
+    }
+
+    // ESC 닫기
+    window.addEventListener("keydown", (e)=>{
+      if (e.key === "Escape" && popup.classList.contains("is-open")) closePopup();
+    });
+  })();
