@@ -1,9 +1,18 @@
-// /assets/js/app.js
 (() => {
   "use strict";
 
   // ✅ 전체 가격 배율 (운영 중 조정)
   const PRICE_MULTIPLIER = 1;
+
+  /* =========================
+     ✅ 청소 옵션 가격 (추가)
+     - 기준: 간단 30,000 / 집중 60,000
+     - 출발/도착 각각 체크된 횟수만큼 합산
+  ========================= */
+  const CLEANING_PRICE = {
+    light: 30000,
+    deep: 60000,
+  };
 
   /* =========================
      Supabase client (optional)
@@ -29,7 +38,7 @@
     return new Set((data || []).map((x) => String(x.time_slot)));
   }
 
-  // ✅ FIX: 마감 처리 시 "체크 해제 + state.timeSlot도 같이 비우기" (안 하면 버튼/검증이 꼬임)
+  // ✅ FIX: 마감 처리 시 "체크 해제 + state.timeSlot도 같이 비우기"
   function setTimeSlotDisabled(slotValue, disabled) {
     const sel = `input[name="timeSlot"][value="${CSS.escape(String(slotValue))}"]`;
     const el = document.querySelector(sel);
@@ -52,13 +61,12 @@
 
     if (disabled && el.checked) {
       el.checked = false;
-      // ✅ state도 같이 정리
       if (state.timeSlot === String(slotValue)) state.timeSlot = "";
     }
   }
 
   /* =========================
-     가격 테이블 (✅ 기존 유지)
+     가격 테이블
   ========================= */
   const VEHICLE_MAP = {
     "1톤 카고": "truck",
@@ -69,7 +77,6 @@
   const BASE_PRICE = { truck: 50000, van: 50000, lorry: 90000 };
   const PER_KM_PRICE = { truck: 1550, van: 1550, lorry: 1550 };
 
-  // 가구/가전 기본 단가 (calc()에서 멀티플/리스크 적용)
   const FURNITURE_PRICE = {
     "전자레인지": { label: "전자레인지", price: 1500 },
     "공기청정기": { label: "공기청정기", price: 3000 },
@@ -136,15 +143,6 @@
     return `오전 ${hour}시`;
   }
 
-  function buildLaborLabel(st) {
-    const parts = [];
-    if (st.cantCarryFrom) parts.push("출발지 기사 혼자 운반(+3만)");
-    if (st.cantCarryTo) parts.push("도착지 기사 혼자 운반(+3만)");
-    if (st.helperFrom) parts.push("출발지 인부 추가(+4만)");
-    if (st.helperTo) parts.push("도착지 인부 추가(+4만)");
-    return parts.length ? parts.join(", ") : "없음";
-  }
-
   function sumQtyMaps(...maps) {
     const out = {};
     maps.forEach((m) => {
@@ -166,14 +164,57 @@
   }
 
   /* =========================
-     ✅ 보관이사/사다리차 규칙 (✅ 기존 유지)
+     ✅ 보관이사/사다리차 규칙
   ========================= */
   const STORAGE_PER_DAY = 20000;
+
   function ladderPriceByFloor(floor) {
     const f = Math.max(1, parseInt(String(floor || 1), 10) || 1);
-    if (f <= 6) return 100000;     // 1~6층
-    if (f <= 12) return 120000;    // 7~12층
-    return 140000;                // 13층 이상
+    if (f <= 6) return 100000;
+    if (f <= 12) return 120000;
+    return 140000;
+  }
+
+  /* =========================
+     ✅ 계단(엘베 없음) 요금 규칙
+  ========================= */
+  const STAIR_TIER_1 = 7000;   // 2~3층
+  const STAIR_TIER_2 = 12000;  // 4~5층
+  const STAIR_TIER_3 = 18000;  // 6~7층
+  const STAIR_TIER_4 = 25000;  // 8층+
+
+  function stairExtraByFloor(floor) {
+    const f = Math.max(1, parseInt(String(floor || 1), 10) || 1);
+    if (f <= 1) return 0;
+    if (f <= 3) return STAIR_TIER_1;
+    if (f <= 5) return STAIR_TIER_2;
+    if (f <= 7) return STAIR_TIER_3;
+    return STAIR_TIER_4;
+  }
+
+  /* =========================
+     ✅ 청소 옵션 계산 헬퍼 (추가)
+  ========================= */
+  function getCleaningInfo() {
+    if (!state.cleaningEnabled) {
+      return { enabled: false, cost: 0, label: "미사용", unit: 0, count: 0 };
+    }
+
+    const type = state.cleaningType === "deep" ? "deep" : "light";
+    const typeLabel = type === "deep" ? "집중 청소" : "간단 청소";
+    const unit = toNumberSafe(CLEANING_PRICE[type], 0);
+
+    const count = (state.cleaningFrom ? 1 : 0) + (state.cleaningTo ? 1 : 0);
+    const cost = unit * count;
+
+    const parts = [];
+    if (state.cleaningFrom) parts.push("출발지");
+    if (state.cleaningTo) parts.push("도착지");
+    const scopeLabel = parts.length ? parts.join(" / ") : "범위 미선택";
+
+    const label = `${typeLabel} (${scopeLabel})`;
+
+    return { enabled: true, cost, label, unit, count, type, typeLabel, scopeLabel };
   }
 
   /* =========================
@@ -186,8 +227,8 @@
     hasWaypoint: false,
     waypointAddress: "",
 
-    moveType: "general",      // general | half | storage
-    storageBase: "general",   // general | half
+    moveType: "general",
+    storageBase: "general",
     storageDays: 1,
 
     moveDate: "",
@@ -212,12 +253,17 @@
     helperFrom: false,
     helperTo: false,
 
+    // ✅ 청소 옵션 (추가)
+    cleaningEnabled: false,
+    cleaningFrom: false,
+    cleaningTo: false,
+    cleaningType: "light",
+
     ride: 0,
     load: null,
 
     itemQty: {},
 
-    // throw mode
     throwEnabled: false,
     workFrom: false,
     workTo: false,
@@ -232,7 +278,7 @@
   const summaryEl = document.getElementById("summary");
   const stickyBarEl = document.getElementById("stickyPriceBar");
   const stickyPriceEl = document.getElementById("stickyPrice");
-  const quoteSectionEl = document.getElementById("quoteSection");
+  const quoteSectionEl = document.getElementById("quoteSection"); // (유지: 참조 없음)
 
   const distanceText = document.getElementById("distanceText");
   const startAddressInput = document.getElementById("startAddress");
@@ -258,21 +304,25 @@
   const helperToEl = document.getElementById("helperTo");
   const rideEl = document.getElementById("ride");
 
+  // ✅ 청소 DOM (추가)
+  const cleaningToggleEl = document.getElementById("cleaningToggle");
+  const cleaningBodyEl = document.getElementById("cleaningBody");
+  const cleaningFromEl = document.getElementById("cleaningFrom");
+  const cleaningToEl = document.getElementById("cleaningTo");
+  const cleaningTypeEls = document.querySelectorAll('input[name="cleaningType"]');
+
   const channelInquiryBtn = document.getElementById("channelInquiry");
 
   const itemsNoteEl = document.getElementById("itemsNote");
   const throwNoteEl = document.getElementById("throwNote");
 
-  // ✅ 프리뷰 영역 (Step 화면에 보이는 "기타사항: ~" 프리뷰)
   const itemsNotePreviewEl = document.getElementById("itemsNotePreview");
   const throwNotePreviewEl = document.getElementById("throwNotePreview");
 
-  // storage
   const storageBodyEl = document.getElementById("storageBody");
   const storageDaysEl = document.getElementById("storageDays");
   const storageBaseEls = document.querySelectorAll('input[name="storageBase"]');
 
-  // ladder
   const ladderFromEnabledEl = document.getElementById("ladderFromEnabled");
   const ladderToEnabledEl = document.getElementById("ladderToEnabled");
   const ladderFromBodyEl = document.getElementById("ladderFromBody");
@@ -280,7 +330,6 @@
   const ladderFromFloorEl = document.getElementById("ladderFromFloor");
   const ladderToFloorEl = document.getElementById("ladderToFloor");
 
-  // modals
   const itemsModalEl = document.getElementById("itemsModal");
   const openItemsModalBtn = document.getElementById("openItemsModalBtn");
   const itemsMiniSummaryEl = document.getElementById("itemsMiniSummary");
@@ -294,22 +343,143 @@
   const workFromEl = document.getElementById("workFrom");
   const workToEl = document.getElementById("workTo");
 
-  // wizard UI
   const wizardProgressBar = document.getElementById("wizardProgressBar");
   const wizardStepText = document.getElementById("wizardStepText");
   const wizardPrev = document.getElementById("wizardPrev");
   const wizardNext = document.getElementById("wizardNext");
   const heroStartBtn = document.getElementById("heroStartBtn");
 
+  // ✅ 시즌 팝업 DOM
+  const seasonPopupEl = document.getElementById("seasonPopup");
+  const popupGoQuoteBtn = document.getElementById("popupGoQuote");
+  const popupTodayEl = document.getElementById("popupToday");
+
   let geocoder = null;
   let lastPrice = 0;
 
-  const TIME_SLOTS = ["7","8","9","10","11","12","13","14","15"];
+  const TIME_SLOTS = ["7", "8", "9", "10", "11", "12", "13", "14", "15"];
+
+  /* =========================
+     ✅ 스크롤 잠금 (모달/팝업 공통)
+     - iOS에서도 배경 스크롤 방지
+  ========================= */
+  let scrollLockCount = 0;
+  let scrollLockY = 0;
+
+  function lockBodyScroll() {
+    scrollLockCount += 1;
+    if (scrollLockCount > 1) return;
+
+    scrollLockY = window.scrollY || window.pageYOffset || 0;
+
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollLockY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+  }
+
+  function unlockBodyScroll() {
+    scrollLockCount = Math.max(0, scrollLockCount - 1);
+    if (scrollLockCount > 0) return;
+
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+
+    window.scrollTo(0, scrollLockY);
+  }
+
+  /* =========================
+     ✅ 포커스 트랩 (모달/팝업 접근성)
+  ========================= */
+  let lastFocusEl = null;
+  let activeFocusTrap = null;
+
+  function getFocusableElements(root) {
+    if (!root) return [];
+    const els = Array.from(
+      root.querySelectorAll(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    );
+    // display:none 등 제외
+    return els.filter((el) => el.offsetParent !== null || el.getClientRects().length);
+  }
+
+  function activateFocusTrap(containerEl) {
+    if (!containerEl) return;
+    if (!containerEl.hasAttribute("tabindex")) containerEl.setAttribute("tabindex", "-1");
+
+    const onKeyDown = (e) => {
+      if (e.key !== "Tab") return;
+
+      const focusables = getFocusableElements(containerEl);
+      if (!focusables.length) {
+        e.preventDefault();
+        containerEl.focus({ preventScroll: true });
+        return;
+      }
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    containerEl.addEventListener("keydown", onKeyDown);
+    activeFocusTrap = { containerEl, onKeyDown };
+
+    const focusables = getFocusableElements(containerEl);
+    const target = focusables[0] || containerEl;
+
+    requestAnimationFrame(() => {
+      try {
+        target.focus({ preventScroll: true });
+      } catch (_) {
+        try { containerEl.focus({ preventScroll: true }); } catch (_) {}
+      }
+    });
+  }
+
+  function releaseFocusTrap() {
+    if (!activeFocusTrap) return;
+    const { containerEl, onKeyDown } = activeFocusTrap;
+    containerEl.removeEventListener("keydown", onKeyDown);
+    activeFocusTrap = null;
+  }
+
+  function restoreLastFocus() {
+    if (!lastFocusEl) return;
+    try { lastFocusEl.focus({ preventScroll: true }); } catch (_) {}
+    lastFocusEl = null;
+  }
+
+  /* =========================
+     ✅ 스티키바 높이 측정 → 상단 패딩/스티키 오프셋 안정화
+     - CSS 변수 --stickybar-h 를 실제 높이로 갱신
+  ========================= */
+  function syncStickyBarHeightVar() {
+    if (!stickyBarEl) return;
+    const inner = stickyBarEl.querySelector(".sticky-inner") || stickyBarEl;
+    const h = Math.ceil(inner.getBoundingClientRect().height || 0);
+    if (h > 0) {
+      document.documentElement.style.setProperty("--stickybar-h", `${h}px`);
+    }
+  }
 
   /* =========================
      ✅ 단계형 UI (Wizard)
   ========================= */
-  const STEP_ORDER = [1,2,3,4,5,6,7,8,9,10,11,12];
+  const STEP_ORDER = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   let currentStepIndex = 0;
 
   function getStepEl(stepNo) {
@@ -379,19 +549,31 @@
   function openModal(id) {
     const el = document.getElementById(id);
     if (!el) return;
+
+    lastFocusEl = document.activeElement;
+
     el.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
+    lockBodyScroll();
+
+    const panel = el.querySelector(".modal-panel") || el;
+    activateFocusTrap(panel);
   }
+
   function closeModal(id) {
     const el = document.getElementById(id);
     if (!el) return;
+
     el.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = "";
-    // ✅ 모달 닫힐 때 요약/가격 갱신이 누락되는 케이스 방지
+
+    releaseFocusTrap();
+    unlockBodyScroll();
+    restoreLastFocus();
+
     syncMiniSummaries();
     calc();
     syncWizardButtons();
   }
+
   function bindModalClosers() {
     document.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-close]");
@@ -399,31 +581,34 @@
       const id = btn.getAttribute("data-close");
       if (id) closeModal(id);
     });
+
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
+
       if (itemsModalEl && itemsModalEl.getAttribute("aria-hidden") === "false") closeModal("itemsModal");
       else if (throwModalEl && throwModalEl.getAttribute("aria-hidden") === "false") closeModal("throwModal");
+      else if (seasonPopupEl && seasonPopupEl.getAttribute("aria-hidden") === "false") hideSeasonPopup(true);
     });
   }
-function escapeHtml(s) {
-  return String(s || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
   function syncMiniSummaries() {
     const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
 
-    // 수량 요약
     if (itemsMiniSummaryEl) itemsMiniSummaryEl.textContent = getSelectedQtyLabel(mergedAllItems);
 
     const throwLabel = getSelectedQtyLabel(mergedThrow);
     if (throwMiniSummaryEl) throwMiniSummaryEl.textContent = throwLabel;
 
-    // ✅ [핵심 FIX] 기타사항 프리뷰도 같이 갱신
     if (itemsNotePreviewEl) {
       itemsNotePreviewEl.textContent = `기타사항: ${state.itemsNote ? state.itemsNote : "없음"}`;
     }
@@ -460,20 +645,109 @@ function escapeHtml(s) {
     });
   }
 
+  async function copyToClipboardSafe(text) {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (_) {}
+
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      ta.style.top = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      return true;
+    } catch (_) {}
+
+    return false;
+  }
+
   /* =========================
-     ✅ 날짜 피커 유틸 (중복 제거/단일화)
+     ✅ 날짜 피커 유틸
   ========================= */
   function openDatePickerSafe(inputEl) {
     if (!inputEl) return;
     inputEl.focus();
 
     if (typeof inputEl.showPicker === "function") {
-      try {
-        inputEl.showPicker();
-        return;
-      } catch (_) {}
+      try { inputEl.showPicker(); return; } catch (_) {}
     }
     try { inputEl.click(); } catch (_) {}
+  }
+
+  /* =========================
+     ✅ 시즌 팝업 (오늘은 그만 보기)
+  ========================= */
+  const POPUP_HIDE_KEY = "dd_season_popup_hide_date";
+
+  function todayKey() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function showSeasonPopup() {
+    if (!seasonPopupEl) return;
+
+    lastFocusEl = document.activeElement;
+
+    seasonPopupEl.setAttribute("aria-hidden", "false");
+    lockBodyScroll();
+
+    const card = seasonPopupEl.querySelector(".dd-popup__card") || seasonPopupEl;
+    activateFocusTrap(card);
+  }
+
+  function hideSeasonPopup(keepTodaySetting = false) {
+    if (!seasonPopupEl) return;
+
+    seasonPopupEl.setAttribute("aria-hidden", "true");
+
+    if (!keepTodaySetting && popupTodayEl?.checked) {
+      try { localStorage.setItem(POPUP_HIDE_KEY, todayKey()); } catch (_) {}
+    }
+
+    releaseFocusTrap();
+    unlockBodyScroll();
+    restoreLastFocus();
+
+    calc();
+  }
+
+  function initSeasonPopup() {
+    if (!seasonPopupEl) return;
+
+    let hideDate = "";
+    try { hideDate = localStorage.getItem(POPUP_HIDE_KEY) || ""; } catch (_) {}
+
+    if (hideDate !== todayKey()) {
+      showSeasonPopup();
+    }
+
+    seasonPopupEl.addEventListener("click", (e) => {
+      const close = e.target.closest("[data-popup-close]");
+      if (close) {
+        e.preventDefault();
+        hideSeasonPopup(false);
+      }
+    });
+
+    if (popupGoQuoteBtn) {
+      popupGoQuoteBtn.addEventListener("click", () => {
+        hideSeasonPopup(true);
+        if (heroStartBtn) heroStartBtn.click();
+        else setActiveStep(1);
+      });
+    }
   }
 
   /* =========================
@@ -481,8 +755,21 @@ function escapeHtml(s) {
   ========================= */
   window.addEventListener("DOMContentLoaded", async () => {
     bindModalClosers();
+    initSeasonPopup();
 
-    // ✅ itemsNote: 입력 즉시 state 반영 + 프리뷰 갱신 + 가격 갱신
+    // ✅ 스티키바는 항상 표시
+    if (stickyBarEl) {
+      stickyBarEl.style.display = "block";
+      stickyBarEl.setAttribute("aria-hidden", "false");
+    }
+    syncStickyBarHeightVar();
+
+    // resize 때 높이 재측정(반응형 줄바꿈 대비)
+    window.addEventListener("resize", () => {
+      syncStickyBarHeightVar();
+    });
+
+    // ✅ itemsNote
     if (itemsNoteEl) {
       itemsNoteEl.addEventListener("input", (e) => {
         state.itemsNote = String(e.target.value || "").trim();
@@ -492,7 +779,7 @@ function escapeHtml(s) {
       state.itemsNote = String(itemsNoteEl.value || "").trim();
     }
 
-    // ✅ throwNote: 입력 즉시 state 반영 + 프리뷰 갱신 + 가격 갱신
+    // ✅ throwNote
     if (throwNoteEl) {
       throwNoteEl.addEventListener("input", (e) => {
         state.throwNote = String(e.target.value || "").trim();
@@ -505,14 +792,13 @@ function escapeHtml(s) {
     const ok = await waitForChannelIO(6000);
     if (ok) bootChannelIO();
 
-    // ✅ 날짜: 칸 전체(.date-wrap) 클릭하면 달력 열기 (중복 정의 제거)
+    // ✅ 날짜: 칸 전체 클릭하면 달력 열기
     const dateWrapEl = document.querySelector(".date-wrap");
     if (dateWrapEl && moveDateEl) {
       dateWrapEl.addEventListener("click", (e) => {
         e.preventDefault();
         openDatePickerSafe(moveDateEl);
       });
-      // 모바일에서 클릭 씹힘 대비(선택)
       dateWrapEl.addEventListener("pointerup", (e) => {
         e.preventDefault();
         openDatePickerSafe(moveDateEl);
@@ -576,7 +862,7 @@ function escapeHtml(s) {
         state.moveType = e.target.value;
         if (storageBodyEl) storageBodyEl.hidden = state.moveType !== "storage";
         calc();
-        syncMiniSummaries(); // ✅ 프리뷰도 같이 반영
+        syncMiniSummaries();
       });
       if (el.checked) state.moveType = el.value;
     });
@@ -593,21 +879,15 @@ function escapeHtml(s) {
       });
     }
 
-    // ✅ storageDays (보관일수)
+    // ✅ storageDays
     if (storageDaysEl) {
       const normalize = () => {
         const v = Math.max(1, parseInt(String(storageDaysEl.value || "1"), 10) || 1);
         storageDaysEl.value = String(v);
         state.storageDays = v;
       };
-      storageDaysEl.addEventListener("input", () => {
-        normalize();
-        calc();
-      });
-      storageDaysEl.addEventListener("change", () => {
-        normalize();
-        calc();
-      });
+      storageDaysEl.addEventListener("input", () => { normalize(); calc(); });
+      storageDaysEl.addEventListener("change", () => { normalize(); calc(); });
       normalize();
     }
 
@@ -664,6 +944,30 @@ function escapeHtml(s) {
       calc();
     });
 
+    // ✅ 청소 옵션 (추가)
+    if (cleaningToggleEl && cleaningBodyEl) {
+      const syncCleaning = () => {
+        state.cleaningEnabled = !!cleaningToggleEl.checked;
+        cleaningBodyEl.hidden = !state.cleaningEnabled;
+        calc();
+      };
+      cleaningToggleEl.addEventListener("change", syncCleaning);
+      syncCleaning();
+    }
+
+    if (cleaningFromEl) cleaningFromEl.addEventListener("change", (e) => { state.cleaningFrom = e.target.checked; calc(); });
+    if (cleaningToEl) cleaningToEl.addEventListener("change", (e) => { state.cleaningTo = e.target.checked; calc(); });
+
+    if (cleaningTypeEls?.length) {
+      cleaningTypeEls.forEach((el) => {
+        el.addEventListener("change", (e) => {
+          state.cleaningType = e.target.value || "light";
+          calc();
+        });
+        if (el.checked) state.cleaningType = el.value;
+      });
+    }
+
     // ladder toggle
     if (ladderFromEnabledEl) {
       ladderFromEnabledEl.addEventListener("change", () => {
@@ -685,7 +989,7 @@ function escapeHtml(s) {
       if (ladderToBodyEl) ladderToBodyEl.hidden = !state.ladderToEnabled;
     }
 
-    // ✅ ladder floor (층수)
+    // ✅ ladder floor
     if (ladderFromFloorEl) {
       const normalize = () => {
         const v = Math.max(1, parseInt(String(ladderFromFloorEl.value || "1"), 10) || 1);
@@ -855,20 +1159,6 @@ function escapeHtml(s) {
       }
     });
 
-    // 플로팅바: quoteSection 보이면 숨김
-    if (quoteSectionEl && stickyBarEl) {
-      const io = new IntersectionObserver(
-        (entries) => {
-          const entry = entries[0];
-          const show = !entry.isIntersecting && !!state.vehicle;
-          stickyBarEl.style.display = show ? "block" : "none";
-          stickyBarEl.setAttribute("aria-hidden", show ? "false" : "true");
-        },
-        { threshold: 0.12 }
-      );
-      io.observe(quoteSectionEl);
-    }
-
     // 카카오 geocoder init
     if (typeof kakao !== "undefined" && kakao.maps && typeof kakao.maps.load === "function") {
       kakao.maps.load(() => {
@@ -899,13 +1189,36 @@ function escapeHtml(s) {
       state.timeSlot = checked ? checked.value : "";
     }
 
-    syncMiniSummaries(); // ✅ 최초 1회 프리뷰도 세팅
+    // ✅ 문의 버튼 (채널톡 + 클립보드)
+    if (channelInquiryBtn) {
+      channelInquiryBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const msg = buildInquiryMessage(lastPrice || 0);
+        const copied = await copyToClipboardSafe(msg);
+
+        // 채널톡 열기(가능하면)
+        try {
+          if (window.ChannelIO) {
+            window.ChannelIO("showMessenger");
+          }
+        } catch (_) {}
+
+        if (copied) {
+          alert("견적 메시지를 복사했어요.\n채널톡에 붙여넣기만 하면 됩니다.");
+        } else {
+          alert("클립보드 복사에 실패했습니다.\n아래 메시지를 수동으로 복사해 주세요:\n\n" + msg);
+        }
+      });
+    }
+
+    syncMiniSummaries();
     calc();
     syncWizardButtons();
   });
 
   /* =========================
-     거리 계산 (경유지 모델1 포함)
+     거리 계산 (경유지 포함)
   ========================= */
   if (calcDistanceBtn) {
     calcDistanceBtn.addEventListener("click", async () => {
@@ -1063,6 +1376,12 @@ function escapeHtml(s) {
         ? Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1) * STORAGE_PER_DAY
         : 0;
 
+    // ✅ 청소 옵션
+    const cleaning = getCleaningInfo();
+    const cleaningLabel = cleaning.enabled
+      ? `${cleaning.label} (₩${cleaning.cost.toLocaleString("ko-KR")})`
+      : "미사용";
+
     const total = Math.max(0, Number(priceNumber) || 0);
     const deposit = Math.round(total * 0.2);
     const balance = total - deposit;
@@ -1086,6 +1405,7 @@ function escapeHtml(s) {
       state.throwEnabled && state.throwNote ? `- 버리기 기타사항: ${state.throwNote}` : null,
       `- 버려주세요 모드: ${state.throwEnabled ? "사용" : "미사용"}`,
       `- 사다리차: ${ladderLabel}`,
+      `- 청소 옵션: ${cleaningLabel}`,
       state.moveType === "storage" ? `- 보관료(옵션): ₩${storageFee.toLocaleString("ko-KR")}` : null,
       "",
       "[예상금액]",
@@ -1103,14 +1423,23 @@ function escapeHtml(s) {
   }
 
   /* =========================
-     가격 계산 (✅ 기존 유지)
+     ✅ 가격 계산 + 요약 렌더
   ========================= */
   function calc() {
+    // ✅ 스티키바는 항상 표시
+    if (stickyBarEl) {
+      stickyBarEl.style.display = "block";
+      stickyBarEl.setAttribute("aria-hidden", "false");
+    }
+
+    // ✅ 높이 재측정 (텍스트 줄바꿈/반응형 대비)
+    syncStickyBarHeightVar();
+
     if (!state.vehicle) {
+      lastPrice = 0;
       if (priceEl) priceEl.innerText = "₩0";
       if (stickyPriceEl) stickyPriceEl.innerText = "₩0";
       if (summaryEl) summaryEl.innerHTML = "조건을 선택하세요";
-      if (stickyBarEl) stickyBarEl.style.display = "none";
       syncWizardButtons();
       return;
     }
@@ -1128,269 +1457,137 @@ function escapeHtml(s) {
     // 반포장 프리미엄
     const HALF_PREMIUM_MULTIPLIER = 1.18;
 
-    // 박스 밴드 multiplier
-    const LOAD_BAND_MULT = { 1: 1.0, 2: 1.25, 3: 1.55, 4: 1.95 };
+    // 기본(차량+거리)
+    let subtotal = base + dist * perKm;
 
-    // 계단 tiers
-    const STAIR_TIER_1 = 7000;
-    const STAIR_TIER_2 = 9000;
-    const STAIR_TIER_3 = 12000;
+    // 이사 방식(보관 포함)
+    const effectiveMoveType = state.moveType === "storage" ? state.storageBase : state.moveType;
 
-    // 품목 리스크/멀티
-    const ITEM_PRICE_MULTIPLIER = 1.28;
-    const ITEM_COUNT_GROWTH_RATE = 0.02;
-    const FRAGILE_RISK_MULTIPLIER = 1.45;
-    const APPLIANCE_RISK_MULTIPLIER = 1.25;
-
-    // 1) core
-    let core = base + dist * perKm;
-
-    // 2) stairs
-    function calcStairCostOneSide(floor) {
-      const f = Math.max(1, toNumberSafe(floor, 1));
-      const flights = Math.max(0, f - 1);
-      const tier1 = Math.min(flights, 1);
-      const tier2 = Math.min(Math.max(flights - 1, 0), 2);
-      const tier3 = Math.max(flights - 3, 0);
-      return tier1 * STAIR_TIER_1 + tier2 * STAIR_TIER_2 + tier3 * STAIR_TIER_3;
+    if (effectiveMoveType === "half") {
+      subtotal = Math.round(subtotal * HALF_PREMIUM_MULTIPLIER);
     }
 
-    const stairCost =
-      (state.noFrom ? calcStairCostOneSide(state.fromFloor) : 0) +
-      (state.noTo ? calcStairCostOneSide(state.toFloor) : 0);
+    // 짐양(박스)
+    const loadMap = getLoadMap(effectiveMoveType);
+    const loadPrice = state.load && loadMap[state.load] ? toNumberSafe(loadMap[state.load].price, 0) : 0;
+    subtotal += loadPrice;
 
-    // 3) items (기존 + throw 합산)
+    // 가구/가전(버리기 포함 합산)
     const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
 
-    const totalItemCount = Object.values(mergedAllItems).reduce(
-      (a, v) => a + Math.max(0, Number(v) || 0),
-      0
-    );
-
-    function getRiskMultiplier(itemKey) {
-      if (itemKey === "TV/모니터") return FRAGILE_RISK_MULTIPLIER;
-      if (
-        itemKey === "냉장고(380L이하)" ||
-        itemKey === "세탁기(12kg이하)" ||
-        itemKey === "건조기(12kg이하)"
-      ) {
-        return APPLIANCE_RISK_MULTIPLIER;
-      }
-      return 1;
-    }
-
-    const rawItemCost = Object.entries(mergedAllItems).reduce((sum, [k, qty]) => {
+    let itemsCost = 0;
+    Object.entries(mergedAllItems).forEach(([k, qty]) => {
       const q = Math.max(0, Number(qty) || 0);
-      const basePrice = (FURNITURE_PRICE[k]?.price || 0) * ITEM_PRICE_MULTIPLIER;
-      const risk = getRiskMultiplier(k);
-      return sum + Math.round(basePrice * risk) * q;
-    }, 0);
+      if (!q) return;
+      const unit = toNumberSafe(FURNITURE_PRICE[k]?.price, 0);
+      itemsCost += unit * q;
+    });
+    subtotal += itemsCost;
 
-    const itemCost =
-      totalItemCount > 0
-        ? Math.round(rawItemCost * Math.pow(1 + ITEM_COUNT_GROWTH_RATE, Math.max(0, totalItemCount - 1)))
-        : 0;
+    // 계단(엘베 없음)
+    const stairFromCost = state.noFrom ? stairExtraByFloor(state.fromFloor) : 0;
+    const stairToCost = state.noTo ? stairExtraByFloor(state.toFloor) : 0;
+    subtotal += stairFromCost + stairToCost;
 
-    // 4) load (보관이면 storageBase 기준)
-    const effectiveMoveType = state.moveType === "storage" ? state.storageBase : state.moveType;
-    const loadMap = getLoadMap(effectiveMoveType);
-    const loadBase =
-      state.load && loadMap[state.load] ? toNumberSafe(loadMap[state.load].price, 0) : 0;
-    const band = toNumberSafe(state.load, 0);
-    const bandMult = LOAD_BAND_MULT[band] ?? 1.0;
-    const loadCost = Math.round(loadBase * bandMult);
+    // 직접 나르기 어려움
+    const cantCarryCost =
+      (state.cantCarryFrom ? 30000 : 0) +
+      (state.cantCarryTo ? 30000 : 0);
+    subtotal += cantCarryCost;
 
-    const work = loadCost + itemCost + stairCost;
+    // 인부 추가
+    const helperCost =
+      (state.helperFrom ? 40000 : 0) +
+      (state.helperTo ? 40000 : 0);
+    subtotal += helperCost;
 
-    // 5) optionCost (보관료 제외한 옵션들만)
-    let optionCost = 0;
+    // 동승
+    const rideCost = Math.max(0, Number(state.ride) || 0) * 10000;
+    subtotal += rideCost;
 
-    // 동승(1명 2만원)
-    optionCost += toNumberSafe(state.ride, 0) * 20000;
+    // 사다리차
+    const ladderFromCost = state.ladderFromEnabled ? ladderPriceByFloor(state.ladderFromFloor) : 0;
+    const ladderToCost = state.ladderToEnabled ? ladderPriceByFloor(state.ladderToFloor) : 0;
+    const ladderCost = ladderFromCost + ladderToCost;
+    subtotal += ladderCost;
 
-    if (state.cantCarryFrom) optionCost += 30000;
-    if (state.cantCarryTo) optionCost += 30000;
-    if (state.helperFrom) optionCost += 40000;
-    if (state.helperTo) optionCost += 40000;
+    // ✅ 청소 옵션
+    const cleaning = getCleaningInfo();
+    subtotal += cleaning.cost;
 
-    // ✅ 보관료: add-on
+    // 보관료(옵션)
     const storageFee =
       state.moveType === "storage"
         ? Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1) * STORAGE_PER_DAY
         : 0;
+    subtotal += storageFee;
 
-    // ✅ 사다리차: add-on
-    let ladderCost = 0;
-    if (state.ladderFromEnabled) ladderCost += ladderPriceByFloor(state.ladderFromFloor);
-    if (state.ladderToEnabled) ladderCost += ladderPriceByFloor(state.ladderToFloor);
+    // 최종 배율
+    subtotal = Math.round(subtotal * PRICE_MULTIPLIER);
+    const displayPrice = Math.round(subtotal * DISPLAY_MULTIPLIER);
 
-    // 6) baseTotal (이사 서비스 금액)
-    let serviceTotal = core + work + optionCost;
+    lastPrice = subtotal;
 
-    // 반포장 프리미엄 (보관-반포장도 포함)
-    if (effectiveMoveType === "half") {
-      serviceTotal = Math.round(serviceTotal * HALF_PREMIUM_MULTIPLIER);
-    }
+    // UI 업데이트
+    const priceText = `₩${displayPrice.toLocaleString("ko-KR")}`;
+    if (priceEl) priceEl.innerText = priceText;
+    if (stickyPriceEl) stickyPriceEl.innerText = priceText;
 
-    // 표시배율(저렴해 보이기용)
-    serviceTotal = Math.round(serviceTotal * DISPLAY_MULTIPLIER);
+    // 요약 렌더
+    const vehicleLabel = state.vehicle || "미선택";
+    const moveLabel = moveTypeLabel(state.moveType, state.storageBase, state.storageDays);
 
-    // 운영 배율
-    serviceTotal = Math.round(serviceTotal * PRICE_MULTIPLIER);
+    const stairsFrom = state.noFrom ? `${state.fromFloor}층(엘베없음)` : "엘베있음";
+    const stairsTo = state.noTo ? `${state.toFloor}층(엘베없음)` : "엘베있음";
 
-    // ✅ 최종 = 서비스 + 보관료 + 사다리차
-    let total = Math.round(serviceTotal + storageFee + ladderCost);
+    const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : "미선택";
+    const itemsLabel = getSelectedQtyLabel(mergedAllItems);
+    const scheduleLabel = state.moveDate || "미선택";
+    const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
 
-    lastPrice = total;
+    const ladderParts = [];
+    if (state.ladderFromEnabled) ladderParts.push(`출발 ${state.ladderFromFloor}층`);
+    if (state.ladderToEnabled) ladderParts.push(`도착 ${state.ladderToFloor}층`);
+    const ladderLabel = ladderParts.length ? `${ladderParts.join(" / ")} (₩${ladderCost.toLocaleString("ko-KR")})` : "불필요";
 
-    // -----------------------------
-// 요약
-// -----------------------------
-if (summaryEl) {
-  const loadLabel =
-    state.load && loadMap[state.load] ? loadMap[state.load].label : "미선택";
+    const cleaningLabel = cleaning.enabled
+      ? `${cleaning.label} (₩${cleaning.cost.toLocaleString("ko-KR")})`
+      : "미사용";
 
-  const laborLabel = buildLaborLabel(state);
+    const startAddr = escapeHtml((startAddressInput?.value || "").trim() || "미입력");
+    const endAddr = escapeHtml((endAddressInput?.value || "").trim() || "미입력");
+    const wpAddr = escapeHtml((waypointAddressInput?.value || "").trim());
 
-  const ladderTextParts = [];
-  if (state.ladderFromEnabled) ladderTextParts.push(`출발 ${state.ladderFromFloor}층`);
-  if (state.ladderToEnabled) ladderTextParts.push(`도착 ${state.ladderToFloor}층`);
-  const ladderText = ladderTextParts.length ? ladderTextParts.join(" / ") : "불필요";
+    const distLabel = dist > 0 ? `${dist} km` : "미계산";
 
-  const storageText =
-    state.moveType === "storage"
-      ? ` / 보관 ${Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1)}일(+${(
-          Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1) * STORAGE_PER_DAY
-        ).toLocaleString("ko-KR")}원)`
-      : "";
+    const html = `
+      <div class="sum">
+        <div><b>차량</b>: ${escapeHtml(vehicleLabel)}</div>
+        <div><b>이사 방식</b>: ${escapeHtml(moveLabel)}</div>
+        <div><b>일정</b>: ${escapeHtml(scheduleLabel)} / ${escapeHtml(timeSlotLabel)}</div>
+        <div><b>이동</b>: ${startAddr}${state.hasWaypoint && wpAddr ? ` → ${wpAddr}` : ""} → ${endAddr}</div>
+        <div><b>거리</b>: ${escapeHtml(distLabel)}</div>
+        <hr style="margin:12px 0; border:none; border-top:1px solid rgba(255,255,255,.12);" />
+        <div><b>계단</b>: 출발 ${escapeHtml(stairsFrom)} / 도착 ${escapeHtml(stairsTo)}</div>
+        <div><b>짐양</b>: ${escapeHtml(loadLabel)}</div>
+        <div><b>가구·가전(합산)</b>: ${escapeHtml(itemsLabel)}</div>
+        ${state.itemsNote ? `<div><b>가구·가전 기타사항</b>: ${escapeHtml(state.itemsNote)}</div>` : ""}
+        ${state.throwEnabled ? `<div><b>버려주세요</b>: 사용</div>` : `<div><b>버려주세요</b>: 미사용</div>`}
+        ${state.throwEnabled && state.throwNote ? `<div><b>버리기 기타사항</b>: ${escapeHtml(state.throwNote)}</div>` : ""}
+        <div><b>사다리차</b>: ${escapeHtml(ladderLabel)}</div>
+        <div><b>청소 옵션</b>: ${escapeHtml(cleaningLabel)}</div>
+        ${state.moveType === "storage" ? `<div><b>보관료</b>: ₩${storageFee.toLocaleString("ko-KR")}</div>` : ""}
+        <hr style="margin:12px 0; border:none; border-top:1px solid rgba(255,255,255,.12);" />
+        <div><b>예상 금액(표시)</b>: ${priceText}</div>
+        <div class="hint" style="margin-top:10px;">
+          ※ 예약금 20% 입금 시 예약 확정 (입금 후 고객 사정 취소/변경 환불 어려움)<br/>
+          ※ 현장 상황(주차/이동거리/엘베 사용 제한/가구 추가 등)에 따라 변동될 수 있습니다.
+        </div>
+      </div>
+    `;
+    if (summaryEl) summaryEl.innerHTML = html;
 
-  summaryEl.innerHTML = `
-    <b>🚚 이사 조건 요약</b><br><br>
-    ▪ 이사 방식: ${moveTypeLabel(state.moveType, state.storageBase, state.storageDays)}${storageText}<br><br>
-    ▪ 차량: ${state.vehicle}<br>
-    ▪ 거리: ${dist > 0 ? dist + " km" : "미계산"}<br>
-    ▪ 경유지: ${state.hasWaypoint ? "있음(모델1)" : "없음"}<br><br>
-    ▪ 일정: ${state.moveDate ? state.moveDate : "미선택"}<br>
-    ▪ 희망 시간: ${formatTimeSlotKR(state.timeSlot)}<br><br>
-    ▪ 계단:<br>
-    &nbsp;&nbsp;- 출발지: ${state.noFrom ? `${state.fromFloor}층 (엘베 없음)` : "엘베 있음"}<br>
-    &nbsp;&nbsp;- 도착지: ${state.noTo ? `${state.toFloor}층 (엘베 없음)` : "엘베 있음"}<br><br>
-    ▪ 짐양: ${loadLabel}<br>
-    ▪ 가구·가전(합산): ${getSelectedQtyLabel(mergedAllItems)}<br>
-    ${state.itemsNote ? `▪ 가구·가전 기타사항: ${escapeHtml(state.itemsNote)}<br>` : ""}
-    ${state.throwEnabled && state.throwNote ? `▪ 버리기 기타사항: ${escapeHtml(state.throwNote)}<br>` : ""}
-    <br>
-    ▪ 사다리차: ${ladderText}<br>
-    ▪ 야간/주말: ${state.night ? "해당" : "미해당"}<br>
-    ▪ 동승 인원: ${state.ride > 0 ? `${state.ride}명` : "없음"}<br><br>
-    ▪ 인부/작업: ${laborLabel}
-  `.trim();
-}
-
-    // 가격 표시
-    const formatted = `₩${total.toLocaleString("ko-KR")}`;
-    if (priceEl) priceEl.innerText = formatted;
-    if (stickyPriceEl) stickyPriceEl.innerText = formatted;
-
-    // 플로팅바 표시
-    if (stickyBarEl && quoteSectionEl) {
-      const rect = quoteSectionEl.getBoundingClientRect();
-      const quoteVisible = rect.top < window.innerHeight * 0.88 && rect.bottom > 0;
-      const show = !quoteVisible;
-      stickyBarEl.style.display = show ? "block" : "none";
-      stickyBarEl.setAttribute("aria-hidden", show ? "false" : "true");
-    }
-
-    syncMiniSummaries();
     syncWizardButtons();
   }
-
-  /* =========================
-     채널톡 문의 버튼
-  ========================= */
-  if (channelInquiryBtn) {
-    channelInquiryBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
-
-      if (!state.moveDate) return alert("이사 날짜를 선택해주세요.");
-      if (!state.timeSlot) return alert("시간을 선택해주세요.");
-
-      // 마감 재확인
-      const confirmed = await fetchConfirmedSlots(state.moveDate);
-      if (confirmed.has(String(state.timeSlot))) {
-        alert("방금 해당 시간이 마감되었습니다. 다른 시간을 선택해주세요.");
-        setTimeSlotDisabled(String(state.timeSlot), true);
-
-        const checked = document.querySelector('input[name="timeSlot"]:checked');
-        state.timeSlot = checked ? checked.value : "";
-
-        calc();
-        syncWizardButtons();
-        return;
-      }
-
-      if (!window.ChannelIO) return alert("채널톡 로딩에 실패했습니다. 잠시 후 다시 시도해주세요.");
-
-      bootChannelIO();
-
-      const msg = buildInquiryMessage(lastPrice);
-
-      try {
-        window.ChannelIO("openChat", undefined, msg);
-      } catch (err) {
-        console.error("ChannelIO openChat error:", err);
-        try { window.ChannelIO("showMessenger"); } catch (_) {}
-      }
-    });
-  }
 })();
-  /* =========================
-     시즌 팝업 (메인 진입 시)
-  ========================= */
-  (function initSeasonPopup(){
-    const popup = document.getElementById("seasonPopup");
-    if (!popup) return;
-
-    const KEY = "ddlogi_popup_hide_until"; // YYYY-MM-DD
-    const todayStr = new Date().toISOString().slice(0,10); // 로컬/UTC 이슈 있지만 "오늘만 숨김" 정도는 OK
-
-    // 오늘 숨김이면 종료
-    const hideUntil = localStorage.getItem(KEY);
-    if (hideUntil === todayStr) return;
-
-    // 열기
-    popup.classList.add("is-open");
-    popup.setAttribute("aria-hidden","false");
-
-    function closePopup(){
-      popup.classList.remove("is-open");
-      popup.setAttribute("aria-hidden","true");
-
-      const chk = document.getElementById("popupToday");
-      if (chk && chk.checked) {
-        localStorage.setItem(KEY, todayStr);
-      }
-    }
-
-    // 닫기 버튼/딤 클릭
-    popup.querySelectorAll("[data-popup-close]").forEach((el)=>{
-      el.addEventListener("click", closePopup);
-    });
-
-    // CTA: 견적 시작하기 버튼으로 연결 (heroStartBtn 클릭 효과)
-    const go = document.getElementById("popupGoQuote");
-    if (go) {
-      go.addEventListener("click", () => {
-        closePopup();
-        const startBtn = document.getElementById("heroStartBtn");
-        if (startBtn) startBtn.click();
-        else location.hash = "#vehicleSection";
-      });
-    }
-
-    // ESC 닫기
-    window.addEventListener("keydown", (e)=>{
-      if (e.key === "Escape" && popup.classList.contains("is-open")) closePopup();
-    });
-  })();

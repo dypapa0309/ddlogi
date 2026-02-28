@@ -1,31 +1,57 @@
 /* /assets/css/style.css (CHATGPT DARK STYLE - DROP-IN)
    - 구조(HTML/클래스/ID) 변경 없음
-   - ChatGPT-like dark surface + subtle borders + flat buttons
+   - 레이어(z-index) / 표시(aria-hidden) 규칙 단일화
 */
 
+/* =========================
+   Global tokens
+========================= */
 :root{
-  /* ===== ChatGPT-ish neutrals ===== */
-  --bg:#0b0f14;              /* page background */
-  --card:#111827;            /* main surface */
-  --card2:#0f172a;           /* deeper surface */
-  --text:#E6EDF6;            /* primary text */
-  --muted:#9AA4B2;           /* secondary */
+  /* neutrals */
+  --bg:#0b0f14;
+  --card:#111827;
+  --card2:#0f172a;
+  --text:#E6EDF6;
+  --muted:#9AA4B2;
   --line:rgba(255,255,255,0.10);
   --line2:rgba(255,255,255,0.16);
 
-  /* accents (keep minimal) */
-  --accent:#E6EDF6;          /* mostly white */
-  --accent2:#CBD5E1;         /* soft */
+  /* accents */
+  --accent:#E6EDF6;
+  --accent2:#CBD5E1;
   --danger:#ff6b6b;
   --ok:#7CFFB2;
 
   /* shape */
-  --radius:16px;             /* ChatGPT vibe: less “pill”, more clean */
+  --radius:16px;
   --shadow:none;
   --shadow2:none;
 
-  --max: 720px;              /* PC에서 덜 휑하게 */
-  --topbar-h: 86px;
+  /* layout */
+  --max: 720px;
+
+  /* safe areas */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* ✅ sticky bar height (JS가 실제 높이로 갱신)
+     - 초기값은 깜빡임/겹침 방지용 추정치
+  */
+  --stickybar-h: 110px;
+
+  /* top padding for body: 스티키바 영역 확보 */
+  --topbar-h: calc(var(--safe-top) + 10px + var(--stickybar-h) + 16px);
+
+  /* bottom nav safe space */
+  --bottomnav-h: 86px;
+  --bottom-safe: calc(var(--bottomnav-h) + var(--safe-bottom) + 20px);
+
+  /* ✅ z-index tokens */
+  --z-sticky: 60;      /* 상단 스티키바 */
+  --z-wizardtop: 50;   /* 진행바(스티키바 아래) */
+  --z-bottomnav: 70;   /* 하단 네비 */
+  --z-modal: 1000;     /* 일반 모달 */
+  --z-popup: 1100;     /* 시즌/프로모 팝업 */
 }
 
 *{ box-sizing:border-box; }
@@ -40,6 +66,7 @@ body{
   background: var(--bg);
   color:var(--text);
   padding-top: var(--topbar-h);
+  padding-bottom: var(--bottom-safe);
 }
 
 a{ color:inherit; text-decoration:none; }
@@ -48,10 +75,11 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
 .container{
   width:min(var(--max), calc(100% - 24px));
   margin: 18px auto 24px;
+  padding-bottom: var(--bottom-safe);
 }
 
 /* =========================
-   Global code blocks (ChatGPT vibe)
+   Global code blocks
 ========================= */
 pre, code{
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -64,9 +92,7 @@ pre{
   border: 1px solid rgba(255,255,255,0.10);
   overflow:auto;
 }
-code{
-  color: rgba(230,237,246,0.92);
-}
+code{ color: rgba(230,237,246,0.92); }
 
 /* =========================
    Language bar
@@ -94,11 +120,12 @@ code{
 
 /* =========================
    Wizard top (sticky)
+   - 스티키바 아래로 고정되게 top 오프셋을 줌
 ========================= */
 .wizard-top{
   position: sticky;
-  top: 10px;
-  z-index: 5;
+  top: calc(var(--safe-top) + 10px + var(--stickybar-h) + 12px);
+  z-index: var(--z-wizardtop);
 
   background: rgba(17,24,39,0.92);
   border: 1px solid rgba(255,255,255,0.10);
@@ -107,6 +134,8 @@ code{
   box-shadow: none;
   backdrop-filter: blur(10px);
   margin-bottom: 10px;
+
+  overflow: hidden;
 }
 .wizard-meta{
   display:flex;
@@ -146,6 +175,7 @@ code{
   margin: 6px 6px 10px;
   font-size: 20px;
   letter-spacing: -0.02em;
+  font-weight: 1000;
 }
 
 .card{
@@ -153,8 +183,9 @@ code{
   border: 1px solid rgba(255,255,255,0.10);
   border-radius: 18px;
   box-shadow: none;
-  padding: 16px;
+  padding: 18px;
   backdrop-filter: blur(10px);
+  overflow: hidden;
 }
 .card.sub{
   color: var(--muted);
@@ -167,6 +198,7 @@ code{
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.04);
+  overflow: hidden;
 }
 
 .sub{ color: var(--muted); font-weight: 800; font-size: 13px; line-height: 1.5; }
@@ -234,7 +266,7 @@ code{
 .hero-owner{ color: var(--muted); font-weight: 900; }
 
 /* =========================
-   Buttons (flat, ChatGPT-like)
+   Buttons
 ========================= */
 .wizard-primary{
   width: 100%;
@@ -274,6 +306,7 @@ code{
   background: rgba(255,255,255,0.03);
   color: var(--text);
   outline:none;
+  font-size: 16px; /* iOS zoom 방지 */
 }
 .address-input::placeholder{ color: rgba(230,237,246,0.45); }
 
@@ -350,12 +383,6 @@ code{
   opacity: .45;
   cursor:not-allowed;
 }
-.time-chip.is-disabled{ opacity:.45; pointer-events:none; }
-.time-chip.is-selected{ outline: 2px solid rgba(255,255,255,.22); }
-
-/* option states */
-.option.is-disabled{ opacity:.45; pointer-events:none; }
-.option.is-selected{ outline: 2px solid rgba(255,255,255,.22); }
 
 /* =========================
    Stepper
@@ -386,6 +413,7 @@ code{
   background: rgba(255,255,255,0.03);
   color: var(--text);
   outline:none;
+  font-size: 16px;
 }
 .stepper-unit{
   color: var(--muted);
@@ -394,7 +422,7 @@ code{
 }
 
 /* =========================
-   Segmented (storage)
+   Segmented (storage / cleaning type)
 ========================= */
 .field label{ display:block; font-weight: 1000; margin-bottom: 8px; }
 .seg{ display:flex; gap:8px; }
@@ -512,36 +540,94 @@ code{
   font-weight: 1100;
   border:1px solid rgba(255,255,255,0.12);
 }
-.contact-btn.mega{
-  background: rgba(255,255,255,0.06);
-  border-color: rgba(255,255,255,0.14);
-}
 .contact-btn.ghost{
   background: rgba(255,255,255,0.03);
+  opacity: 0.85;
 }
+.contact-btn.ghost:hover{ opacity: 1; }
+
 .cta-text{ display:flex; flex-direction:column; gap:4px; text-align:center; }
 .cta-text .title{ font-size: 15px; }
 .cta-text .desc{ font-size: 12px; color: var(--muted); font-weight: 900; }
 
 /* =========================
-   TOP STICKY BAR
-   - ChatGPT 느낌: 어두운 카드 + 얇은 테두리
+   CTA: mega
+========================= */
+.contact-btn.mega{
+  position: relative;
+  border-radius: 18px;
+  padding: 16px 16px;
+  min-height: 58px;
+
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.14),
+    rgba(255,255,255,0.09)
+  );
+  border: 1px solid rgba(255,255,255,0.22);
+  color: #ffffff;
+
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(255,255,255,0.06) inset;
+}
+.contact-btn.mega .cta-text .title{
+  font-size: 16px;
+  font-weight: 1100;
+  letter-spacing: -0.02em;
+}
+.contact-btn.mega .cta-text .desc{
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(230,237,246,0.78);
+}
+.contact-btn.mega:hover{
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.18),
+    rgba(255,255,255,0.11)
+  );
+  border-color: rgba(255,255,255,0.28);
+  transform: translateY(-1px);
+}
+.contact-btn.mega:active{
+  transform: translateY(0px);
+  filter: brightness(0.98);
+}
+.contact-btn.mega:focus,
+.contact-btn.mega:focus-visible{
+  outline: none;
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.45),
+    0 0 0 3px rgba(255,255,255,0.18);
+}
+.contact-btn.mega::before{
+  content:"";
+  position:absolute;
+  inset: -1px;
+  border-radius: 18px;
+  pointer-events:none;
+  background: radial-gradient(600px 120px at 30% 0%,
+    rgba(255,255,255,0.16),
+    transparent 55%
+  );
+  opacity: 0.9;
+}
+
+/* =========================
+   TOP STICKY BAR (항상 표시)
 ========================= */
 #stickyPriceBar{
   position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  top: calc(var(--safe-top) + 10px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 9999;
+  z-index: var(--z-sticky);
 
   width: min(var(--max), calc(100% - 24px));
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 #stickyPriceBar .sticky-inner{
-  pointer-events: auto;
   width: 100%;
-
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -558,13 +644,11 @@ code{
 }
 
 #stickyPriceBar .sticky-left{ display:flex; flex-direction:column; gap:2px; }
-
 #stickyPriceBar .sticky-label{
   font-size: 12px;
   font-weight: 900;
   color: var(--muted);
 }
-
 #stickyPriceBar .sticky-price{
   font-size: 20px;
   font-weight: 1100;
@@ -572,37 +656,11 @@ code{
   line-height: 1.1;
   white-space: nowrap;
 }
-
 #stickyPriceBar .sticky-under{
   font-size: 12px;
   font-weight: 900;
   color: rgba(230,237,246,0.70);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-
-#stickyPriceBar .sticky-actions{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
-
-#stickyPriceBar .sticky-btn{
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 14px;
-  padding: 10px 12px;
-  font-weight: 1100;
-  cursor: pointer;
-  white-space: nowrap;
-  text-decoration: none;
-  background: rgba(255,255,255,0.04);
-  color: var(--text);
-}
-#stickyPriceBar .sticky-btn.primary{
-  background: rgba(255,255,255,0.10);
-  border-color: rgba(255,255,255,0.16);
-}
-
-/* legacy hooks */
-.sticky-price{ font-weight: 1100; font-size: 22px; }
-.sticky-under{ margin-top: 4px; color: rgba(230,237,246,0.70); font-size: 12px; }
 
 /* =========================
    Wizard bottom nav
@@ -611,12 +669,13 @@ code{
   position: fixed;
   left: 12px;
   right: 12px;
-  bottom: 12px;
+  bottom: calc(12px + var(--safe-bottom));
+
   max-width: var(--max);
   margin: 0 auto;
   display:flex;
   gap: 10px;
-  z-index: 20;
+  z-index: var(--z-bottomnav);
 }
 .wizard-btn{
   flex:1;
@@ -629,13 +688,8 @@ code{
   cursor:pointer;
   box-shadow: none;
 }
-.wizard-btn.ghost{
-  background: rgba(255,255,255,0.03);
-}
-.wizard-btn:disabled{
-  opacity:.55;
-  cursor:not-allowed;
-}
+.wizard-btn.ghost{ background: rgba(255,255,255,0.03); }
+.wizard-btn:disabled{ opacity:.55; cursor:not-allowed; }
 
 /* =========================
    Mini summary
@@ -657,7 +711,7 @@ code{
 .modal{
   position: fixed;
   inset: 0;
-  z-index: 999;
+  z-index: var(--z-modal);
   display:none;
 }
 .modal[aria-hidden="false"]{ display:block; }
@@ -671,7 +725,7 @@ code{
   position:absolute;
   left: 12px;
   right: 12px;
-  bottom: 12px;
+  bottom: calc(12px + var(--safe-bottom));
   max-width: var(--max);
   margin: 0 auto;
   border-radius: 18px;
@@ -719,213 +773,46 @@ code{
 }
 
 /* =========================
-   ✅ DATE PICKER (FULL CLICK)
+   DATE PICKER (FULL CLICK) + iOS 안정화
 ========================= */
 .date-wrap{
   position: relative;
   display: block;
   width: 100%;
   cursor: pointer;
+  max-width: 100%;
 }
 .date-input{
   width: 100%;
   cursor: pointer;
-  padding-right: 46px;
+  padding-right: 54px;
+  height: 52px;
+  line-height: 52px;
+  -webkit-appearance: none;
+  appearance: none;
+  font-size: 16px;
 }
 .date-icon{
   pointer-events: none;
   position:absolute;
-  right: 12px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  opacity: .6;
+  width: 18px;
+  height: 18px;
+  opacity: .55;
   border-radius: 4px;
   border: 2px solid rgba(255,255,255,0.30);
 }
-.section h2{ font-size:18px; font-weight:1000; }
-.card{ padding:18px; }
-@media (min-width: 1100px){
-  :root{ --max: 820px; }
-}
-/* =========================
-   CTA: "AI로 견적 보내기" 더 눈에 띄게
-   - 구조 변경 없음 (기존 클래스 활용)
-========================= */
-
-/* 1) mega 버튼을 '진짜' primary로 */
-.contact-btn.mega{
-  position: relative;
-  border-radius: 18px;
-  padding: 16px 16px;
-  min-height: 58px;
-
-  /* 강한 대비 + 은근한 그라디언트 (ChatGPT 다크 톤 유지) */
-  background: linear-gradient(180deg,
-    rgba(255,255,255,0.14),
-    rgba(255,255,255,0.09)
-  );
-  border: 1px solid rgba(255,255,255,0.22);
-  color: #ffffff;
-
-  /* "버튼이 떠 보이는" 포인트 */
-  box-shadow:
-    0 10px 24px rgba(0,0,0,0.45),
-    0 0 0 1px rgba(255,255,255,0.06) inset;
-}
-
-/* 2) 텍스트 계층 강화 (제목 크게, 설명은 은근하게) */
-.contact-btn.mega .cta-text .title{
-  font-size: 16px;
-  font-weight: 1100;
-  letter-spacing: -0.02em;
-}
-.contact-btn.mega .cta-text .desc{
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(230,237,246,0.78);
-}
-
-/* 3) Hover/Active: 클릭감 + “반응하는 버튼” */
-.contact-btn.mega:hover{
-  background: linear-gradient(180deg,
-    rgba(255,255,255,0.18),
-    rgba(255,255,255,0.11)
-  );
-  border-color: rgba(255,255,255,0.28);
-  transform: translateY(-1px);
-}
-.contact-btn.mega:active{
-  transform: translateY(0px);
-  filter: brightness(0.98);
-}
-
-/* 4) 키보드/모바일 탭 접근성: 포커스 링 */
-.contact-btn.mega:focus,
-.contact-btn.mega:focus-visible{
-  outline: none;
-  box-shadow:
-    0 10px 24px rgba(0,0,0,0.45),
-    0 0 0 3px rgba(255,255,255,0.18);
-}
-
-/* 5) 주변 버튼(ghost)은 살짝 눌러서 대비 만들기 */
-.contact-btn.ghost{
-  opacity: 0.85;
-}
-.contact-btn.ghost:hover{
-  opacity: 1;
-}
-
-/* 6) (선택) CTA에 은근한 "글로우" 하이라이트 */
-.contact-btn.mega::before{
-  content:"";
-  position:absolute;
-  inset: -1px;
-  border-radius: 18px;
-  pointer-events:none;
-  background: radial-gradient(600px 120px at 30% 0%,
-    rgba(255,255,255,0.16),
-    transparent 55%
-  );
-  opacity: 0.9;
-}
-/* =========================
-   ✅ FIXED 하단 네비로 본문 가림 방지 (iOS 포함)
-========================= */
-
-/* 1) 하단 네비 실제 높이 변수로 관리 */
-:root{
-  --bottomnav-h: 86px; /* 버튼 높이+패딩 합산 느낌 (76~96 사이 조절) */
-}
-
-/* 2) 본문에 안전 여백 추가 (가장 중요) */
-body{
-  padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 16px);
-}
-
-/* 3) 하단 네비 위치를 safe-area 반영 */
-.wizard-nav{
-  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-}
-
-/* 4) iOS에서 input 포커스 시(키보드 올라올 때) 하단바가 너무 방해되면 */
-@media (max-width: 520px){
-  body:has(input:focus),
-  body:has(textarea:focus),
-  body:has(select:focus){
-    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  }
-  body:has(input:focus) .wizard-nav,
-  body:has(textarea:focus) .wizard-nav,
-  body:has(select:focus) .wizard-nav{
-    opacity: .25;
-    pointer-events: none; /* 키보드 열렸을 때 오작동 방지 */
-  }
-}
-:root{
-  --bottomnav-h: 86px;
-  --bottom-safe: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 20px);
-}
-
-/* body에도 주고 */
-body{
-  padding-bottom: var(--bottom-safe);
-}
-
-/* ✅ 핵심: 실제 스크롤 컨텐츠(.container)에도 바닥 여백 확보 */
-.container{
-  padding-bottom: var(--bottom-safe);
-}
-/* =========================
-   ✅ iOS/모바일 Date input 깨짐 방지 (FINAL PATCH)
-   - input[type="date"] 기본 UI 충돌 제거
-   - 높이/정렬/패딩 고정
-   - 우측 캘린더 아이콘 겹침 해결
-========================= */
-
-/* date wrap이 카드 안에서 삐져나가지 않게 */
-.date-wrap{
-  width: 100%;
-  max-width: 100%;
-}
-
-/* date input 공통 안정화 */
-.date-wrap .date-input,
-input[type="date"].date-input,
-input[type="date"]{
-  width: 100%;
-  max-width: 100%;
-  display: block;
-
-  /* 모바일에서 높이/정렬 깨짐 방지 */
-  height: 52px;
-  line-height: 52px;
-
-  /* 오른쪽 아이콘 영역 확보 */
-  padding-right: 54px;
-
-  /* iOS 기본 스타일 제거 */
-  -webkit-appearance: none;
-  appearance: none;
-
-  /* 글자 baseline 흔들림 방지 */
-  font-size: 16px; /* iOS 확대(zoom) 방지도 같이 됨 */
-}
-
-/* iOS 기본 캘린더 아이콘(인디케이터) 때문에 겹치는 문제 해결 */
 input[type="date"]::-webkit-calendar-picker-indicator{
-  opacity: 0;          /* 보이지 않게 */
+  opacity: 0;
   display: block;
-  width: 54px;         /* 우리가 확보한 padding-right 영역과 맞춤 */
+  width: 54px;
   height: 52px;
   position: absolute;
   right: 0;
   top: 0;
 }
-
-/* iOS 내부 텍스트 영역 정렬(간헐적으로 글자가 아래로 쳐짐 방지) */
 input[type="date"]::-webkit-datetime-edit{
   padding: 0 12px;
 }
@@ -934,30 +821,16 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper{
   align-items: center;
 }
 
-/* 네가 올린 date-icon이 클릭을 막으면 안 됨(이미 pointer-events none이라 OK)
-   그래도 위치/크기 안전하게 보정 */
-.date-icon{
-  width: 18px;
-  height: 18px;
-  right: 14px;
-  border-width: 2px;
-  opacity: .55;
-}
-
-/* 어떤 폰에서든 라운드/보더가 카드 밖으로 튀어나오는 경우 방지 */
-.card, .card-sub, .wizard-top{
-  overflow: hidden;
-}
 /* =========================
-   시즌 팝업
+   시즌 팝업 (aria-hidden 기반 표시)
 ========================= */
 .dd-popup{
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: var(--z-popup);
   display: none;
 }
-.dd-popup.is-open{ display:block; }
+.dd-popup[aria-hidden="false"]{ display:block; }
 
 .dd-popup__dim{
   position:absolute; inset:0;
@@ -973,6 +846,7 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper{
   background: var(--card, #12141c);
   border: 1px solid var(--line, rgba(255,255,255,.12));
   box-shadow: 0 18px 55px rgba(0,0,0,.55);
+  overflow: hidden;
 }
 
 .dd-popup__x{
@@ -989,7 +863,6 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper{
 }
 
 .dd-popup__body{ padding: 18px 16px 16px; }
-
 .dd-popup__badge{
   display: inline-block;
   font-size: 12px;
@@ -998,14 +871,12 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper{
   border: 1px solid var(--line, rgba(255,255,255,.12));
   color: var(--muted, #b7bdd6);
 }
-
 .dd-popup__title{
   margin: 10px 0 8px;
   font-size: 18px;
   line-height: 1.25;
   color: var(--text, #f2f4ff);
 }
-
 .dd-popup__text{
   margin: 0 0 8px;
   line-height: 1.45;
@@ -1019,7 +890,6 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper{
   gap: 10px;
   margin-top: 14px;
 }
-
 .dd-popup__btn{
   height: 44px;
   border-radius: 14px;
@@ -1028,13 +898,11 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper{
   color: var(--text, #f2f4ff);
   cursor: pointer;
 }
-
 .dd-popup__btn--primary{
   background: rgba(255,255,255,.10);
   border-color: rgba(255,255,255,.18);
   font-weight: 700;
 }
-
 .dd-popup__today{
   display:flex;
   align-items:center;
@@ -1043,33 +911,25 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper{
   font-size: 13px;
   color: var(--muted, #b7bdd6);
 }
-/* ✅ 상단 스티키바 z-index가 높을 수 있으니 기준을 잡아둠 */
-#stickyPriceBar{
-  z-index: 50; /* 예시: 낮게 */
+
+/* =========================
+   Responsive
+========================= */
+@media (min-width: 1100px){
+  :root{ --max: 820px; }
 }
 
-/* ✅ 프로모 팝업(메인 오픈 팝업) */
-.promo-modal{
-  position: fixed;
-  inset: 0;
-  z-index: 9999;            /* ✅ 스티키보다 무조건 위 */
-  display: none;
-}
-
-.promo-modal.is-open{ display:block; }
-
-.promo-modal .promo-backdrop{
-  position:absolute;
-  inset:0;
-  background: rgba(0,0,0,.55);
-  backdrop-filter: blur(6px);
-}
-
-.promo-modal .promo-panel{
-  position: relative;
-  max-width: 520px;
-  width: calc(100% - 32px);
-  margin: 0 auto;
-  top: 50%;
-  transform: translateY(-50%);
+/* iOS에서 키보드 열렸을 때 하단 네비 방해 줄이기 (지원 브라우저에서만) */
+@media (max-width: 520px){
+  body:has(input:focus),
+  body:has(textarea:focus),
+  body:has(select:focus){
+    padding-bottom: calc(16px + var(--safe-bottom));
+  }
+  body:has(input:focus) .wizard-nav,
+  body:has(textarea:focus) .wizard-nav,
+  body:has(select:focus) .wizard-nav{
+    opacity: .25;
+    pointer-events: none;
+  }
 }

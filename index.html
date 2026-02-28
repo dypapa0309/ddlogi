@@ -1,4 +1,3 @@
-<!-- /index.html (KR) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -43,7 +42,6 @@
     <div class="wizard-top" aria-label="견적 단계 진행">
       <div class="wizard-meta">
         <div class="wizard-title">견적 단계</div>
-        <!-- ✅ step1~12 총 12단계 -->
         <div class="wizard-step" id="wizardStepText">1 / 12</div>
       </div>
       <div class="wizard-progress">
@@ -86,7 +84,6 @@
             <div class="hero-owner">-디디운송 대표 이상빈</div>
           </div>
 
-          <!-- ✅ heroStartBtn (JS에서 사용) -->
           <div style="margin-top:16px;">
             <button type="button" class="wizard-primary" id="heroStartBtn">견적 시작하기</button>
           </div>
@@ -286,7 +283,6 @@
         <button type="button" class="wizard-primary" id="openItemsModalBtn">가구·가전 선택하기</button>
         <div class="mini-summary" id="itemsMiniSummary">선택 없음</div>
 
-        <!-- ✅ 기타사항을 “스텝 화면에서도” 확인 가능하게 프리뷰 영역 추가 -->
         <div class="mini-summary" id="itemsNotePreview" style="margin-top:10px; opacity:.9;">
           기타사항: 없음
         </div>
@@ -375,7 +371,7 @@
       </div>
     </section>
 
-    <!-- Step 10: 동승/야간주말 -->
+    <!-- Step 10: 동승/야간주말 + ✅ 청소 옵션 추가 -->
     <section class="section step-card" id="rideSection" data-step="10">
       <h2>추가 옵션</h2>
       <div class="card">
@@ -398,6 +394,56 @@
             <span class="stepper-unit">명</span>
           </div>
         </div>
+
+        <hr />
+
+        <div class="sub">청소 옵션</div>
+
+        <div class="option">
+          <div>
+            청소 서비스 추가
+            <div class="sub" style="margin:6px 0 0;">
+              (간단 정리/마무리 청소 — 선택 시 견적에 반영)
+            </div>
+          </div>
+
+          <label class="switch" aria-label="청소 옵션 토글">
+            <input type="checkbox" id="cleaningToggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="card-sub" id="cleaningBody" hidden>
+          <div class="sub">청소 범위</div>
+          <div class="toggles">
+            <label class="toggle">
+              <input type="checkbox" id="cleaningFrom" />
+              <span>출발지</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="cleaningTo" />
+              <span>도착지</span>
+            </label>
+          </div>
+
+          <div class="sub" style="margin-top:10px;">청소 타입</div>
+          <div class="seg">
+            <label class="seg-item">
+              <input type="radio" name="cleaningType" value="light" checked />
+              <span>간단 청소</span>
+            </label>
+            <label class="seg-item">
+              <input type="radio" name="cleaningType" value="deep" />
+              <span>집중 청소</span>
+            </label>
+          </div>
+
+          <div class="hint" style="margin-top:10px;">
+            ※ 기준: 간단 30,000원 / 집중 60,000원 (출발·도착 각각 합산)<br/>
+            ※ 현장 상황(면적/오염도/주차/동선)에 따라 조정될 수 있습니다.
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -429,7 +475,6 @@
           <button type="button" class="wizard-primary" id="openThrowModalBtn">버릴 물건 선택하기</button>
           <div class="mini-summary" id="throwMiniSummary">선택 없음</div>
 
-          <!-- ✅ 기타사항을 스텝 화면에서도 확인 가능하게 프리뷰 영역 추가 -->
           <div class="mini-summary" id="throwNotePreview" style="margin-top:10px; opacity:.9;">
             기타사항: 없음
           </div>
@@ -471,47 +516,47 @@
     </section>
 
   </div><!-- /.container -->
-<!-- ✅ 시즌 팝업 (기숙사·사택 시즌 이벤트) -->
-<div id="seasonPopup" class="dd-popup" aria-hidden="true">
-  <div class="dd-popup__dim" data-popup-close></div>
 
-  <div class="dd-popup__card" role="dialog" aria-modal="true" aria-labelledby="ddPopupTitle">
-    <button type="button" class="dd-popup__x" aria-label="닫기" data-popup-close>✕</button>
+  <!-- ✅ 시즌 팝업 (기숙사·사택 시즌 이벤트) -->
+  <div id="seasonPopup" class="dd-popup" aria-hidden="true">
+    <div class="dd-popup__dim" data-popup-close></div>
 
-    <div class="dd-popup__body">
-      <div class="dd-popup__badge">기숙사·사택 시즌 이벤트</div>
+    <div class="dd-popup__card" role="dialog" aria-modal="true" aria-labelledby="ddPopupTitle">
+      <button type="button" class="dd-popup__x" aria-label="닫기" data-popup-close>✕</button>
 
-      <h3 id="ddPopupTitle" class="dd-popup__title">기숙사·사택 이사 시즌</h3>
+      <div class="dd-popup__body">
+        <div class="dd-popup__badge">기숙사·사택 시즌 이벤트</div>
 
-      <p class="dd-popup__text">
-        AI로 계산된 이사비용,<br>
-        전국 평균 대비 약 <b>13.8%</b> 낮은 구조.
-      </p>
+        <h3 id="ddPopupTitle" class="dd-popup__title">기숙사·사택 이사 시즌</h3>
 
-      <p class="dd-popup__text dd-popup__text--muted">
-        숨겨진 추가비 없이<br>
-        고객이 직접 확인하는 투명 견적.
-      </p>
+        <p class="dd-popup__text">
+          AI로 계산된 이사비용,<br>
+          전국 평균 대비 약 <b>13.8%</b> 낮은 구조.
+        </p>
 
-      <div class="dd-popup__actions">
-        <!-- ✅ 누르면 견적 시작(너는 heroStartBtn이 있으니까 그걸 누르는 방식으로 JS에서 연결할거야) -->
-        <button type="button" class="dd-popup__btn dd-popup__btn--primary" id="popupGoQuote">
-          10초 견적 확인하기
-        </button>
+        <p class="dd-popup__text dd-popup__text--muted">
+          숨겨진 추가비 없이<br>
+          고객이 직접 확인하는 투명 견적.
+        </p>
 
-        <button type="button" class="dd-popup__btn" data-popup-close>닫기</button>
+        <div class="dd-popup__actions">
+          <button type="button" class="dd-popup__btn dd-popup__btn--primary" id="popupGoQuote">
+            10초 견적 확인하기
+          </button>
+
+          <button type="button" class="dd-popup__btn" data-popup-close>닫기</button>
+        </div>
+
+        <label class="dd-popup__today">
+          <input type="checkbox" id="popupToday">
+          오늘은 그만 보기
+        </label>
       </div>
-
-      <label class="dd-popup__today">
-        <input type="checkbox" id="popupToday">
-        오늘은 그만 보기
-      </label>
     </div>
   </div>
-</div>
 
-  <!-- ✅ Sticky Price Bar -->
-  <div id="stickyPriceBar" aria-hidden="true">
+  <!-- ✅ Sticky Price Bar (항상 표시) -->
+  <div id="stickyPriceBar" aria-hidden="false">
     <div class="sticky-inner">
       <div class="sticky-left">
         <div class="sticky-label">현재 예상 금액</div>
@@ -543,7 +588,6 @@
       <div class="modal-body">
         <div class="sub">가전</div>
 
-        <!-- 가전 -->
         <div class="option item-qty-row">
           <div>전자레인지</div>
           <div class="stepper">
@@ -740,7 +784,7 @@
         <div class="hint" style="margin-top:10px;">
           ※ 여기서 선택한 가구/가전은 즉시 견적에 반영됩니다.
         </div>
-      </div><!-- ✅ /modal-body (중요: 닫힘 누락 방지) -->
+      </div>
 
       <div class="modal-foot">
         <button type="button" class="wizard-btn ghost" data-close="itemsModal">닫기</button>
@@ -895,7 +939,7 @@
         <div class="hint" style="margin-top:10px;">
           ※ 버리기 수량은 “가구/가전 합산”에도 반영되어 견적에 포함됩니다.
         </div>
-      </div><!-- ✅ /modal-body -->
+      </div>
 
       <div class="modal-foot">
         <button type="button" class="wizard-btn ghost" data-close="throwModal">닫기</button>
