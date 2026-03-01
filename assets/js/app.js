@@ -1,17 +1,18 @@
 (() => {
   "use strict";
 
-  // ✅ 전체 가격 배율 (운영 중 조정)
-  const PRICE_MULTIPLIER = 1;
+  /* =========================
+     Global pricing knobs
+  ========================= */
+  const PRICE_MULTIPLIER = 1;     // 운영 중 조정
+  const DISPLAY_MULTIPLIER = 0.95; // 표시가(“13.8% 저렴” 문구 톤)
 
   /* =========================
-     ✅ 청소 옵션 가격 (추가)
-     - 기준: 간단 30,000 / 집중 60,000
-     - 출발/도착 각각 체크된 횟수만큼 합산
+     Services
   ========================= */
-  const CLEANING_PRICE = {
-    light: 30000,
-    deep: 60000,
+  const SERVICE = {
+    MOVE: "move",
+    CLEAN: "clean",
   };
 
   /* =========================
@@ -20,9 +21,6 @@
   const CFG = window.DDLOGI_CONFIG || {};
   const supabase = window.supabase?.createClient?.(CFG.supabaseUrl, CFG.supabaseKey);
 
-  /* =========================
-     확정 슬롯 조회/반영 (optional)
-  ========================= */
   async function fetchConfirmedSlots(dateStr) {
     if (!supabase || !dateStr) return new Set();
     const { data, error } = await supabase
@@ -38,7 +36,6 @@
     return new Set((data || []).map((x) => String(x.time_slot)));
   }
 
-  // ✅ FIX: 마감 처리 시 "체크 해제 + state.timeSlot도 같이 비우기"
   function setTimeSlotDisabled(slotValue, disabled) {
     const sel = `input[name="timeSlot"][value="${CSS.escape(String(slotValue))}"]`;
     const el = document.querySelector(sel);
@@ -66,7 +63,54 @@
   }
 
   /* =========================
-     가격 테이블
+     Helpers
+  ========================= */
+  function toNumberSafe(v, fallback = 0) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
+  function sumQtyMaps(...maps) {
+    const out = {};
+    maps.forEach((m) => {
+      Object.entries(m || {}).forEach(([k, v]) => {
+        const q = Math.max(0, Number(v) || 0);
+        out[k] = (out[k] || 0) + q;
+      });
+    });
+    return out;
+  }
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function formatTimeSlotKR(v) {
+    const s = String(v || "");
+    if (!s) return "미선택";
+    const hour = toNumberSafe(s, NaN);
+    if (!Number.isFinite(hour)) return "미선택";
+    if (hour === 12) return "오후 12시";
+    if (hour >= 13) return `오후 ${hour - 12}시`;
+    return `오전 ${hour}시`;
+  }
+
+  function getSelectedQtyLabelFromMap(qtyMap = {}, priceMap = {}, emptyLabel = "없음") {
+    const labels = [];
+    Object.entries(qtyMap).forEach(([k, qty]) => {
+      const q = Math.max(0, Number(qty) || 0);
+      if (q > 0) labels.push(`${priceMap[k]?.label || k}×${q}`);
+    });
+    return labels.length ? labels.join(", ") : emptyLabel;
+  }
+
+  /* =========================
+     MOVE: vehicle + base pricing
   ========================= */
   const VEHICLE_MAP = {
     "1톤 카고": "truck",
@@ -77,30 +121,55 @@
   const BASE_PRICE = { truck: 50000, van: 50000, lorry: 90000 };
   const PER_KM_PRICE = { truck: 1550, van: 1550, lorry: 1550 };
 
+  /* =========================
+     MOVE: furniture & appliance add-ons (expanded)
+  ========================= */
   const FURNITURE_PRICE = {
+    // appliances
     "전자레인지": { label: "전자레인지", price: 1500 },
-    "공기청정기": { label: "공기청정기", price: 3000 },
-    "청소기": { label: "청소기", price: 2000 },
-    "TV/모니터": { label: "TV/모니터", price: 5000 },
-    "정수기(이동만)": { label: "정수기(이동만)", price: 3000 },
-    "세탁기(12kg이하)": { label: "세탁기(12kg 이하)", price: 10000 },
-    "건조기(12kg이하)": { label: "건조기(12kg 이하)", price: 10000 },
-    "냉장고(380L이하)": { label: "냉장고(380L 이하)", price: 10000 },
+    "공기청정기": { label: "공기청정기", price: 3500 },
+    "청소기": { label: "청소기", price: 2500 },
 
+    "TV(55이하)": { label: "TV(55인치 이하)", price: 20000 },
+    "TV(65이상)": { label: "TV(65인치 이상)", price: 40000 },
+    "모니터": { label: "모니터", price: 9000 },
+
+    "데스크탑": { label: "데스크탑 본체", price: 4000 },
+    "프린터": { label: "프린터/복합기", price: 3000 },
+
+    "정수기(이동만)": { label: "정수기(이동만)", price: 3000 },
+
+    "세탁기(12kg이하)": { label: "세탁기(12kg 이하)", price: 20000 },
+    "세탁기(12kg초과)": { label: "세탁기(12kg 초과)", price: 60000 },
+
+    "건조기(12kg이하)": { label: "건조기(12kg 이하)", price: 20000 },
+    "건조기(12kg초과)": { label: "건조기(12kg 초과)", price: 60000 },
+
+    "냉장고(380L이하)": { label: "냉장고(380L 이하)", price: 30000 },
+    "냉장고(600L이하)": { label: "냉장고(381~600L)", price: 12000 },
+    "냉장고(600L초과)": { label: "냉장고(601L 이상)", price: 180000 },
+
+    "김치냉장고": { label: "김치냉장고", price: 60000 },
+    "스타일러": { label: "스타일러", price: 120000 },
+
+    // furniture
     "의자": { label: "의자", price: 3000 },
     "행거": { label: "행거", price: 3000 },
-    "협탁/사이드테이블(소형)": { label: "협탁/사이드테이블(소형)", price: 3000 },
-    "화장대(소형)": { label: "화장대(소형)", price: 5000 },
-    "책상/테이블(일반)": { label: "책상/테이블(일반)", price: 5000 },
-    "서랍장(3~5단)": { label: "서랍장(3~5단)", price: 5000 },
+    "협탁/사이드테이블(소형)": { label: "협탁/사이드테이블(소형)", price: 5000 },
+    "화장대(소형)": { label: "화장대(소형)", price: 9000 },
+    "책상/테이블(일반)": { label: "책상/테이블(일반)", price: 8000 },
+    "서랍장(3~5단)": { label: "서랍장(3~5단)", price: 8000 },
     "책장(일반)": { label: "책장(일반)", price: 10000 },
     "수납장/TV장(일반)": { label: "수납장/TV장(일반)", price: 10000 },
-    "소파(2~3인)": { label: "소파(2~3인)", price: 10000 },
-    "소파(4인이상)": { label: "소파(4인 이상)", price: 15000 },
+    "소파(2~3인)": { label: "소파(2~3인)", price: 15000 },
+    "소파(4인이상)": { label: "소파(4인 이상)", price: 30000 },
     "침대매트리스(킹제외)": { label: "침대 매트리스(킹 제외)", price: 10000 },
-    "침대프레임(분해/조립)": { label: "침대프레임분해조립", price: 30000 },
+    "침대프레임(분해/조립)": { label: "침대프레임 분해/조립", price: 40000 },
   };
 
+  /* =========================
+     MOVE: load / move type
+  ========================= */
   const LOAD_MAP_GENERAL = {
     1: { label: "1~5개", price: 10000 },
     2: { label: "6~10개", price: 20000 },
@@ -115,11 +184,6 @@
     4: { label: "16~20개", price: 65000 },
   };
 
-  function toNumberSafe(v, fallback = 0) {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : fallback;
-  }
-
   function getLoadMap(moveType) {
     return moveType === "half" ? LOAD_MAP_HALF : LOAD_MAP_GENERAL;
   }
@@ -133,38 +197,8 @@
     return moveType === "half" ? "반포장 이사" : "일반이사";
   }
 
-  function formatTimeSlotKR(v) {
-    const s = String(v || "");
-    if (!s) return "미선택";
-    const hour = toNumberSafe(s, NaN);
-    if (!Number.isFinite(hour)) return "미선택";
-    if (hour === 12) return "오후 12시";
-    if (hour >= 13) return `오후 ${hour - 12}시`;
-    return `오전 ${hour}시`;
-  }
-
-  function sumQtyMaps(...maps) {
-    const out = {};
-    maps.forEach((m) => {
-      Object.entries(m || {}).forEach(([k, v]) => {
-        const q = Math.max(0, Number(v) || 0);
-        out[k] = (out[k] || 0) + q;
-      });
-    });
-    return out;
-  }
-
-  function getSelectedQtyLabel(qtyMap = {}) {
-    const labels = [];
-    Object.entries(qtyMap).forEach(([k, qty]) => {
-      const q = Math.max(0, Number(qty) || 0);
-      if (q > 0) labels.push(`${FURNITURE_PRICE[k]?.label || k}×${q}`);
-    });
-    return labels.length ? labels.join(", ") : "없음";
-  }
-
   /* =========================
-     ✅ 보관이사/사다리차 규칙
+     MOVE: storage / ladder / stairs rules
   ========================= */
   const STORAGE_PER_DAY = 20000;
 
@@ -175,9 +209,6 @@
     return 140000;
   }
 
-  /* =========================
-     ✅ 계단(엘베 없음) 요금 규칙
-  ========================= */
   const STAIR_TIER_1 = 7000;   // 2~3층
   const STAIR_TIER_2 = 12000;  // 4~5층
   const STAIR_TIER_3 = 18000;  // 6~7층
@@ -193,17 +224,17 @@
   }
 
   /* =========================
-     ✅ 청소 옵션 계산 헬퍼 (추가)
+     MOVE: cleaning add-on (existing step 10)
   ========================= */
-  function getCleaningInfo() {
-    if (!state.cleaningEnabled) {
-      return { enabled: false, cost: 0, label: "미사용", unit: 0, count: 0 };
-    }
+  const MOVE_CLEANING_PRICE = { light: 30000, deep: 60000 };
 
+  function getMoveCleaningInfo() {
+    if (!state.cleaningEnabled) {
+      return { enabled: false, cost: 0, label: "미사용", unit: 0, count: 0, type: "light" };
+    }
     const type = state.cleaningType === "deep" ? "deep" : "light";
     const typeLabel = type === "deep" ? "집중 청소" : "간단 청소";
-    const unit = toNumberSafe(CLEANING_PRICE[type], 0);
-
+    const unit = toNumberSafe(MOVE_CLEANING_PRICE[type], 0);
     const count = (state.cleaningFrom ? 1 : 0) + (state.cleaningTo ? 1 : 0);
     const cost = unit * count;
 
@@ -211,16 +242,70 @@
     if (state.cleaningFrom) parts.push("출발지");
     if (state.cleaningTo) parts.push("도착지");
     const scopeLabel = parts.length ? parts.join(" / ") : "범위 미선택";
-
     const label = `${typeLabel} (${scopeLabel})`;
 
     return { enabled: true, cost, label, unit, count, type, typeLabel, scopeLabel };
   }
 
   /* =========================
-     상태
+     CLEAN: base pricing (national average-ish)
+     - 최소금액 + 평당단가
+  ========================= */
+  const CLEAN_PER_PYEONG = 12000;
+  const CLEAN_MIN_PRICE = 140000;
+
+  const CLEAN_SOIL_MULT = { light: 1.0, normal: 1.1, heavy: 1.2 };
+  const CLEAN_TYPE_MULT = { movein: 1.0, moveout: 1.0, occupied: 1.15 };
+
+  // 구조/현장 가산 (운영에서 튜닝)
+  const CLEAN_BATH_EXTRA_EACH = 20000;      // 화장실 2개 이상부터 개당
+  const CLEAN_PARKING_HARD_EXTRA = 20000;   // 주차 어려움
+  const CLEAN_NO_ELEVATOR_PER_FLOOR = 5000; // 엘베 없음: 층당(1층은 0)
+  const CLEAN_BALCONY_3P_EXTRA = 50000;     // 베란다 3개 이상
+  const CLEAN_WARDROBE_2P_EXTRA = 50000;    // 붙박이장 2세트 이상
+
+  /* =========================
+     CLEAN: option price maps
+     - basic modal
+  ========================= */
+  const CLEAN_BASIC_PRICE = {
+    "곰팡이제거": { label: "곰팡이 제거(부위)", price: 40000 },
+    "스티커제거": { label: "스티커/뽁뽁이 제거(부위)", price: 40000 },
+    "페인트잔여": { label: "페인트/실리콘 잔여물(부위)", price: 50000 },
+    "니코틴케어": { label: "니코틴/찌든때 케어", price: 50000 },
+    "반려동물케어": { label: "반려동물 털/냄새 케어", price: 40000 },
+    "피톤치드(평)": { label: "피톤치드/탈취(평)", price: 5000 },
+  };
+
+  /* =========================
+     CLEAN: appliance/fabric price maps
+     - appliance modal (based on market averages where available)
+  ========================= */
+  const CLEAN_APPLIANCE_PRICE = {
+    "에어컨(벽걸이)": { label: "에어컨(벽걸이) 분해청소", price: 70000 },
+    "에어컨(스탠드)": { label: "에어컨(스탠드) 분해청소", price: 140000 },
+    "에어컨(천장1way)": { label: "에어컨(천장 1way) 분해청소", price: 90000 },
+    "에어컨(천장4way)": { label: "에어컨(천장 4way) 분해청소", price: 140000 },
+
+    "세탁기청소": { label: "세탁기 분해청소", price: 85000 },
+    "건조기청소": { label: "건조기 청소", price: 100000 },
+
+    "냉장고청소": { label: "냉장고 청소(내부 분해)", price: 120000 },
+    "후드청소": { label: "주방 후드 청소", price: 263000 },
+
+    "매트리스청소": { label: "매트리스 청소", price: 80000 },
+    "소파청소": { label: "소파 청소", price: 90000 },
+    "비데청소": { label: "비데 청소/살균", price: 60000 },
+  };
+
+  /* =========================
+     State
   ========================= */
   const state = {
+    // NEW: service
+    service: "", // move | clean
+
+    // MOVE
     vehicle: null,
     distance: 0,
 
@@ -253,7 +338,7 @@
     helperFrom: false,
     helperTo: false,
 
-    // ✅ 청소 옵션 (추가)
+    // MOVE cleaning add-on
     cleaningEnabled: false,
     cleaningFrom: false,
     cleaningTo: false,
@@ -269,6 +354,35 @@
     workTo: false,
     throwFromQty: {},
     throwToQty: {},
+
+    // CLEAN
+    cleanType: "movein",     // movein | moveout | occupied
+    cleanSoil: "light",      // light | normal | heavy
+    cleanPyeong: 9,
+    cleanRooms: 1,
+    cleanBaths: 1,
+    cleanBalconies: 1,
+    cleanWardrobes: 0,
+
+    cleanAddress: "",
+    cleanAddressNote: "",
+
+    cleanParkingHard: false,
+    cleanNoElevator: false,
+    cleanFloor: 1,
+
+    cleanOuterWindowEnabled: false,
+    cleanOuterWindowPyeong: 9,
+
+    cleanPhytoncideEnabled: false,
+    cleanDisinfectEnabled: false,
+
+    cleanTrashBags: 0,
+
+    cleanBasicQty: {},
+    cleanApplianceQty: {},
+
+    cleanNote: "",
   };
 
   /* =========================
@@ -278,8 +392,16 @@
   const summaryEl = document.getElementById("summary");
   const stickyBarEl = document.getElementById("stickyPriceBar");
   const stickyPriceEl = document.getElementById("stickyPrice");
-  const quoteSectionEl = document.getElementById("quoteSection"); // (유지: 참조 없음)
 
+  const wizardProgressBar = document.getElementById("wizardProgressBar");
+  const wizardStepText = document.getElementById("wizardStepText");
+  const wizardPrev = document.getElementById("wizardPrev");
+  const wizardNext = document.getElementById("wizardNext");
+  const heroStartBtn = document.getElementById("heroStartBtn");
+
+  const serviceCards = document.querySelectorAll(".service-card");
+
+  // MOVE DOM
   const distanceText = document.getElementById("distanceText");
   const startAddressInput = document.getElementById("startAddress");
   const endAddressInput = document.getElementById("endAddress");
@@ -304,20 +426,11 @@
   const helperToEl = document.getElementById("helperTo");
   const rideEl = document.getElementById("ride");
 
-  // ✅ 청소 DOM (추가)
   const cleaningToggleEl = document.getElementById("cleaningToggle");
   const cleaningBodyEl = document.getElementById("cleaningBody");
   const cleaningFromEl = document.getElementById("cleaningFrom");
   const cleaningToEl = document.getElementById("cleaningTo");
   const cleaningTypeEls = document.querySelectorAll('input[name="cleaningType"]');
-
-  const channelInquiryBtn = document.getElementById("channelInquiry");
-
-  const itemsNoteEl = document.getElementById("itemsNote");
-  const throwNoteEl = document.getElementById("throwNote");
-
-  const itemsNotePreviewEl = document.getElementById("itemsNotePreview");
-  const throwNotePreviewEl = document.getElementById("throwNotePreview");
 
   const storageBodyEl = document.getElementById("storageBody");
   const storageDaysEl = document.getElementById("storageDays");
@@ -333,35 +446,65 @@
   const itemsModalEl = document.getElementById("itemsModal");
   const openItemsModalBtn = document.getElementById("openItemsModalBtn");
   const itemsMiniSummaryEl = document.getElementById("itemsMiniSummary");
+  const itemsNoteEl = document.getElementById("itemsNote");
+  const itemsNotePreviewEl = document.getElementById("itemsNotePreview");
 
   const throwModalEl = document.getElementById("throwModal");
   const openThrowModalBtn = document.getElementById("openThrowModalBtn");
   const throwMiniWrapEl = document.getElementById("throwMiniWrap");
   const throwMiniSummaryEl = document.getElementById("throwMiniSummary");
-
   const throwToggleEl = document.getElementById("throwToggle");
   const workFromEl = document.getElementById("workFrom");
   const workToEl = document.getElementById("workTo");
+  const throwNoteEl = document.getElementById("throwNote");
+  const throwNotePreviewEl = document.getElementById("throwNotePreview");
 
-  const wizardProgressBar = document.getElementById("wizardProgressBar");
-  const wizardStepText = document.getElementById("wizardStepText");
-  const wizardPrev = document.getElementById("wizardPrev");
-  const wizardNext = document.getElementById("wizardNext");
-  const heroStartBtn = document.getElementById("heroStartBtn");
+  // CLEAN DOM
+  const cleanTypeEls = document.querySelectorAll('input[name="cleanType"]');
+  const cleanSoilEls = document.querySelectorAll('input[name="cleanSoil"]');
 
-  // ✅ 시즌 팝업 DOM
+  const cleanPyeongEl = document.getElementById("cleanPyeong");
+  const cleanRoomsEl = document.getElementById("cleanRooms");
+  const cleanBathsEl = document.getElementById("cleanBaths");
+  const cleanBalconiesEl = document.getElementById("cleanBalconies");
+  const cleanWardrobesEl = document.getElementById("cleanWardrobes");
+
+  const cleanAddressEl = document.getElementById("cleanAddress");
+  const cleanAddressNoteEl = document.getElementById("cleanAddressNote");
+
+  const cleanParkingHardEl = document.getElementById("cleanParkingHard");
+  const cleanNoElevatorEl = document.getElementById("cleanNoElevator");
+  const cleanFloorEl = document.getElementById("cleanFloor");
+
+  const cleanOuterWindowEnabledEl = document.getElementById("cleanOuterWindowEnabled");
+  const cleanOuterWindowBodyEl = document.getElementById("cleanOuterWindowBody");
+  const cleanOuterWindowPyeongEl = document.getElementById("cleanOuterWindowPyeong");
+
+  const cleanPhytoncideEnabledEl = document.getElementById("cleanPhytoncideEnabled");
+  const cleanDisinfectEnabledEl = document.getElementById("cleanDisinfectEnabled");
+  const cleanTrashBagsEl = document.getElementById("cleanTrashBags");
+
+  const cleanBasicModalEl = document.getElementById("cleanBasicModal");
+  const openCleanBasicModalBtn = document.getElementById("openCleanBasicModalBtn");
+  const cleanBasicMiniSummaryEl = document.getElementById("cleanBasicMiniSummary");
+  const cleanNoteEl = document.getElementById("cleanNote");
+  const cleanNotePreviewEl = document.getElementById("cleanNotePreview");
+
+  const cleanApplianceModalEl = document.getElementById("cleanApplianceModal");
+  const openCleanApplianceModalBtn = document.getElementById("openCleanApplianceModalBtn");
+  const cleanApplianceMiniSummaryEl = document.getElementById("cleanApplianceMiniSummary");
+
+  // season popup
   const seasonPopupEl = document.getElementById("seasonPopup");
   const popupGoQuoteBtn = document.getElementById("popupGoQuote");
   const popupTodayEl = document.getElementById("popupToday");
 
-  let geocoder = null;
-  let lastPrice = 0;
+  const channelInquiryBtn = document.getElementById("channelInquiry");
 
   const TIME_SLOTS = ["7", "8", "9", "10", "11", "12", "13", "14", "15"];
 
   /* =========================
-     ✅ 스크롤 잠금 (모달/팝업 공통)
-     - iOS에서도 배경 스크롤 방지
+     Scroll lock (iOS safe)
   ========================= */
   let scrollLockCount = 0;
   let scrollLockY = 0;
@@ -393,7 +536,7 @@
   }
 
   /* =========================
-     ✅ 포커스 트랩 (모달/팝업 접근성)
+     Focus trap
   ========================= */
   let lastFocusEl = null;
   let activeFocusTrap = null;
@@ -405,7 +548,6 @@
         'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
       )
     );
-    // display:none 등 제외
     return els.filter((el) => el.offsetParent !== null || el.getClientRects().length);
   }
 
@@ -415,14 +557,12 @@
 
     const onKeyDown = (e) => {
       if (e.key !== "Tab") return;
-
       const focusables = getFocusableElements(containerEl);
       if (!focusables.length) {
         e.preventDefault();
         containerEl.focus({ preventScroll: true });
         return;
       }
-
       const first = focusables[0];
       const last = focusables[focusables.length - 1];
 
@@ -440,13 +580,8 @@
 
     const focusables = getFocusableElements(containerEl);
     const target = focusables[0] || containerEl;
-
     requestAnimationFrame(() => {
-      try {
-        target.focus({ preventScroll: true });
-      } catch (_) {
-        try { containerEl.focus({ preventScroll: true }); } catch (_) {}
-      }
+      try { target.focus({ preventScroll: true }); } catch (_) {}
     });
   }
 
@@ -464,26 +599,23 @@
   }
 
   /* =========================
-     ✅ 스티키바 높이 측정 → 상단 패딩/스티키 오프셋 안정화
-     - CSS 변수 --stickybar-h 를 실제 높이로 갱신
+     Sticky bar height -> CSS var
   ========================= */
   function syncStickyBarHeightVar() {
     if (!stickyBarEl) return;
     const inner = stickyBarEl.querySelector(".sticky-inner") || stickyBarEl;
     const h = Math.ceil(inner.getBoundingClientRect().height || 0);
-    if (h > 0) {
-      document.documentElement.style.setProperty("--stickybar-h", `${h}px`);
-    }
+    if (h > 0) document.documentElement.style.setProperty("--stickybar-h", `${h}px`);
   }
 
   /* =========================
-     ✅ 단계형 UI (Wizard)
+     Wizard
   ========================= */
-  const STEP_ORDER = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  const STEP_ORDER = ["service", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   let currentStepIndex = 0;
 
   function getStepEl(stepNo) {
-    return document.querySelector(`.step-card[data-step="${stepNo}"]`);
+    return document.querySelector(`.step-card[data-step="${String(stepNo)}"]`);
   }
 
   function setActiveStep(stepNo) {
@@ -509,6 +641,17 @@
   }
 
   function canGoNext(stepNo) {
+    // service step
+    if (stepNo === "service") return state.service === SERVICE.MOVE || state.service === SERVICE.CLEAN;
+
+    if (state.service === SERVICE.CLEAN) {
+      if (stepNo === 1) return Number(state.cleanPyeong) > 0;
+      if (stepNo === 2) return !!String(state.cleanAddress || "").trim();
+      if (stepNo === 3) return !!state.moveDate && !!state.timeSlot;
+      return true;
+    }
+
+    // default: MOVE
     if (stepNo === 1) return !!state.vehicle;
     if (stepNo === 2) return Number(state.distance) > 0;
     if (stepNo === 3) return !!state.moveDate && !!state.timeSlot;
@@ -517,7 +660,6 @@
 
   function syncWizardButtons() {
     if (!wizardPrev || !wizardNext) return;
-
     wizardPrev.disabled = currentStepIndex <= 0;
 
     if (currentStepIndex >= STEP_ORDER.length - 1) {
@@ -541,6 +683,32 @@
   function gotoPrev() {
     const prevIdx = Math.max(0, currentStepIndex - 1);
     setActiveStep(STEP_ORDER[prevIdx]);
+  }
+
+  /* =========================
+     Service mode apply (data-only)
+  ========================= */
+  function applyServiceMode() {
+    // empty state => default show move blocks (but cannot proceed past service step)
+    const s = state.service || SERVICE.MOVE;
+
+    document.body.dataset.service = s;
+
+    const moveEls = document.querySelectorAll('[data-only="move"]');
+    const cleanEls = document.querySelectorAll('[data-only="clean"]');
+
+    moveEls.forEach((el) => { el.style.display = s === SERVICE.MOVE ? "" : "none"; });
+    cleanEls.forEach((el) => { el.style.display = s === SERVICE.CLEAN ? "" : "none"; });
+
+    // toggle heading/cards active UI
+    serviceCards.forEach((btn) => {
+      const v = btn.getAttribute("data-service");
+      if (!v) return;
+      btn.classList.toggle("is-active", state.service === v);
+    });
+
+    calc();
+    syncWizardButtons();
   }
 
   /* =========================
@@ -585,41 +753,37 @@
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
 
-      if (itemsModalEl && itemsModalEl.getAttribute("aria-hidden") === "false") closeModal("itemsModal");
-      else if (throwModalEl && throwModalEl.getAttribute("aria-hidden") === "false") closeModal("throwModal");
-      else if (seasonPopupEl && seasonPopupEl.getAttribute("aria-hidden") === "false") hideSeasonPopup(true);
+      if (itemsModalEl?.getAttribute("aria-hidden") === "false") closeModal("itemsModal");
+      else if (throwModalEl?.getAttribute("aria-hidden") === "false") closeModal("throwModal");
+      else if (cleanBasicModalEl?.getAttribute("aria-hidden") === "false") closeModal("cleanBasicModal");
+      else if (cleanApplianceModalEl?.getAttribute("aria-hidden") === "false") closeModal("cleanApplianceModal");
+      else if (seasonPopupEl?.getAttribute("aria-hidden") === "false") hideSeasonPopup(true);
     });
   }
 
-  function escapeHtml(s) {
-    return String(s || "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
   function syncMiniSummaries() {
+    // MOVE summaries
     const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
 
-    if (itemsMiniSummaryEl) itemsMiniSummaryEl.textContent = getSelectedQtyLabel(mergedAllItems);
+    if (itemsMiniSummaryEl) itemsMiniSummaryEl.textContent = getSelectedQtyLabelFromMap(mergedAllItems, FURNITURE_PRICE, "선택 없음");
+    if (throwMiniSummaryEl) throwMiniSummaryEl.textContent = getSelectedQtyLabelFromMap(mergedThrow, FURNITURE_PRICE, "선택 없음");
 
-    const throwLabel = getSelectedQtyLabel(mergedThrow);
-    if (throwMiniSummaryEl) throwMiniSummaryEl.textContent = throwLabel;
-
-    if (itemsNotePreviewEl) {
-      itemsNotePreviewEl.textContent = `기타사항: ${state.itemsNote ? state.itemsNote : "없음"}`;
-    }
+    if (itemsNotePreviewEl) itemsNotePreviewEl.textContent = `기타사항: ${state.itemsNote ? state.itemsNote : "없음"}`;
     if (throwNotePreviewEl) {
       const txt = state.throwEnabled && state.throwNote ? state.throwNote : "";
       throwNotePreviewEl.textContent = `기타사항: ${txt ? txt : "없음"}`;
     }
+
+    // CLEAN summaries
+    if (cleanBasicMiniSummaryEl) cleanBasicMiniSummaryEl.textContent = getSelectedQtyLabelFromMap(state.cleanBasicQty, CLEAN_BASIC_PRICE, "선택 없음");
+    if (cleanApplianceMiniSummaryEl) cleanApplianceMiniSummaryEl.textContent = getSelectedQtyLabelFromMap(state.cleanApplianceQty, CLEAN_APPLIANCE_PRICE, "선택 없음");
+
+    if (cleanNotePreviewEl) cleanNotePreviewEl.textContent = `기타사항: ${state.cleanNote ? state.cleanNote : "없음"}`;
   }
 
   /* =========================
-     ChannelTalk
+     ChannelTalk boot + clipboard
   ========================= */
   function bootChannelIO() {
     const pluginKey = CFG.channelPluginKey;
@@ -670,12 +834,11 @@
   }
 
   /* =========================
-     ✅ 날짜 피커 유틸
+     Date picker helper
   ========================= */
   function openDatePickerSafe(inputEl) {
     if (!inputEl) return;
     inputEl.focus();
-
     if (typeof inputEl.showPicker === "function") {
       try { inputEl.showPicker(); return; } catch (_) {}
     }
@@ -683,7 +846,7 @@
   }
 
   /* =========================
-     ✅ 시즌 팝업 (오늘은 그만 보기)
+     Season popup (today hide)
   ========================= */
   const POPUP_HIDE_KEY = "dd_season_popup_hide_date";
 
@@ -729,9 +892,7 @@
     let hideDate = "";
     try { hideDate = localStorage.getItem(POPUP_HIDE_KEY) || ""; } catch (_) {}
 
-    if (hideDate !== todayKey()) {
-      showSeasonPopup();
-    }
+    if (hideDate !== todayKey()) showSeasonPopup();
 
     seasonPopupEl.addEventListener("click", (e) => {
       const close = e.target.closest("[data-popup-close]");
@@ -745,67 +906,51 @@
       popupGoQuoteBtn.addEventListener("click", () => {
         hideSeasonPopup(true);
         if (heroStartBtn) heroStartBtn.click();
-        else setActiveStep(1);
+        else setActiveStep("service");
       });
     }
   }
 
   /* =========================
-     초기화
+     Query param: ?service=clean|move
   ========================= */
+  function initServiceFromQuery() {
+    try {
+      const u = new URL(window.location.href);
+      const s = (u.searchParams.get("service") || "").toLowerCase();
+      if (s === "move" || s === "clean") state.service = s;
+    } catch (_) {}
+  }
+
+  /* =========================
+     Init
+  ========================= */
+  let geocoder = null;
+  let lastPrice = 0;
+
   window.addEventListener("DOMContentLoaded", async () => {
     bindModalClosers();
     initSeasonPopup();
 
-    // ✅ 스티키바는 항상 표시
+    initServiceFromQuery();
+    applyServiceMode();
+
+    // sticky bar always show
     if (stickyBarEl) {
       stickyBarEl.style.display = "block";
       stickyBarEl.setAttribute("aria-hidden", "false");
     }
     syncStickyBarHeightVar();
+    window.addEventListener("resize", syncStickyBarHeightVar);
 
-    // resize 때 높이 재측정(반응형 줄바꿈 대비)
-    window.addEventListener("resize", () => {
-      syncStickyBarHeightVar();
-    });
-
-    // ✅ itemsNote
-    if (itemsNoteEl) {
-      itemsNoteEl.addEventListener("input", (e) => {
-        state.itemsNote = String(e.target.value || "").trim();
-        syncMiniSummaries();
-        calc();
-      });
-      state.itemsNote = String(itemsNoteEl.value || "").trim();
-    }
-
-    // ✅ throwNote
-    if (throwNoteEl) {
-      throwNoteEl.addEventListener("input", (e) => {
-        state.throwNote = String(e.target.value || "").trim();
-        syncMiniSummaries();
-        calc();
-      });
-      state.throwNote = String(throwNoteEl.value || "").trim();
-    }
-
-    const ok = await waitForChannelIO(6000);
-    if (ok) bootChannelIO();
-
-    // ✅ 날짜: 칸 전체 클릭하면 달력 열기
+    // full click date picker
     const dateWrapEl = document.querySelector(".date-wrap");
     if (dateWrapEl && moveDateEl) {
-      dateWrapEl.addEventListener("click", (e) => {
-        e.preventDefault();
-        openDatePickerSafe(moveDateEl);
-      });
-      dateWrapEl.addEventListener("pointerup", (e) => {
-        e.preventDefault();
-        openDatePickerSafe(moveDateEl);
-      });
+      dateWrapEl.addEventListener("click", (e) => { e.preventDefault(); openDatePickerSafe(moveDateEl); });
+      dateWrapEl.addEventListener("pointerup", (e) => { e.preventDefault(); openDatePickerSafe(moveDateEl); });
     }
 
-    // hero 표시
+    // hero show first
     const heroEl = getStepEl(0);
     if (heroEl) {
       document.querySelectorAll(".step-card").forEach((el) => el.classList.remove("is-active"));
@@ -813,21 +958,42 @@
       if (wizardPrev) wizardPrev.disabled = true;
       if (wizardNext) wizardNext.disabled = true;
     } else {
-      setActiveStep(1);
+      setActiveStep("service");
     }
 
-    if (heroStartBtn) heroStartBtn.addEventListener("click", () => setActiveStep(1));
+    // hero start => if service preselected -> step1 else service step
+    if (heroStartBtn) {
+      heroStartBtn.addEventListener("click", () => {
+        if (state.service === SERVICE.MOVE || state.service === SERVICE.CLEAN) setActiveStep(1);
+        else setActiveStep("service");
+      });
+    }
+
     if (wizardPrev) wizardPrev.addEventListener("click", gotoPrev);
     if (wizardNext) wizardNext.addEventListener("click", gotoNext);
 
-    // 차량: 첫 항목 자동 선택
+    // service select
+    serviceCards.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const v = btn.getAttribute("data-service");
+        if (v !== SERVICE.MOVE && v !== SERVICE.CLEAN) return;
+        state.service = v;
+        applyServiceMode();
+        // on service step -> next
+        const curStep = STEP_ORDER[currentStepIndex];
+        if (curStep === "service") gotoNext();
+      });
+    });
+
+    /* =========================
+       MOVE: vehicle selection
+    ========================= */
     const firstVehicle = document.querySelector(".vehicle");
     if (firstVehicle) {
       firstVehicle.classList.add("active");
       state.vehicle = firstVehicle.dataset.vehicle || null;
     }
 
-    // 차량 선택
     document.querySelectorAll(".vehicle").forEach((v) => {
       v.addEventListener("click", () => {
         document.querySelectorAll(".vehicle").forEach((x) => x.classList.remove("active"));
@@ -838,7 +1004,7 @@
       });
     });
 
-    // ✅ 경유지 토글
+    // waypoint toggle
     if (hasWaypointEl && waypointWrapEl) {
       const syncWaypointUI = () => {
         state.hasWaypoint = !!hasWaypointEl.checked;
@@ -879,7 +1045,7 @@
       });
     }
 
-    // ✅ storageDays
+    // storageDays
     if (storageDaysEl) {
       const normalize = () => {
         const v = Math.max(1, parseInt(String(storageDaysEl.value || "1"), 10) || 1);
@@ -891,7 +1057,365 @@
       normalize();
     }
 
-    // 날짜 변경 → 마감 반영
+    // items note
+    if (itemsNoteEl) {
+      itemsNoteEl.addEventListener("input", (e) => {
+        state.itemsNote = String(e.target.value || "").trim();
+        syncMiniSummaries();
+        calc();
+      });
+      state.itemsNote = String(itemsNoteEl.value || "").trim();
+    }
+
+    // throw note
+    if (throwNoteEl) {
+      throwNoteEl.addEventListener("input", (e) => {
+        state.throwNote = String(e.target.value || "").trim();
+        syncMiniSummaries();
+        calc();
+      });
+      state.throwNote = String(throwNoteEl.value || "").trim();
+    }
+
+    // CLEAN note
+    if (cleanNoteEl) {
+      cleanNoteEl.addEventListener("input", (e) => {
+        state.cleanNote = String(e.target.value || "").trim();
+        syncMiniSummaries();
+        calc();
+      });
+      state.cleanNote = String(cleanNoteEl.value || "").trim();
+    }
+
+    // clean type
+    if (cleanTypeEls?.length) {
+      cleanTypeEls.forEach((el) => {
+        el.addEventListener("change", (e) => {
+          state.cleanType = e.target.value || "movein";
+          calc();
+          syncWizardButtons();
+        });
+        if (el.checked) state.cleanType = el.value;
+      });
+    }
+
+    // clean soil
+    if (cleanSoilEls?.length) {
+      cleanSoilEls.forEach((el) => {
+        el.addEventListener("change", (e) => {
+          state.cleanSoil = e.target.value || "light";
+          calc();
+        });
+        if (el.checked) state.cleanSoil = el.value;
+      });
+    }
+
+    // clean base inputs
+    if (cleanPyeongEl) cleanPyeongEl.addEventListener("input", (e) => { state.cleanPyeong = Math.max(1, toNumberSafe(e.target.value, 9)); calc(); syncWizardButtons(); });
+    if (cleanRoomsEl) cleanRoomsEl.addEventListener("input", (e) => { state.cleanRooms = Math.max(1, toNumberSafe(e.target.value, 1)); calc(); });
+    if (cleanBathsEl) cleanBathsEl.addEventListener("input", (e) => { state.cleanBaths = Math.max(1, toNumberSafe(e.target.value, 1)); calc(); });
+    if (cleanBalconiesEl) cleanBalconiesEl.addEventListener("input", (e) => { state.cleanBalconies = Math.max(0, toNumberSafe(e.target.value, 1)); calc(); });
+    if (cleanWardrobesEl) cleanWardrobesEl.addEventListener("input", (e) => { state.cleanWardrobes = Math.max(0, toNumberSafe(e.target.value, 0)); calc(); });
+
+    // clean address
+    if (cleanAddressEl) cleanAddressEl.addEventListener("input", (e) => { state.cleanAddress = String(e.target.value || "").trim(); calc(); syncWizardButtons(); });
+    if (cleanAddressNoteEl) cleanAddressNoteEl.addEventListener("input", (e) => { state.cleanAddressNote = String(e.target.value || "").trim(); calc(); });
+
+    // clean parking / elevator
+    if (cleanParkingHardEl) cleanParkingHardEl.addEventListener("change", (e) => { state.cleanParkingHard = !!e.target.checked; calc(); });
+    if (cleanNoElevatorEl) cleanNoElevatorEl.addEventListener("change", (e) => { state.cleanNoElevator = !!e.target.checked; calc(); });
+    if (cleanFloorEl) cleanFloorEl.addEventListener("input", (e) => { state.cleanFloor = Math.max(1, toNumberSafe(e.target.value, 1)); calc(); });
+
+    // clean outer window option
+    if (cleanOuterWindowEnabledEl && cleanOuterWindowBodyEl) {
+      const syncOuter = () => {
+        state.cleanOuterWindowEnabled = !!cleanOuterWindowEnabledEl.checked;
+        cleanOuterWindowBodyEl.hidden = !state.cleanOuterWindowEnabled;
+        // default suggestion
+        if (state.cleanOuterWindowEnabled && cleanOuterWindowPyeongEl) {
+          const v = Math.max(0, parseInt(String(cleanOuterWindowPyeongEl.value || "0"), 10) || 0);
+          if (v === 0) {
+            cleanOuterWindowPyeongEl.value = String(Math.max(0, state.cleanPyeong || 0));
+            state.cleanOuterWindowPyeong = Math.max(0, state.cleanPyeong || 0);
+          }
+        }
+        calc();
+      };
+      cleanOuterWindowEnabledEl.addEventListener("change", syncOuter);
+      syncOuter();
+    }
+    if (cleanOuterWindowPyeongEl) {
+      cleanOuterWindowPyeongEl.addEventListener("input", (e) => {
+        state.cleanOuterWindowPyeong = Math.max(0, toNumberSafe(e.target.value, 0));
+        calc();
+      });
+    }
+
+    // clean phytoncide / disinfect
+    if (cleanPhytoncideEnabledEl) cleanPhytoncideEnabledEl.addEventListener("change", (e) => { state.cleanPhytoncideEnabled = !!e.target.checked; calc(); });
+    if (cleanDisinfectEnabledEl) cleanDisinfectEnabledEl.addEventListener("change", (e) => { state.cleanDisinfectEnabled = !!e.target.checked; calc(); });
+
+    if (cleanTrashBagsEl) cleanTrashBagsEl.addEventListener("input", (e) => { state.cleanTrashBags = Math.max(0, toNumberSafe(e.target.value, 0)); calc(); });
+
+    // open modals
+    if (openItemsModalBtn) openItemsModalBtn.addEventListener("click", () => openModal("itemsModal"));
+    if (openCleanBasicModalBtn) openCleanBasicModalBtn.addEventListener("click", () => openModal("cleanBasicModal"));
+    if (openCleanApplianceModalBtn) openCleanApplianceModalBtn.addEventListener("click", () => openModal("cleanApplianceModal"));
+
+    // throw toggle + modal
+    if (throwToggleEl && throwMiniWrapEl) {
+      const syncThrow = () => {
+        state.throwEnabled = !!throwToggleEl.checked;
+        throwMiniWrapEl.style.display = state.throwEnabled ? "block" : "none";
+        calc();
+        syncMiniSummaries();
+      };
+      throwToggleEl.addEventListener("change", syncThrow);
+      syncThrow();
+    }
+    if (openThrowModalBtn) openThrowModalBtn.addEventListener("click", () => { if (state.throwEnabled) openModal("throwModal"); });
+
+    if (workFromEl) workFromEl.addEventListener("change", (e) => { state.workFrom = !!e.target.checked; calc(); });
+    if (workToEl) workToEl.addEventListener("change", (e) => { state.workTo = !!e.target.checked; calc(); });
+
+    // cleaning add-on (move)
+    if (cleaningToggleEl && cleaningBodyEl) {
+      const syncCleaning = () => {
+        state.cleaningEnabled = !!cleaningToggleEl.checked;
+        cleaningBodyEl.hidden = !state.cleaningEnabled;
+        calc();
+      };
+      cleaningToggleEl.addEventListener("change", syncCleaning);
+      syncCleaning();
+    }
+    if (cleaningFromEl) cleaningFromEl.addEventListener("change", (e) => { state.cleaningFrom = !!e.target.checked; calc(); });
+    if (cleaningToEl) cleaningToEl.addEventListener("change", (e) => { state.cleaningTo = !!e.target.checked; calc(); });
+    if (cleaningTypeEls?.length) {
+      cleaningTypeEls.forEach((el) => {
+        el.addEventListener("change", (e) => { state.cleaningType = e.target.value || "light"; calc(); });
+        if (el.checked) state.cleaningType = el.value;
+      });
+    }
+
+    // stairs / elevator for move
+    if (noFromEl) noFromEl.addEventListener("change", (e) => { state.noFrom = !!e.target.checked; calc(); });
+    if (noToEl) noToEl.addEventListener("change", (e) => { state.noTo = !!e.target.checked; calc(); });
+
+    if (fromFloorEl) fromFloorEl.addEventListener("input", (e) => { state.fromFloor = Math.max(1, toNumberSafe(e.target.value, 1)); calc(); });
+    if (toFloorEl) toFloorEl.addEventListener("input", (e) => { state.toFloor = Math.max(1, toNumberSafe(e.target.value, 1)); calc(); });
+
+    // cantCarry / helper
+    if (cantCarryFromEl) cantCarryFromEl.addEventListener("change", (e) => { state.cantCarryFrom = !!e.target.checked; calc(); });
+    if (cantCarryToEl) cantCarryToEl.addEventListener("change", (e) => { state.cantCarryTo = !!e.target.checked; calc(); });
+    if (helperFromEl) helperFromEl.addEventListener("change", (e) => { state.helperFrom = !!e.target.checked; calc(); });
+    if (helperToEl) helperToEl.addEventListener("change", (e) => { state.helperTo = !!e.target.checked; calc(); });
+
+    // night / ride
+    if (nightEl) nightEl.addEventListener("change", (e) => { state.night = !!e.target.checked; calc(); });
+    if (rideEl) rideEl.addEventListener("input", (e) => { state.ride = Math.max(0, toNumberSafe(e.target.value, 0)); calc(); });
+
+    // ladder toggles
+    if (ladderFromEnabledEl) {
+      ladderFromEnabledEl.addEventListener("change", () => {
+        state.ladderFromEnabled = !!ladderFromEnabledEl.checked;
+        if (ladderFromBodyEl) ladderFromBodyEl.hidden = !state.ladderFromEnabled;
+        calc();
+      });
+      state.ladderFromEnabled = !!ladderFromEnabledEl.checked;
+      if (ladderFromBodyEl) ladderFromBodyEl.hidden = !state.ladderFromEnabled;
+    }
+    if (ladderToEnabledEl) {
+      ladderToEnabledEl.addEventListener("change", () => {
+        state.ladderToEnabled = !!ladderToEnabledEl.checked;
+        if (ladderToBodyEl) ladderToBodyEl.hidden = !state.ladderToEnabled;
+        calc();
+      });
+      state.ladderToEnabled = !!ladderToEnabledEl.checked;
+      if (ladderToBodyEl) ladderToBodyEl.hidden = !state.ladderToEnabled;
+    }
+
+    if (ladderFromFloorEl) {
+      const normalize = () => {
+        const v = Math.max(1, parseInt(String(ladderFromFloorEl.value || "1"), 10) || 1);
+        ladderFromFloorEl.value = String(v);
+        state.ladderFromFloor = v;
+      };
+      ladderFromFloorEl.addEventListener("input", () => { normalize(); calc(); });
+      ladderFromFloorEl.addEventListener("change", () => { normalize(); calc(); });
+      normalize();
+    }
+    if (ladderToFloorEl) {
+      const normalize = () => {
+        const v = Math.max(1, parseInt(String(ladderToFloorEl.value || "1"), 10) || 1);
+        ladderToFloorEl.value = String(v);
+        state.ladderToFloor = v;
+      };
+      ladderToFloorEl.addEventListener("input", () => { normalize(); calc(); });
+      ladderToFloorEl.addEventListener("change", () => { normalize(); calc(); });
+      normalize();
+    }
+
+    // load
+    document.querySelectorAll('input[name="load"]').forEach((el) => {
+      el.addEventListener("change", (e) => { state.load = e.target.value; calc(); });
+      if (el.checked) state.load = el.value;
+    });
+
+    // stepper common handling (+ clean modals)
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest(".stepper-btn");
+      if (!btn) return;
+
+      const dir = Number(btn.getAttribute("data-dir") || "0");
+      if (!dir) return;
+
+      // 1) id based
+      const targetId = btn.getAttribute("data-stepper");
+      if (targetId) {
+        const input = document.getElementById(targetId);
+        if (!input) return;
+
+        const min = input.min !== "" ? Number(input.min) : 0;
+        const max = input.max !== "" ? Number(input.max) : Infinity;
+        const cur = Number(input.value || "0");
+        const next = Math.min(max, Math.max(min, cur + dir));
+
+        input.value = String(next);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+      }
+
+      // 2) MOVE itemQty
+      const itemKey = btn.getAttribute("data-stepper-item");
+      const loc = btn.getAttribute("data-stepper-loc");
+      if (itemKey && !loc && !btn.hasAttribute("data-stepper-clean")) {
+        const input = document.querySelector(`.itemQty[data-item="${CSS.escape(itemKey)}"]`);
+        if (!input) return;
+
+        const min = input.min !== "" ? Number(input.min) : 0;
+        const max = input.max !== "" ? Number(input.max) : Infinity;
+        const cur = Number(input.value || "0");
+        const next = Math.min(max, Math.max(min, cur + dir));
+        input.value = String(next);
+
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+      }
+
+      // 3) MOVE throwQty
+      if (loc && itemKey) {
+        const input = document.querySelector(`.throwQty[data-loc="${CSS.escape(loc)}"][data-item="${CSS.escape(itemKey)}"]`);
+        if (!input) return;
+
+        const min = input.min !== "" ? Number(input.min) : 0;
+        const max = input.max !== "" ? Number(input.max) : Infinity;
+        const cur = Number(input.value || "0");
+        const next = Math.min(max, Math.max(min, cur + dir));
+        input.value = String(next);
+
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+      }
+
+      // 4) CLEAN qty
+      if (btn.getAttribute("data-stepper-clean") === "1") {
+        const group = btn.getAttribute("data-clean-group") || "";
+        const key = btn.getAttribute("data-clean-item") || "";
+        if (!group || !key) return;
+
+        const input = document.querySelector(`.cleanQty[data-clean-group="${CSS.escape(group)}"][data-clean-item="${CSS.escape(key)}"]`);
+        if (!input) return;
+
+        const min = input.min !== "" ? Number(input.min) : 0;
+        const max = input.max !== "" ? Number(input.max) : Infinity;
+        const cur = Number(input.value || "0");
+        const next = Math.min(max, Math.max(min, cur + dir));
+
+        input.value = String(next);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+      }
+
+      // 5) fallback number input in wrapper
+      const wrapper = btn.closest(".stepper") || btn.parentElement;
+      if (!wrapper) return;
+      const input = wrapper.querySelector('input[type="number"]');
+      if (!input) return;
+
+      const min = input.min !== "" ? Number(input.min) : 0;
+      const max = input.max !== "" ? Number(input.max) : Infinity;
+      const cur = Number(input.value || "0");
+      const next = Math.min(max, Math.max(min, cur + dir));
+      input.value = String(next);
+
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+
+    // MOVE itemQty input
+    document.querySelectorAll(".itemQty").forEach((el) => {
+      el.addEventListener("input", (e) => {
+        const key = e.target.getAttribute("data-item");
+        if (!key) return;
+        const v = Math.max(0, toNumberSafe(e.target.value, 0));
+        state.itemQty[key] = v;
+        calc();
+        syncMiniSummaries();
+      });
+      const key = el.getAttribute("data-item");
+      if (key) state.itemQty[key] = Math.max(0, toNumberSafe(el.value, 0));
+    });
+
+    // MOVE throwQty input
+    document.querySelectorAll(".throwQty").forEach((el) => {
+      el.addEventListener("input", (e) => {
+        const loc = e.target.getAttribute("data-loc");
+        const key = e.target.getAttribute("data-item");
+        const v = Math.max(0, toNumberSafe(e.target.value, 0));
+        if (!loc || !key) return;
+        if (loc === "from") state.throwFromQty[key] = v;
+        if (loc === "to") state.throwToQty[key] = v;
+        calc();
+        syncMiniSummaries();
+      });
+      const loc = el.getAttribute("data-loc");
+      const key = el.getAttribute("data-item");
+      if (loc && key) {
+        const v = Math.max(0, toNumberSafe(el.value, 0));
+        if (loc === "from") state.throwFromQty[key] = v;
+        if (loc === "to") state.throwToQty[key] = v;
+      }
+    });
+
+    // CLEAN qty inputs
+    document.querySelectorAll(".cleanQty").forEach((el) => {
+      el.addEventListener("input", (e) => {
+        const group = e.target.getAttribute("data-clean-group");
+        const key = e.target.getAttribute("data-clean-item");
+        if (!group || !key) return;
+        const v = Math.max(0, toNumberSafe(e.target.value, 0));
+
+        if (group === "basic") state.cleanBasicQty[key] = v;
+        if (group === "appliance") state.cleanApplianceQty[key] = v;
+
+        calc();
+        syncMiniSummaries();
+      });
+
+      const group = el.getAttribute("data-clean-group");
+      const key = el.getAttribute("data-clean-item");
+      if (group && key) {
+        const v = Math.max(0, toNumberSafe(el.value, 0));
+        if (group === "basic") state.cleanBasicQty[key] = v;
+        if (group === "appliance") state.cleanApplianceQty[key] = v;
+      }
+    });
+
+    // date change -> slots
     if (moveDateEl) {
       moveDateEl.addEventListener("change", async (e) => {
         state.moveDate = e.target.value || "";
@@ -907,7 +1431,7 @@
       });
     }
 
-    // 시간 선택
+    // time select
     if (timeSlotEls?.length) {
       timeSlotEls.forEach((el) => {
         el.addEventListener("change", (e) => {
@@ -918,248 +1442,31 @@
       });
     }
 
-    // 계단/엘베
-    if (noFromEl) noFromEl.addEventListener("change", (e) => { state.noFrom = e.target.checked; calc(); });
-    if (noToEl) noToEl.addEventListener("change", (e) => { state.noTo = e.target.checked; calc(); });
-
-    if (fromFloorEl) fromFloorEl.addEventListener("input", (e) => {
-      state.fromFloor = Math.max(1, toNumberSafe(e.target.value, 1));
-      calc();
-    });
-    if (toFloorEl) toFloorEl.addEventListener("input", (e) => {
-      state.toFloor = Math.max(1, toNumberSafe(e.target.value, 1));
-      calc();
-    });
-
-    // 직접 나르기 어려움 / 인부
-    if (cantCarryFromEl) cantCarryFromEl.addEventListener("change", (e) => { state.cantCarryFrom = e.target.checked; calc(); });
-    if (cantCarryToEl) cantCarryToEl.addEventListener("change", (e) => { state.cantCarryTo = e.target.checked; calc(); });
-    if (helperFromEl) helperFromEl.addEventListener("change", (e) => { state.helperFrom = e.target.checked; calc(); });
-    if (helperToEl) helperToEl.addEventListener("change", (e) => { state.helperTo = e.target.checked; calc(); });
-
-    // 야간/주말, 동승
-    if (nightEl) nightEl.addEventListener("change", (e) => { state.night = e.target.checked; calc(); });
-    if (rideEl) rideEl.addEventListener("input", (e) => {
-      state.ride = Math.max(0, toNumberSafe(e.target.value, 0));
-      calc();
-    });
-
-    // ✅ 청소 옵션 (추가)
-    if (cleaningToggleEl && cleaningBodyEl) {
-      const syncCleaning = () => {
-        state.cleaningEnabled = !!cleaningToggleEl.checked;
-        cleaningBodyEl.hidden = !state.cleaningEnabled;
-        calc();
-      };
-      cleaningToggleEl.addEventListener("change", syncCleaning);
-      syncCleaning();
+    // if date already selected -> apply slot disable
+    if (moveDateEl?.value) {
+      state.moveDate = moveDateEl.value;
+      const confirmed = await fetchConfirmedSlots(state.moveDate);
+      TIME_SLOTS.forEach((slot) => setTimeSlotDisabled(slot, confirmed.has(slot)));
+      const checked = document.querySelector('input[name="timeSlot"]:checked');
+      state.timeSlot = checked ? checked.value : "";
     }
 
-    if (cleaningFromEl) cleaningFromEl.addEventListener("change", (e) => { state.cleaningFrom = e.target.checked; calc(); });
-    if (cleaningToEl) cleaningToEl.addEventListener("change", (e) => { state.cleaningTo = e.target.checked; calc(); });
-
-    if (cleaningTypeEls?.length) {
-      cleaningTypeEls.forEach((el) => {
-        el.addEventListener("change", (e) => {
-          state.cleaningType = e.target.value || "light";
-          calc();
-        });
-        if (el.checked) state.cleaningType = el.value;
+    // load note
+    if (cleanPyeongEl && cleanOuterWindowPyeongEl) {
+      // keep outer window pyeong in sync when user changes base pyeong (only if outer window is enabled and user hasn't edited)
+      cleanPyeongEl.addEventListener("change", () => {
+        if (state.cleanOuterWindowEnabled) {
+          // do not force overwrite if user already set non-zero manually
+          const cur = Math.max(0, toNumberSafe(cleanOuterWindowPyeongEl.value, 0));
+          if (cur === 0) {
+            cleanOuterWindowPyeongEl.value = String(Math.max(0, state.cleanPyeong || 0));
+            state.cleanOuterWindowPyeong = Math.max(0, state.cleanPyeong || 0);
+          }
+        }
       });
     }
 
-    // ladder toggle
-    if (ladderFromEnabledEl) {
-      ladderFromEnabledEl.addEventListener("change", () => {
-        state.ladderFromEnabled = !!ladderFromEnabledEl.checked;
-        if (ladderFromBodyEl) ladderFromBodyEl.hidden = !state.ladderFromEnabled;
-        calc();
-      });
-      state.ladderFromEnabled = !!ladderFromEnabledEl.checked;
-      if (ladderFromBodyEl) ladderFromBodyEl.hidden = !state.ladderFromEnabled;
-    }
-
-    if (ladderToEnabledEl) {
-      ladderToEnabledEl.addEventListener("change", () => {
-        state.ladderToEnabled = !!ladderToEnabledEl.checked;
-        if (ladderToBodyEl) ladderToBodyEl.hidden = !state.ladderToEnabled;
-        calc();
-      });
-      state.ladderToEnabled = !!ladderToEnabledEl.checked;
-      if (ladderToBodyEl) ladderToBodyEl.hidden = !state.ladderToEnabled;
-    }
-
-    // ✅ ladder floor
-    if (ladderFromFloorEl) {
-      const normalize = () => {
-        const v = Math.max(1, parseInt(String(ladderFromFloorEl.value || "1"), 10) || 1);
-        ladderFromFloorEl.value = String(v);
-        state.ladderFromFloor = v;
-      };
-      ladderFromFloorEl.addEventListener("input", () => { normalize(); calc(); });
-      ladderFromFloorEl.addEventListener("change", () => { normalize(); calc(); });
-      normalize();
-    }
-
-    if (ladderToFloorEl) {
-      const normalize = () => {
-        const v = Math.max(1, parseInt(String(ladderToFloorEl.value || "1"), 10) || 1);
-        ladderToFloorEl.value = String(v);
-        state.ladderToFloor = v;
-      };
-      ladderToFloorEl.addEventListener("input", () => { normalize(); calc(); });
-      ladderToFloorEl.addEventListener("change", () => { normalize(); calc(); });
-      normalize();
-    }
-
-    // 짐양
-    document.querySelectorAll('input[name="load"]').forEach((el) => {
-      el.addEventListener("change", (e) => {
-        state.load = e.target.value;
-        calc();
-      });
-      if (el.checked) state.load = el.value;
-    });
-
-    // items modal open
-    if (openItemsModalBtn) {
-      openItemsModalBtn.addEventListener("click", () => openModal("itemsModal"));
-    }
-
-    // throw toggle + modal open
-    if (throwToggleEl && throwMiniWrapEl) {
-      const syncThrow = () => {
-        state.throwEnabled = !!throwToggleEl.checked;
-        throwMiniWrapEl.style.display = state.throwEnabled ? "block" : "none";
-        calc();
-        syncMiniSummaries();
-      };
-      throwToggleEl.addEventListener("change", syncThrow);
-      syncThrow();
-    }
-    if (openThrowModalBtn) {
-      openThrowModalBtn.addEventListener("click", () => {
-        if (!state.throwEnabled) return;
-        openModal("throwModal");
-      });
-    }
-
-    if (workFromEl) workFromEl.addEventListener("change", (e) => { state.workFrom = e.target.checked; calc(); });
-    if (workToEl) workToEl.addEventListener("change", (e) => { state.workTo = e.target.checked; calc(); });
-
-    /* =========================
-       ✅ 스텝퍼 공통 처리
-    ========================= */
-    document.addEventListener("click", (e) => {
-      const btn = e.target.closest(".stepper-btn");
-      if (!btn) return;
-
-      const dir = Number(btn.getAttribute("data-dir") || "0");
-      if (!dir) return;
-
-      // 1) id 기반
-      const targetId = btn.getAttribute("data-stepper");
-      if (targetId) {
-        const input = document.getElementById(targetId);
-        if (!input) return;
-
-        const min = input.min !== "" ? Number(input.min) : 0;
-        const max = input.max !== "" ? Number(input.max) : Infinity;
-
-        const cur = Number(input.value || "0");
-        const next = Math.min(max, Math.max(min, cur + dir));
-
-        input.value = String(next);
-
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-        input.dispatchEvent(new Event("change", { bubbles: true }));
-        return;
-      }
-
-      // 2) itemQty
-      const itemKey = btn.getAttribute("data-stepper-item");
-      const loc = btn.getAttribute("data-stepper-loc");
-      if (itemKey && !loc) {
-        const input = document.querySelector(`.itemQty[data-item="${CSS.escape(itemKey)}"]`);
-        if (!input) return;
-        const min = input.min !== "" ? Number(input.min) : 0;
-        const max = input.max !== "" ? Number(input.max) : Infinity;
-        const cur = Number(input.value || "0");
-        const next = Math.min(max, Math.max(min, cur + dir));
-        input.value = String(next);
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-        input.dispatchEvent(new Event("change", { bubbles: true }));
-        return;
-      }
-
-      // 3) throwQty
-      if (loc && itemKey) {
-        const input = document.querySelector(
-          `.throwQty[data-loc="${CSS.escape(loc)}"][data-item="${CSS.escape(itemKey)}"]`
-        );
-        if (!input) return;
-        const min = input.min !== "" ? Number(input.min) : 0;
-        const max = input.max !== "" ? Number(input.max) : Infinity;
-        const cur = Number(input.value || "0");
-        const next = Math.min(max, Math.max(min, cur + dir));
-        input.value = String(next);
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-        input.dispatchEvent(new Event("change", { bubbles: true }));
-        return;
-      }
-
-      // 4) 일반 number input 자동
-      const wrapper = btn.closest(".stepper") || btn.parentElement;
-      if (!wrapper) return;
-      const input = wrapper.querySelector('input[type="number"]');
-      if (!input) return;
-
-      const min = input.min !== "" ? Number(input.min) : 0;
-      const max = input.max !== "" ? Number(input.max) : Infinity;
-      const cur = Number(input.value || "0");
-      const next = Math.min(max, Math.max(min, cur + dir));
-      input.value = String(next);
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-      input.dispatchEvent(new Event("change", { bubbles: true }));
-    });
-
-    // itemQty input
-    document.querySelectorAll(".itemQty").forEach((el) => {
-      el.addEventListener("input", (e) => {
-        const key = e.target.getAttribute("data-item");
-        if (!key) return;
-        const v = Math.max(0, toNumberSafe(e.target.value, 0));
-        state.itemQty[key] = v;
-        calc();
-        syncMiniSummaries();
-      });
-      const key = el.getAttribute("data-item");
-      if (key) state.itemQty[key] = Math.max(0, toNumberSafe(el.value, 0));
-    });
-
-    // throwQty input
-    document.querySelectorAll(".throwQty").forEach((el) => {
-      el.addEventListener("input", (e) => {
-        const loc = e.target.getAttribute("data-loc");
-        const key = e.target.getAttribute("data-item");
-        const v = Math.max(0, toNumberSafe(e.target.value, 0));
-        if (!loc || !key) return;
-        if (loc === "from") state.throwFromQty[key] = v;
-        if (loc === "to") state.throwToQty[key] = v;
-        calc();
-        syncMiniSummaries();
-      });
-
-      const loc = el.getAttribute("data-loc");
-      const key = el.getAttribute("data-item");
-      if (loc && key) {
-        const v = Math.max(0, toNumberSafe(el.value, 0));
-        if (loc === "from") state.throwFromQty[key] = v;
-        if (loc === "to") state.throwToQty[key] = v;
-      }
-    });
-
-    // 카카오 geocoder init
+    // Kakao geocoder init (MOVE distance)
     if (typeof kakao !== "undefined" && kakao.maps && typeof kakao.maps.load === "function") {
       kakao.maps.load(() => {
         try {
@@ -1180,16 +1487,11 @@
       calc();
     }
 
-    // 날짜가 이미 선택돼있으면 마감 반영
-    if (moveDateEl?.value) {
-      state.moveDate = moveDateEl.value;
-      const confirmed = await fetchConfirmedSlots(state.moveDate);
-      TIME_SLOTS.forEach((slot) => setTimeSlotDisabled(slot, confirmed.has(slot)));
-      const checked = document.querySelector('input[name="timeSlot"]:checked');
-      state.timeSlot = checked ? checked.value : "";
-    }
+    // ChannelTalk boot
+    const ok = await waitForChannelIO(6000);
+    if (ok) bootChannelIO();
 
-    // ✅ 문의 버튼 (채널톡 + 클립보드)
+    // Inquiry button
     if (channelInquiryBtn) {
       channelInquiryBtn.addEventListener("click", async (e) => {
         e.preventDefault();
@@ -1197,18 +1499,10 @@
         const msg = buildInquiryMessage(lastPrice || 0);
         const copied = await copyToClipboardSafe(msg);
 
-        // 채널톡 열기(가능하면)
-        try {
-          if (window.ChannelIO) {
-            window.ChannelIO("showMessenger");
-          }
-        } catch (_) {}
+        try { if (window.ChannelIO) window.ChannelIO("showMessenger"); } catch (_) {}
 
-        if (copied) {
-          alert("견적 메시지를 복사했어요.\n채널톡에 붙여넣기만 하면 됩니다.");
-        } else {
-          alert("클립보드 복사에 실패했습니다.\n아래 메시지를 수동으로 복사해 주세요:\n\n" + msg);
-        }
+        if (copied) alert("견적 메시지를 복사했어요.\n채널톡에 붙여넣기만 하면 됩니다.");
+        else alert("클립보드 복사에 실패했습니다.\n아래 메시지를 수동으로 복사해 주세요:\n\n" + msg);
       });
     }
 
@@ -1218,7 +1512,7 @@
   });
 
   /* =========================
-     거리 계산 (경유지 포함)
+     MOVE distance calculation (Kakao)
   ========================= */
   if (calcDistanceBtn) {
     calcDistanceBtn.addEventListener("click", async () => {
@@ -1273,10 +1567,7 @@
     return new Promise((resolve, reject) => {
       geocoder.addressSearch(address, (result, status) => {
         if (status === kakao.maps.services.Status.OK) {
-          resolve({
-            lat: parseFloat(result[0].y),
-            lng: parseFloat(result[0].x),
-          });
+          resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) });
         } else {
           reject(new Error(`"${address}" 주소를 찾을 수 없습니다.`));
         }
@@ -1290,10 +1581,7 @@
       destination: `${destination.lng},${destination.lat}`,
     });
 
-    const res = await fetch(`/.netlify/functions/kakaoDirections?${params.toString()}`, {
-      method: "GET",
-    });
-
+    const res = await fetch(`/.netlify/functions/kakaoDirections?${params.toString()}`, { method: "GET" });
     if (!res.ok) {
       const t = await res.text().catch(() => "");
       throw new Error(`도로거리 계산 실패: ${res.status} ${t}`);
@@ -1328,9 +1616,65 @@
   function toRad(deg) { return deg * (Math.PI / 180); }
 
   /* =========================
-     문의 메시지 (ChannelTalk)
+     Inquiry message (service aware)
   ========================= */
   function buildInquiryMessage(priceNumber) {
+    const total = Math.max(0, Number(priceNumber) || 0);
+    const deposit = Math.round(total * 0.2);
+    const balance = total - deposit;
+
+    const scheduleLabel = state.moveDate || "미선택";
+    const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
+
+    if (state.service === SERVICE.CLEAN) {
+      const typeLabel =
+        state.cleanType === "occupied" ? "거주청소(짐있음)" :
+        state.cleanType === "moveout" ? "이사청소(퇴거)" : "입주청소(공실)";
+
+      const optsBasic = getSelectedQtyLabelFromMap(state.cleanBasicQty, CLEAN_BASIC_PRICE, "없음");
+      const optsAppl = getSelectedQtyLabelFromMap(state.cleanApplianceQty, CLEAN_APPLIANCE_PRICE, "없음");
+
+      const outerWin = state.cleanOuterWindowEnabled
+        ? `사용 (${state.cleanOuterWindowPyeong || 0}평)`
+        : "미사용";
+
+      const lines = [
+        "안녕하세요. 디디운송 입주청소 견적 문의드립니다.",
+        "",
+        "[조건]",
+        `- 서비스: 입주청소`,
+        `- 청소 유형: ${typeLabel}`,
+        `- 평수: ${state.cleanPyeong || "미입력"}평`,
+        `- 구조: 방 ${state.cleanRooms} / 화장실 ${state.cleanBaths} / 베란다 ${state.cleanBalconies} / 붙박이장 ${state.cleanWardrobes}`,
+        `- 주소: ${state.cleanAddress || "미입력"}`,
+        state.cleanAddressNote ? `- 주소/출입 메모: ${state.cleanAddressNote}` : null,
+        `- 일정: ${scheduleLabel}`,
+        `- 희망 시간: ${timeSlotLabel}`,
+        `- 주차: ${state.cleanParkingHard ? "어려움" : "보통/가능"}`,
+        `- 엘리베이터: ${state.cleanNoElevator ? `없음(${state.cleanFloor}층)` : "있음"}`,
+        `- 오염도: ${state.cleanSoil}`,
+        `- 외창: ${outerWin}`,
+        `- 피톤치드: ${state.cleanPhytoncideEnabled ? "사용" : "미사용"}`,
+        `- 살균/소독: ${state.cleanDisinfectEnabled ? "사용" : "미사용"}`,
+        `- 폐기/정리(봉투): ${state.cleanTrashBags || 0}개`,
+        `- 청소 옵션(특수): ${optsBasic}`,
+        `- 가전·가구 클리닝: ${optsAppl}`,
+        state.cleanNote ? `- 기타사항: ${state.cleanNote}` : null,
+        "",
+        "[예상금액]",
+        `₩${total.toLocaleString("ko-KR")}`,
+        `[예약금(20%)] ₩${deposit.toLocaleString("ko-KR")}`,
+        `[잔금(80%)] ₩${balance.toLocaleString("ko-KR")}`,
+        "",
+        "※ 예약금 입금 시 예약 확정되며, 잔금은 작업 당일 결제합니다.",
+        "※ 현장 상태(오염/주차/동선/외창/옵션 범위)에 따라 금액이 변동될 수 있습니다.",
+        "",
+      ].filter(Boolean);
+
+      return lines.join("\n");
+    }
+
+    // MOVE message
     const startAddr = (startAddressInput?.value || "").trim();
     const endAddr = (endAddressInput?.value || "").trim();
     const waypoint = (waypointAddressInput?.value || "").trim();
@@ -1346,14 +1690,11 @@
     const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : "미선택";
 
     const distanceLabel = state.distance > 0 ? `${state.distance}km` : "미계산";
-    const scheduleLabel = state.moveDate || "미선택";
-    const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
 
     const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
-    const moveItemsLabel = getSelectedQtyLabel(mergedAllItems);
+    const moveItemsLabel = getSelectedQtyLabelFromMap(mergedAllItems, FURNITURE_PRICE, "없음");
 
-    // 사다리차 표시
     const ladderParts = [];
     let ladderCost = 0;
     if (state.ladderFromEnabled) {
@@ -1370,26 +1711,21 @@
       ? `${ladderParts.join(" / ")} (합계 ₩${ladderCost.toLocaleString("ko-KR")})`
       : "불필요";
 
-    // 보관료(옵션)
     const storageFee =
       state.moveType === "storage"
         ? Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1) * STORAGE_PER_DAY
         : 0;
 
-    // ✅ 청소 옵션
-    const cleaning = getCleaningInfo();
+    const cleaning = getMoveCleaningInfo();
     const cleaningLabel = cleaning.enabled
       ? `${cleaning.label} (₩${cleaning.cost.toLocaleString("ko-KR")})`
       : "미사용";
-
-    const total = Math.max(0, Number(priceNumber) || 0);
-    const deposit = Math.round(total * 0.2);
-    const balance = total - deposit;
 
     const lines = [
       "안녕하세요. 디디운송 견적 문의드립니다.",
       "",
       "[조건]",
+      `- 서비스: 이사·용달`,
       `- 이사 방식: ${moveLabel}`,
       `- 차량: ${vehicleLabel}`,
       `- 거리: ${distanceLabel}`,
@@ -1423,56 +1759,31 @@
   }
 
   /* =========================
-     ✅ 가격 계산 + 요약 렌더
+     Total calculation
   ========================= */
-  function calc() {
-    // ✅ 스티키바는 항상 표시
-    if (stickyBarEl) {
-      stickyBarEl.style.display = "block";
-      stickyBarEl.setAttribute("aria-hidden", "false");
-    }
-
-    // ✅ 높이 재측정 (텍스트 줄바꿈/반응형 대비)
-    syncStickyBarHeightVar();
-
-    if (!state.vehicle) {
-      lastPrice = 0;
-      if (priceEl) priceEl.innerText = "₩0";
-      if (stickyPriceEl) stickyPriceEl.innerText = "₩0";
-      if (summaryEl) summaryEl.innerHTML = "조건을 선택하세요";
-      syncWizardButtons();
-      return;
-    }
+  function calcMoveTotal() {
+    if (!state.vehicle) return { subtotal: 0, displayPrice: 0, html: "조건을 선택하세요" };
 
     const key = VEHICLE_MAP[state.vehicle];
-    if (!key) return;
+    if (!key) return { subtotal: 0, displayPrice: 0, html: "조건을 선택하세요" };
 
     const base = toNumberSafe(BASE_PRICE[key], 0);
     const perKm = toNumberSafe(PER_KM_PRICE[key], 0);
     const dist = Math.max(0, toNumberSafe(state.distance, 0));
 
-    // 표시용(“13.8% 저렴” 문구 느낌)
-    const DISPLAY_MULTIPLIER = 0.95;
-
-    // 반포장 프리미엄
     const HALF_PREMIUM_MULTIPLIER = 1.18;
 
-    // 기본(차량+거리)
     let subtotal = base + dist * perKm;
 
-    // 이사 방식(보관 포함)
     const effectiveMoveType = state.moveType === "storage" ? state.storageBase : state.moveType;
+    if (effectiveMoveType === "half") subtotal = Math.round(subtotal * HALF_PREMIUM_MULTIPLIER);
 
-    if (effectiveMoveType === "half") {
-      subtotal = Math.round(subtotal * HALF_PREMIUM_MULTIPLIER);
-    }
-
-    // 짐양(박스)
+    // load
     const loadMap = getLoadMap(effectiveMoveType);
     const loadPrice = state.load && loadMap[state.load] ? toNumberSafe(loadMap[state.load].price, 0) : 0;
     subtotal += loadPrice;
 
-    // 가구/가전(버리기 포함 합산)
+    // items (merged with throw)
     const mergedThrow = sumQtyMaps(state.throwFromQty, state.throwToQty);
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
 
@@ -1485,56 +1796,41 @@
     });
     subtotal += itemsCost;
 
-    // 계단(엘베 없음)
+    // stairs
     const stairFromCost = state.noFrom ? stairExtraByFloor(state.fromFloor) : 0;
     const stairToCost = state.noTo ? stairExtraByFloor(state.toFloor) : 0;
     subtotal += stairFromCost + stairToCost;
 
-    // 직접 나르기 어려움
-    const cantCarryCost =
-      (state.cantCarryFrom ? 30000 : 0) +
-      (state.cantCarryTo ? 30000 : 0);
-    subtotal += cantCarryCost;
+    // cantCarry
+    subtotal += (state.cantCarryFrom ? 30000 : 0) + (state.cantCarryTo ? 30000 : 0);
 
-    // 인부 추가
-    const helperCost =
-      (state.helperFrom ? 40000 : 0) +
-      (state.helperTo ? 40000 : 0);
-    subtotal += helperCost;
+    // helper
+    subtotal += (state.helperFrom ? 40000 : 0) + (state.helperTo ? 40000 : 0);
 
-    // 동승
-    const rideCost = Math.max(0, Number(state.ride) || 0) * 10000;
-    subtotal += rideCost;
+    // ride
+    subtotal += Math.max(0, Number(state.ride) || 0) * 10000;
 
-    // 사다리차
+    // ladder
     const ladderFromCost = state.ladderFromEnabled ? ladderPriceByFloor(state.ladderFromFloor) : 0;
     const ladderToCost = state.ladderToEnabled ? ladderPriceByFloor(state.ladderToFloor) : 0;
     const ladderCost = ladderFromCost + ladderToCost;
     subtotal += ladderCost;
 
-    // ✅ 청소 옵션
-    const cleaning = getCleaningInfo();
+    // move cleaning add-on
+    const cleaning = getMoveCleaningInfo();
     subtotal += cleaning.cost;
 
-    // 보관료(옵션)
+    // storage fee
     const storageFee =
       state.moveType === "storage"
         ? Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1) * STORAGE_PER_DAY
         : 0;
     subtotal += storageFee;
 
-    // 최종 배율
     subtotal = Math.round(subtotal * PRICE_MULTIPLIER);
     const displayPrice = Math.round(subtotal * DISPLAY_MULTIPLIER);
 
-    lastPrice = subtotal;
-
-    // UI 업데이트
-    const priceText = `₩${displayPrice.toLocaleString("ko-KR")}`;
-    if (priceEl) priceEl.innerText = priceText;
-    if (stickyPriceEl) stickyPriceEl.innerText = priceText;
-
-    // 요약 렌더
+    // summary html
     const vehicleLabel = state.vehicle || "미선택";
     const moveLabel = moveTypeLabel(state.moveType, state.storageBase, state.storageDays);
 
@@ -1542,7 +1838,7 @@
     const stairsTo = state.noTo ? `${state.toFloor}층(엘베없음)` : "엘베있음";
 
     const loadLabel = state.load && loadMap[state.load] ? loadMap[state.load].label : "미선택";
-    const itemsLabel = getSelectedQtyLabel(mergedAllItems);
+    const itemsLabel = getSelectedQtyLabelFromMap(mergedAllItems, FURNITURE_PRICE, "없음");
     const scheduleLabel = state.moveDate || "미선택";
     const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
 
@@ -1560,9 +1856,11 @@
     const wpAddr = escapeHtml((waypointAddressInput?.value || "").trim());
 
     const distLabel = dist > 0 ? `${dist} km` : "미계산";
+    const priceText = `₩${displayPrice.toLocaleString("ko-KR")}`;
 
     const html = `
       <div class="sum">
+        <div><b>서비스</b>: 이사·용달</div>
         <div><b>차량</b>: ${escapeHtml(vehicleLabel)}</div>
         <div><b>이사 방식</b>: ${escapeHtml(moveLabel)}</div>
         <div><b>일정</b>: ${escapeHtml(scheduleLabel)} / ${escapeHtml(timeSlotLabel)}</div>
@@ -1586,7 +1884,167 @@
         </div>
       </div>
     `;
-    if (summaryEl) summaryEl.innerHTML = html;
+
+    return { subtotal, displayPrice, html };
+  }
+
+  function calcCleanTotal() {
+    const pyeong = Math.max(1, parseInt(String(state.cleanPyeong || 0), 10) || 0);
+    if (!pyeong) return { subtotal: 0, displayPrice: 0, html: "조건을 선택하세요" };
+
+    // base: min + per pyeong
+    let base = Math.max(CLEAN_MIN_PRICE, pyeong * CLEAN_PER_PYEONG);
+
+    // type multiplier (occupied etc)
+    const typeMult = CLEAN_TYPE_MULT[state.cleanType] ?? 1.0;
+    base = Math.round(base * typeMult);
+
+    // soil multiplier
+    const soilMult = CLEAN_SOIL_MULT[state.cleanSoil] ?? 1.0;
+    base = Math.round(base * soilMult);
+
+    // structure extras
+    let extra = 0;
+
+    const bath = Math.max(1, parseInt(String(state.cleanBaths || 1), 10) || 1);
+    if (bath > 1) extra += (bath - 1) * CLEAN_BATH_EXTRA_EACH;
+
+    const bal = Math.max(0, parseInt(String(state.cleanBalconies || 0), 10) || 0);
+    if (bal >= 3) extra += CLEAN_BALCONY_3P_EXTRA;
+
+    const wd = Math.max(0, parseInt(String(state.cleanWardrobes || 0), 10) || 0);
+    if (wd >= 2) extra += CLEAN_WARDROBE_2P_EXTRA;
+
+    // parking / stairs
+    if (state.cleanParkingHard) extra += CLEAN_PARKING_HARD_EXTRA;
+
+    if (state.cleanNoElevator) {
+      const f = Math.max(1, parseInt(String(state.cleanFloor || 1), 10) || 1);
+      extra += Math.max(0, f - 1) * CLEAN_NO_ELEVATOR_PER_FLOOR;
+    }
+
+    // outer window (simple per pyeong pricing)
+    // 여기서는 “평당 8,000” 근사치로 잡고, 실제는 상담 후 조정될 수 있게 메시지/힌트로 커버
+    if (state.cleanOuterWindowEnabled) {
+      const ow = Math.max(0, parseInt(String(state.cleanOuterWindowPyeong || 0), 10) || 0);
+      extra += ow * 8000;
+    }
+
+    // phytoncide toggle: if enabled and user didn't set qty in modal, default apply by pyeong
+    if (state.cleanPhytoncideEnabled) {
+      const q = Math.max(0, parseInt(String(state.cleanBasicQty["피톤치드(평)"] || 0), 10) || 0);
+      if (q <= 0) {
+        // auto apply by pyeong
+        extra += pyeong * 5000;
+      }
+    }
+
+    // disinfect toggle (flat)
+    if (state.cleanDisinfectEnabled) extra += 80000;
+
+    // trash bags
+    extra += Math.max(0, parseInt(String(state.cleanTrashBags || 0), 10) || 0) * 5000;
+
+    // modal options: basic + appliance
+    Object.entries(state.cleanBasicQty || {}).forEach(([k, qty]) => {
+      const q = Math.max(0, Number(qty) || 0);
+      if (!q) return;
+      const unit = toNumberSafe(CLEAN_BASIC_PRICE[k]?.price, 0);
+      extra += unit * q;
+    });
+
+    Object.entries(state.cleanApplianceQty || {}).forEach(([k, qty]) => {
+      const q = Math.max(0, Number(qty) || 0);
+      if (!q) return;
+      const unit = toNumberSafe(CLEAN_APPLIANCE_PRICE[k]?.price, 0);
+      extra += unit * q;
+    });
+
+    let subtotal = base + extra;
+    subtotal = Math.round(subtotal * PRICE_MULTIPLIER);
+    const displayPrice = Math.round(subtotal * DISPLAY_MULTIPLIER);
+
+    const typeLabel =
+      state.cleanType === "occupied" ? "거주청소(짐있음)" :
+      state.cleanType === "moveout" ? "이사청소(퇴거)" : "입주청소(공실)";
+
+    const outerWinLabel = state.cleanOuterWindowEnabled
+      ? `사용 (${state.cleanOuterWindowPyeong || 0}평)`
+      : "미사용";
+
+    const scheduleLabel = state.moveDate || "미선택";
+    const timeSlotLabel = formatTimeSlotKR(state.timeSlot);
+
+    const basicLabel = getSelectedQtyLabelFromMap(state.cleanBasicQty, CLEAN_BASIC_PRICE, "없음");
+    const applLabel = getSelectedQtyLabelFromMap(state.cleanApplianceQty, CLEAN_APPLIANCE_PRICE, "없음");
+
+    const priceText = `₩${displayPrice.toLocaleString("ko-KR")}`;
+
+    const html = `
+      <div class="sum">
+        <div><b>서비스</b>: 입주청소</div>
+        <div><b>청소 유형</b>: ${escapeHtml(typeLabel)}</div>
+        <div><b>평수</b>: ${escapeHtml(String(pyeong))}평</div>
+        <div><b>구조</b>: 방 ${escapeHtml(String(state.cleanRooms))} / 화장실 ${escapeHtml(String(state.cleanBaths))} / 베란다 ${escapeHtml(String(state.cleanBalconies))} / 붙박이장 ${escapeHtml(String(state.cleanWardrobes))}</div>
+        <div><b>주소</b>: ${escapeHtml(state.cleanAddress || "미입력")}</div>
+        ${state.cleanAddressNote ? `<div><b>출입/주차 메모</b>: ${escapeHtml(state.cleanAddressNote)}</div>` : ""}
+        <div><b>일정</b>: ${escapeHtml(scheduleLabel)} / ${escapeHtml(timeSlotLabel)}</div>
+
+        <hr style="margin:12px 0; border:none; border-top:1px solid rgba(255,255,255,.12);" />
+
+        <div><b>오염도</b>: ${escapeHtml(state.cleanSoil)}</div>
+        <div><b>외창</b>: ${escapeHtml(outerWinLabel)}</div>
+        <div><b>주차</b>: ${escapeHtml(state.cleanParkingHard ? "어려움" : "보통/가능")}</div>
+        <div><b>엘리베이터</b>: ${escapeHtml(state.cleanNoElevator ? `없음(${state.cleanFloor}층)` : "있음")}</div>
+        <div><b>피톤치드</b>: ${escapeHtml(state.cleanPhytoncideEnabled ? "사용" : "미사용")}</div>
+        <div><b>살균/소독</b>: ${escapeHtml(state.cleanDisinfectEnabled ? "사용" : "미사용")}</div>
+        <div><b>폐기/정리(봉투)</b>: ${escapeHtml(String(state.cleanTrashBags || 0))}개</div>
+
+        <hr style="margin:12px 0; border:none; border-top:1px solid rgba(255,255,255,.12);" />
+
+        <div><b>청소 옵션(특수)</b>: ${escapeHtml(basicLabel)}</div>
+        <div><b>가전·가구 클리닝</b>: ${escapeHtml(applLabel)}</div>
+        ${state.cleanNote ? `<div><b>기타사항</b>: ${escapeHtml(state.cleanNote)}</div>` : ""}
+
+        <hr style="margin:12px 0; border:none; border-top:1px solid rgba(255,255,255,.12);" />
+
+        <div><b>예상 금액(표시)</b>: ${priceText}</div>
+        <div class="hint" style="margin-top:10px;">
+          ※ 입주청소는 현장 상태(오염/스티커/곰팡이/외창/주차·동선)에 따라 변동될 수 있습니다.<br/>
+          ※ 예약금 20% 입금 시 예약 확정, 잔금은 작업 당일 결제합니다.
+        </div>
+      </div>
+    `;
+
+    return { subtotal, displayPrice, html };
+  }
+
+  function calc() {
+    // sticky bar always visible + height sync
+    if (stickyBarEl) {
+      stickyBarEl.style.display = "block";
+      stickyBarEl.setAttribute("aria-hidden", "false");
+    }
+    syncStickyBarHeightVar();
+
+    // if service not selected -> show 0
+    if (state.service !== SERVICE.MOVE && state.service !== SERVICE.CLEAN) {
+      lastPrice = 0;
+      if (priceEl) priceEl.innerText = "₩0";
+      if (stickyPriceEl) stickyPriceEl.innerText = "₩0";
+      if (summaryEl) summaryEl.innerHTML = "조건을 선택하세요";
+      syncWizardButtons();
+      return;
+    }
+
+    const res = state.service === SERVICE.CLEAN ? calcCleanTotal() : calcMoveTotal();
+
+    lastPrice = res.subtotal;
+
+    const priceText = `₩${res.displayPrice.toLocaleString("ko-KR")}`;
+    if (priceEl) priceEl.innerText = priceText;
+    if (stickyPriceEl) stickyPriceEl.innerText = priceText;
+    if (summaryEl) summaryEl.innerHTML = res.html;
 
     syncWizardButtons();
   }

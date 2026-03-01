@@ -1,5 +1,5 @@
 /* /assets/css/style.css (CHATGPT DARK STYLE - DROP-IN)
-   - 구조(HTML/클래스/ID) 변경 없음
+   - 구조(HTML/클래스/ID) 변경 없음(추가 클래스는 확장용)
    - 레이어(z-index) / 표시(aria-hidden) 규칙 단일화
 */
 
@@ -34,9 +34,7 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  /* ✅ sticky bar height (JS가 실제 높이로 갱신)
-     - 초기값은 깜빡임/겹침 방지용 추정치
-  */
+  /* ✅ sticky bar height (JS가 실제 높이로 갱신) */
   --stickybar-h: 110px;
 
   /* top padding for body: 스티키바 영역 확보 */
@@ -79,22 +77,6 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
 }
 
 /* =========================
-   Global code blocks
-========================= */
-pre, code{
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-pre{
-  margin: 12px 0;
-  padding: 14px 14px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.10);
-  overflow:auto;
-}
-code{ color: rgba(230,237,246,0.92); }
-
-/* =========================
    Language bar
 ========================= */
 .langbar{
@@ -120,7 +102,6 @@ code{ color: rgba(230,237,246,0.92); }
 
 /* =========================
    Wizard top (sticky)
-   - 스티키바 아래로 고정되게 top 오프셋을 줌
 ========================= */
 .wizard-top{
   position: sticky;
@@ -134,7 +115,6 @@ code{ color: rgba(230,237,246,0.92); }
   box-shadow: none;
   backdrop-filter: blur(10px);
   margin-bottom: 10px;
-
   overflow: hidden;
 }
 .wizard-meta{
@@ -186,11 +166,6 @@ code{ color: rgba(230,237,246,0.92); }
   padding: 18px;
   backdrop-filter: blur(10px);
   overflow: hidden;
-}
-.card.sub{
-  color: var(--muted);
-  font-size: 13px;
-  line-height:1.55;
 }
 .card-sub{
   margin-top: 12px;
@@ -319,6 +294,36 @@ code{ color: rgba(230,237,246,0.92); }
 }
 
 /* =========================
+   Service select cards (NEW)
+========================= */
+.service-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+.service-card{
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  border-radius: 16px;
+  padding: 14px 12px;
+  cursor:pointer;
+  text-align:left;
+  color: var(--text);
+}
+.service-card:hover{ background: rgba(255,255,255,0.05); }
+.service-card.is-active{
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+.service-emoji{ font-size: 22px; }
+.service-title{ margin-top:8px; font-weight: 1100; letter-spacing: -0.02em; }
+.service-desc{ margin-top:4px; font-size: 12px; color: rgba(230,237,246,0.70); font-weight: 900; }
+
+@media (max-width: 520px){
+  .service-grid{ grid-template-columns: 1fr; }
+}
+
+/* =========================
    Vehicle
 ========================= */
 .vehicle{
@@ -351,7 +356,6 @@ code{ color: rgba(230,237,246,0.92); }
 }
 .option-controls{ display:flex; align-items:center; gap: 10px; }
 .item-qty-row{ align-items:center; }
-.section-center{ text-align:center; }
 
 /* time chips */
 .time-grid{
@@ -422,9 +426,8 @@ code{ color: rgba(230,237,246,0.92); }
 }
 
 /* =========================
-   Segmented (storage / cleaning type)
+   Segmented
 ========================= */
-.field label{ display:block; font-weight: 1000; margin-bottom: 8px; }
 .seg{ display:flex; gap:8px; }
 .seg-item{
   flex:1;
@@ -550,9 +553,6 @@ code{ color: rgba(230,237,246,0.92); }
 .cta-text .title{ font-size: 15px; }
 .cta-text .desc{ font-size: 12px; color: var(--muted); font-weight: 900; }
 
-/* =========================
-   CTA: mega
-========================= */
 .contact-btn.mega{
   position: relative;
   border-radius: 18px;
@@ -613,7 +613,7 @@ code{ color: rgba(230,237,246,0.92); }
 }
 
 /* =========================
-   TOP STICKY BAR (항상 표시)
+   TOP STICKY BAR
 ========================= */
 #stickyPriceBar{
   position: fixed;
@@ -822,7 +822,7 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper{
 }
 
 /* =========================
-   시즌 팝업 (aria-hidden 기반 표시)
+   Season popup
 ========================= */
 .dd-popup{
   position: fixed;
