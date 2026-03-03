@@ -1674,7 +1674,7 @@
       return lines.join("\n");
     }
 
-    // MOVE message
+       // MOVE message
     const startAddr = (startAddressInput?.value || "").trim();
     const endAddr = (endAddressInput?.value || "").trim();
     const waypoint = (waypointAddressInput?.value || "").trim();
@@ -1695,6 +1695,27 @@
     const mergedAllItems = sumQtyMaps(state.itemQty, mergedThrow);
     const moveItemsLabel = getSelectedQtyLabelFromMap(mergedAllItems, FURNITURE_PRICE, "없음");
 
+    // 버려주세요 작업 위치(운영 핵심)
+    const throwWorkPlaces = [
+      state.workFrom ? "출발지" : null,
+      state.workTo ? "도착지" : null,
+    ].filter(Boolean);
+    const throwWorkLabel = throwWorkPlaces.length ? throwWorkPlaces.join(" / ") : "미선택";
+
+    // 운반 곤란 / 기사 도움 요약
+    const cantCarryPlaces = [
+      state.cantCarryFrom ? "출발" : null,
+      state.cantCarryTo ? "도착" : null,
+    ].filter(Boolean);
+    const cantCarryLabel = cantCarryPlaces.length ? cantCarryPlaces.join(" / ") : "없음";
+
+    const helperPlaces = [
+      state.helperFrom ? "출발" : null,
+      state.helperTo ? "도착" : null,
+    ].filter(Boolean);
+    const helperLabel = helperPlaces.length ? helperPlaces.join(" / ") : "없음";
+
+    // 사다리차
     const ladderParts = [];
     let ladderCost = 0;
     if (state.ladderFromEnabled) {
@@ -1711,11 +1732,13 @@
       ? `${ladderParts.join(" / ")} (합계 ₩${ladderCost.toLocaleString("ko-KR")})`
       : "불필요";
 
+    // 보관료
     const storageFee =
       state.moveType === "storage"
         ? Math.max(1, parseInt(String(state.storageDays || 1), 10) || 1) * STORAGE_PER_DAY
         : 0;
 
+    // 청소옵션(이사 부가)
     const cleaning = getMoveCleaningInfo();
     const cleaningLabel = cleaning.enabled
       ? `${cleaning.label} (₩${cleaning.cost.toLocaleString("ko-KR")})`
@@ -1731,18 +1754,37 @@
       `- 거리: ${distanceLabel}`,
       `- 일정: ${scheduleLabel}`,
       `- 희망 시간: ${timeSlotLabel}`,
-      startAddr ? `- 출발지: ${startAddr}` : null,
-      state.hasWaypoint && waypoint ? `- 경유지: ${waypoint}` : null,
-      endAddr ? `- 도착지: ${endAddr}` : null,
-      `- 계단: 출발 ${stairsFrom} / 도착 ${stairsTo}`,
+
+      // 주소/경유
+      startAddr ? `- 출발지: ${startAddr}` : `- 출발지: 미입력`,
+      state.hasWaypoint ? `- 경유지 사용: 예` : `- 경유지 사용: 아니오`,
+      state.hasWaypoint && waypoint ? `- 경유지 주소: ${waypoint}` : (state.hasWaypoint ? `- 경유지 주소: 미입력` : null),
+      endAddr ? `- 도착지: ${endAddr}` : `- 도착지: 미입력`,
+
+      // 엘베/계단
+      `- 계단/엘베: 출발 ${stairsFrom} / 도착 ${stairsTo}`,
+
+      // 짐/가구가전
       `- 짐양(박스): ${loadLabel}`,
       `- 가구·가전(합산): ${moveItemsLabel}`,
       state.itemsNote ? `- 가구·가전 기타사항: ${state.itemsNote}` : null,
-      state.throwEnabled && state.throwNote ? `- 버리기 기타사항: ${state.throwNote}` : null,
+
+      // 버려주세요
       `- 버려주세요 모드: ${state.throwEnabled ? "사용" : "미사용"}`,
+      state.throwEnabled ? `- 버려주세요 작업 위치: ${throwWorkLabel}` : null,
+      state.throwEnabled && state.throwNote ? `- 버리기 기타사항: ${state.throwNote}` : null,
+
+      // 누락되기 쉬운 운영 핵심 옵션들
+      `- 야간: ${state.night ? "예" : "아니오"}`,
+      `- 운반 곤란(출발/도착): ${cantCarryLabel}`,
+      `- 기사 도움(출발/도착): ${helperLabel}`,
+      `- 동승: ${Math.max(0, Number(state.ride) || 0)}명`,
+
+      // 장비/부가
       `- 사다리차: ${ladderLabel}`,
       `- 청소 옵션: ${cleaningLabel}`,
       state.moveType === "storage" ? `- 보관료(옵션): ₩${storageFee.toLocaleString("ko-KR")}` : null,
+
       "",
       "[예상금액]",
       `₩${total.toLocaleString("ko-KR")}`,
@@ -1751,12 +1793,11 @@
       "",
       "※ 예약금 입금 시 예약 확정되며, 잔금은 운송 당일 결제합니다.",
       "※ 예약금은 일정 확보 및 기사 배정을 위한 비용으로, 입금 후 고객 사정에 의한 취소/변경 시 환불이 어렵습니다.",
-      "※ 현장 상황에 따라 금액이 변동될 수 있습니다.",
+      "※ 현장 상황(주차/동선/엘베 사용 제한/가구 추가/대기 등)에 따라 금액이 변동될 수 있습니다.",
       "",
     ].filter(Boolean);
 
     return lines.join("\n");
-  }
 
   /* =========================
      Total calculation
@@ -1808,7 +1849,7 @@
     subtotal += (state.helperFrom ? 40000 : 0) + (state.helperTo ? 40000 : 0);
 
     // ride
-    subtotal += Math.max(0, Number(state.ride) || 0) * 10000;
+    subtotal += Math.max(0, Number(state.ride) || 0) * 20000;
 
     // ladder
     const ladderFromCost = state.ladderFromEnabled ? ladderPriceByFloor(state.ladderFromFloor) : 0;
