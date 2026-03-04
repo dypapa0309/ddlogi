@@ -1033,8 +1033,8 @@
     ========================================================= */
     function moveBaseByVehicle(vehicle) {
       if (vehicle.includes("저상탑") && vehicle.includes("카고")) return 95000;
-      if (vehicle.includes("저상탑")) return 70000;
-      if (vehicle.includes("카고")) return 70000;
+      if (vehicle.includes("저상탑")) return 50000;
+      if (vehicle.includes("카고")) return 50000;
       return 0;
     }
 
@@ -1046,14 +1046,14 @@
     }
 
     function moveLoadFee(level) {
-      const map = { 1: 0, 2: 15000, 3: 30000, 4: 45000 };
+      const map = { 1: 10000, 2: 21000, 3: 36000, 4: 49000 };
       return map[level] ?? 0;
     }
 
     function stairsFee(noElevator, floor) {
       if (!noElevator) return 0;
       const f = Math.max(1, toInt(floor, 1));
-      return Math.max(0, f - 1) * 7000;
+      return Math.max(0, f - 1) * 10000;
     }
 
     function helperFee(helper) {
@@ -1090,11 +1090,11 @@
       let fee = 0;
       const get = (k) => toInt(items[k], 0);
 
-      fee += get("세탁기(12kg초과)") * 15000;
-      fee += get("건조기(12kg초과)") * 15000;
-      fee += get("냉장고(600L초과)") * 20000;
-      fee += get("TV(65이상)") * 15000;
-      fee += get("침대프레임(분해/조립)") * 25000;
+      fee += get("세탁기(12kg초과)") * 50000;
+      fee += get("건조기(12kg초과)") * 50000;
+      fee += get("냉장고(600L초과)") * 80000;
+      fee += get("TV(65이상)") * 30000;
+      fee += get("침대프레임(분해/조립)") * 40000;
 
       const m = get("침대매트리스(킹제외)");
       if (m > 0) {
