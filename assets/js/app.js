@@ -1040,8 +1040,8 @@
 
     function moveDistanceFee(km) {
       const d = Math.max(0, toNum(km, 0));
-      const a = Math.min(d, 10) * 3000;
-      const b = Math.max(0, d - 10) * 2000;
+      const a = Math.min(d, 10) * 2000;
+      const b = Math.max(0, d - 10) * 1550;
       return a + b;
     }
 
