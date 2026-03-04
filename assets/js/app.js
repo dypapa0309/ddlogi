@@ -1074,7 +1074,7 @@
 
     function rideFee(n) {
       const x = Math.max(0, toInt(n, 0));
-      return x * 5000;
+      return x * 20000;
     }
 
     function moveCleaningFee() {
