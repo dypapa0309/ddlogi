@@ -1,3 +1,4 @@
+<!-- /index.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -354,7 +355,7 @@
                 <button type="button" class="stepper-btn" data-dir="1" data-stepper="storageDays">+</button>
                 <span class="stepper-unit">일</span>
               </div>
-              <div class="hint">보관료는 <b>하루 20,000원</b>입니다. (기본 1일)</div>
+              <div class="hint">보관료는 <b>일수에 따라 차등 적용</b>됩니다. (1일 20,000원이며 이후 일수는 점차 감소)</div>
             </div>
           </div>
 
@@ -443,7 +444,7 @@
       </div>
     </section>
 
-    <!-- Step 5: 엘리베이터/계단 (MOVE only) -->
+    <!-- Step 5: 엘리베이터 (MOVE only) -->
     <section class="section step-card" data-step="5" data-only="move">
       <h2>엘리베이터</h2>
       <div class="card">
@@ -590,7 +591,6 @@
         <div class="option">
           <div>
             동승 인원 있을 시 체크해주세요<br />
-            (1인 이상 시 네고 문의)
           </div>
           <div class="stepper" data-stepper="ride">
             <button type="button" class="stepper-btn" data-stepper="ride" data-dir="-1">−</button>
@@ -760,7 +760,9 @@
     </div>
   </div>
 
-  <!-- ✅ Sticky Price Bar (항상 표시) -->
+  <!-- =========================
+       Sticky Price Bar (항상 표시)
+  ========================= -->
   <div id="stickyPriceBar" aria-hidden="false">
     <div class="sticky-inner">
       <div class="sticky-left">
@@ -773,7 +775,9 @@
     </div>
   </div>
 
-  <!-- ✅ 위저드 하단 네비게이션 -->
+  <!-- =========================
+       위저드 하단 네비게이션
+  ========================= -->
   <div class="wizard-nav" id="wizardNav" aria-label="단계 이동">
     <button type="button" class="wizard-btn ghost" id="wizardPrev">이전</button>
     <button type="button" class="wizard-btn" id="wizardNext">다음</button>
@@ -1403,36 +1407,124 @@
   </div>
 
   <!-- =========================
-       Scripts
+       Mattress Size Modal
+       - 사용자가 침대 매트리스 수량을 선택한 후 각 사이즈를 지정할 수 있는 모달입니다.
   ========================= -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/config.js"></script>
-  <script src="/assets/js/app.js"></script>
+  <div class="modal" id="mattressSizeModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="매트리스 사이즈 선택">
+    <div class="modal-backdrop" data-close="mattressSizeModal"></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <div class="modal-title">매트리스 사이즈 선택</div>
+        <button class="modal-x" type="button" data-close="mattressSizeModal" aria-label="닫기">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="sub">사이즈별 수량</div>
+        <!-- 싱글 (S) -->
+        <div class="option item-qty-row">
+          <div>싱글 (S) — 100×200cm</div>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" data-stepper-size="S" data-dir="-1">−</button>
+            <input type="number" data-size="S" min="0" value="0" inputmode="numeric" />
+            <button type="button" class="stepper-btn" data-stepper-size="S" data-dir="1">+</button>
+          </div>
+        </div>
+        <!-- 슈퍼싱글 (SS) -->
+        <div class="option item-qty-row">
+          <div>슈퍼싱글 (SS) — 110×200cm</div>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" data-stepper-size="SS" data-dir="-1">−</button>
+            <input type="number" data-size="SS" min="0" value="0" inputmode="numeric" />
+            <button type="button" class="stepper-btn" data-stepper-size="SS" data-dir="1">+</button>
+          </div>
+        </div>
+        <!-- 더블 (D) -->
+        <div class="option item-qty-row">
+          <div>더블 (D) — 140×200cm</div>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" data-stepper-size="D" data-dir="-1">−</button>
+            <input type="number" data-size="D" min="0" value="0" inputmode="numeric" />
+            <button type="button" class="stepper-btn" data-stepper-size="D" data-dir="1">+</button>
+          </div>
+        </div>
+        <!-- 퀸 (Q) -->
+        <div class="option item-qty-row">
+          <div>퀸 (Q) — 150~160×200cm</div>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" data-stepper-size="Q" data-dir="-1">−</button>
+            <input type="number" data-size="Q" min="0" value="0" inputmode="numeric" />
+            <button type="button" class="stepper-btn" data-stepper-size="Q" data-dir="1">+</button>
+          </div>
+        </div>
+        <!-- 킹 (K) -->
+        <div class="option item-qty-row">
+        
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="wizard-btn ghost" data-close="mattressSizeModal">닫기</button>
+        <button type="button" class="wizard-btn" data-close="mattressSizeModal">선택 완료</button>
+      </div>
+    </div>
+  </div>
 
-  <!-- ChannelTalk Loader (loader only) -->
-  <script>
-    (function(){
-      var w=window;
-      if(w.ChannelIO){return;}
-      var ch=function(){ch.c(arguments);};
-      ch.q=[]; ch.c=function(args){ch.q.push(args);};
-      w.ChannelIO=ch;
+  <!-- =========================
+     Inquiry Confirmation Modal
+     - 채널톡으로 견적을 보낼 때 확인/유도 모달
+========================= -->
+<div class="modal" id="confirmInquiryModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="견적 전송 확인">
+  <div class="modal-backdrop" data-close="confirmInquiryModal"></div>
+  <div class="modal-panel">
+    <div class="modal-head">
+      <div class="modal-title">견적 전송 안내</div>
+      <button class="modal-x" type="button" data-close="confirmInquiryModal" aria-label="닫기">×</button>
+    </div>
 
-      function l(){
-        if(w.ChannelIOInitialized){return;}
-        w.ChannelIOInitialized=true;
-        var s=document.createElement("script");
-        s.type="text/javascript";
-        s.async=true;
-        s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";
-        var x=document.getElementsByTagName("script")[0];
-        if(x && x.parentNode){x.parentNode.insertBefore(s,x);} 
-      }
+    <div class="modal-body">
+      <p>버튼을 누르면 채널톡이 열리고, 견적 메시지가 자동으로 입력됩니다.</p>
+      <p>만약 자동 입력이 안 되면, 방금 복사된 내용을 붙여넣고 전송해 주세요.</p>
+      <p>추가로 입주청소 견적도 받고 싶다면 아래 버튼을 눌러주세요.</p>
+    </div>
 
-      if(document.readyState==="complete"){l();}
-      else{w.addEventListener("DOMContentLoaded",l); w.addEventListener("load",l);} 
-    })();
-  </script>
+    <div class="modal-foot">
+      <button type="button" class="wizard-btn ghost" data-close="confirmInquiryModal">취소</button>
+      <button type="button" class="wizard-btn" id="sendInquiry">채널톡 전송하기</button>
+      <button type="button" class="wizard-btn" id="askClean">입주청소 견적도 받을래요</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================
+     Scripts
+========================= -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
+
+<!-- ChannelTalk Loader (먼저 로드: app.js보다 위에 둬야 안정적) -->
+<script>
+  (function(){
+    var w=window;
+    if(w.ChannelIO){return;}
+    var ch=function(){ch.c(arguments);};
+    ch.q=[]; ch.c=function(args){ch.q.push(args);};
+    w.ChannelIO=ch;
+
+    function l(){
+      if(w.ChannelIOInitialized){return;}
+      w.ChannelIOInitialized=true;
+      var s=document.createElement("script");
+      s.type="text/javascript";
+      s.async=true;
+      s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";
+      var x=document.getElementsByTagName("script")[0];
+      if(x && x.parentNode){x.parentNode.insertBefore(s,x);}
+    }
+
+    if(document.readyState==="complete"){l();}
+    else{w.addEventListener("DOMContentLoaded",l); w.addEventListener("load",l);}
+  })();
+</script>
+
+<!-- app.js는 맨 마지막 -->
+<script src="/assets/js/app.js"></script>
 
 </body>
 </html>

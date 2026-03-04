@@ -290,7 +290,7 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   padding: 12px;
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.03);
+  background: rgba(255,255,246,0.03);
 }
 
 /* =========================
@@ -336,6 +336,10 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   font-weight: 1000;
 }
 .vehicle.active{
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+.vehicle.selected{
   background: rgba(255,255,255,0.08);
   border-color: rgba(255,255,255,0.18);
 }
@@ -932,4 +936,22 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper{
     opacity: .25;
     pointer-events: none;
   }
+}
+
+@keyframes shake {
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-6px);}
+  40%{transform:translateX(6px);}
+  60%{transform:translateX(-4px);}
+  80%{transform:translateX(4px);}
+}
+.shake{animation:shake .35s ease;}
+
+.vehicle.active, .vehicle.selected {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.date-icon{
+pointer-events:none;
 }
