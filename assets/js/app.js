@@ -1033,8 +1033,8 @@
     ========================================================= */
     function moveBaseByVehicle(vehicle) {
       if (vehicle.includes("저상탑") && vehicle.includes("카고")) return 95000;
-      if (vehicle.includes("저상탑")) return 90000;
-      if (vehicle.includes("카고")) return 75000;
+      if (vehicle.includes("저상탑")) return 70000;
+      if (vehicle.includes("카고")) return 70000;
       return 0;
     }
 
