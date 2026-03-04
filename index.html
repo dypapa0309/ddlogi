@@ -1406,9 +1406,10 @@
     </div>
   </div>
 
-  <!-- =========================
+    <!-- =========================
        Mattress Size Modal
        - 사용자가 침대 매트리스 수량을 선택한 후 각 사이즈를 지정할 수 있는 모달입니다.
+       - 킹(K) 제외 버전
   ========================= -->
   <div class="modal" id="mattressSizeModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="매트리스 사이즈 선택">
     <div class="modal-backdrop" data-close="mattressSizeModal"></div>
@@ -1417,8 +1418,10 @@
         <div class="modal-title">매트리스 사이즈 선택</div>
         <button class="modal-x" type="button" data-close="mattressSizeModal" aria-label="닫기">×</button>
       </div>
+
       <div class="modal-body">
         <div class="sub">사이즈별 수량</div>
+
         <!-- 싱글 (S) -->
         <div class="option item-qty-row">
           <div>싱글 (S) — 100×200cm</div>
@@ -1428,6 +1431,7 @@
             <button type="button" class="stepper-btn" data-stepper-size="S" data-dir="1">+</button>
           </div>
         </div>
+
         <!-- 슈퍼싱글 (SS) -->
         <div class="option item-qty-row">
           <div>슈퍼싱글 (SS) — 110×200cm</div>
@@ -1437,6 +1441,7 @@
             <button type="button" class="stepper-btn" data-stepper-size="SS" data-dir="1">+</button>
           </div>
         </div>
+
         <!-- 더블 (D) -->
         <div class="option item-qty-row">
           <div>더블 (D) — 140×200cm</div>
@@ -1446,6 +1451,7 @@
             <button type="button" class="stepper-btn" data-stepper-size="D" data-dir="1">+</button>
           </div>
         </div>
+
         <!-- 퀸 (Q) -->
         <div class="option item-qty-row">
           <div>퀸 (Q) — 150~160×200cm</div>
@@ -1455,17 +1461,19 @@
             <button type="button" class="stepper-btn" data-stepper-size="Q" data-dir="1">+</button>
           </div>
         </div>
-        <!-- 킹 (K) -->
-        <div class="option item-qty-row">
-        
+
+        <div class="hint" style="margin-top:10px;">
+          ※ 킹(K) 사이즈는 현재 선택에서 제외되어 있습니다.
+        </div>
       </div>
+
       <div class="modal-foot">
         <button type="button" class="wizard-btn ghost" data-close="mattressSizeModal">닫기</button>
         <button type="button" class="wizard-btn" data-close="mattressSizeModal">선택 완료</button>
       </div>
     </div>
   </div>
-
+  
   <!-- =========================
      Inquiry Confirmation Modal
      - 채널톡으로 견적을 보낼 때 확인/유도 모달
