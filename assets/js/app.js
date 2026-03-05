@@ -50,7 +50,10 @@
       el.hidden = !!hidden;
       el.style.display = hidden ? "none" : "";
     }
-
+function normalizeItemKey(k) {
+  // 항목 키의 공백을 없애서 가격표에서 일치하도록 보정
+  return String(k || "").replace(/\s+/g, "");
+}
     /* =========================================================
        Config / Supabase
     ========================================================= */
@@ -1086,26 +1089,72 @@
       return fee;
     }
 
-    function itemsFee(items) {
-      let fee = 0;
-      const get = (k) => toInt(items[k], 0);
+   function itemsFee(items) {
+  let fee = 0;
+  const obj = items || {};
 
-      fee += get("세탁기(12kg초과)") * 50000;
-      fee += get("건조기(12kg초과)") * 50000;
-      fee += get("냉장고(600L초과)") * 80000;
-      fee += get("TV(65이상)") * 30000;
-      fee += get("침대프레임(분해/조립)") * 40000;
+  // ✅ 가전·가구 가격표 (필요시 단가 조정 가능)
+  const PRICE = {
+    // 가전
+    "전자레인지": 5000,
+    "공기청정기": 5000,
+    "청소기": 5000,
+    "TV(55이하)": 15000,
+    "TV(65이상)": 30000,
+    "모니터": 5000,
+    "데스크탑": 5000,
+    "프린터": 5000,
+    "정수기(이동만)": 20000,
 
-      const m = get("침대매트리스(킹제외)");
-      if (m > 0) {
-        fee += m * 10000;
-        const sizes = state.mattressSizes || {};
-        fee += toInt(sizes.Q, 0) * 5000;
-        fee += toInt(sizes.K, 0) * 10000;
-      }
+    "세탁기(12kg이하)": 30000,
+    "세탁기(12kg초과)": 50000,
+    "건조기(12kg이하)": 30000,
+    "건조기(12kg초과)": 50000,
 
-      return fee;
-    }
+    "냉장고(380L이하)": 30000,
+    "냉장고(600L이하)": 50000,
+    "냉장고(600L초과)": 80000,
+
+    "김치냉장고": 30000,
+    "스타일러": 30000,
+
+    // 가구
+    "의자": 5000,
+    "행거": 10000,
+    "협탁/사이드테이블(소형)": 10000,
+    "화장대(소형)": 15000,
+    "책상/테이블(일반)": 20000,
+    "서랍장(3~5단)": 20000,
+    "책장(일반)": 20000,
+    "수납장/TV장(일반)": 25000,
+
+    "소파(2~3인)": 30000,
+    "소파(4인이상)": 50000,
+
+    // 침대
+    "침대매트리스(킹제외)": 20000,
+    "침대프레임(분해/조립)": 60000
+  };
+
+  // 항목별 합산
+  for (const [rawKey, qtyRaw] of Object.entries(obj)) {
+    const k = normalizeItemKey(rawKey);
+    const q = toInt(qtyRaw, 0);
+    if (q <= 0) continue;
+    const unit = PRICE[k] ?? 0;
+    fee += unit * q;
+  }
+
+  // 매트리스 사이즈별 추가요금(퀸, 킹)
+  const m = toInt(obj["침대매트리스(킹제외)"], 0) || toInt(obj[normalizeItemKey("침대 매트리스 (킹 제외)")], 0);
+  if (m > 0) {
+    const sizes = state.mattressSizes || {};
+    fee += toInt(sizes.Q, 0) * 5000;
+    fee += toInt(sizes.K, 0) * 10000;
+  }
+
+  return fee;
+}
 
     function throwFeeTotal() {
       if (!state.throwToggle) return 0;
