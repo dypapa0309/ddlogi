@@ -1732,3 +1732,17 @@ function normalizeItemKey(k) {
     renderAll();
   });
 })();
+
+
+// Footer biz toggle
+(() => {
+  const btn = document.querySelector(".dd-footer-toggle");
+  const panel = document.getElementById("ddBizInfo");
+  if (!btn || !panel) return;
+
+  btn.addEventListener("click", () => {
+    const isOpen = btn.getAttribute("aria-expanded") === "true";
+    btn.setAttribute("aria-expanded", String(!isOpen));
+    panel.hidden = isOpen;
+  });
+})();

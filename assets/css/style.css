@@ -955,3 +955,62 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper{
 .date-icon{
 pointer-events:none;
 }
+
+/* =========================
+   Footer (사업자정보)
+========================= */
+.dd-footer{
+  margin: 18px 0 90px; /* 아래 wizard-nav랑 겹치면 숫자 늘려 */
+}
+
+.dd-footer-inner{
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 14px;
+}
+
+.dd-footer-toggle{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: transparent;
+  border: 0;
+  padding: 10px 6px;
+
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dd-footer-caret{
+  opacity: .8;
+  transform: translateY(-1px);
+}
+
+.dd-footer-biz{
+  border-top: 1px solid var(--line);
+  margin-top: 10px;
+  padding-top: 12px;
+}
+
+.dd-footer-line{
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 4px 0;
+}
+
+.dd-footer-line b{
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.dd-footer-muted{
+  color: var(--muted);
+  margin-top: 8px;
+  font-size: 12px;
+}
