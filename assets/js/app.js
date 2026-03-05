@@ -1395,8 +1395,16 @@ function normalizeItemKey(k) {
           lines.push(`짐양: ${map[state.loadLevel] || "-"}`);
         }
 
+        // 가구/가전 항목 요약
         const items = summarizeItemsWithMattress(state.items);
-        if (items !== "선택 없음") lines.push(`가구·가전: ${items}`);
+        if (items !== "선택 없음") {
+          lines.push(`가구·가전: ${items}`);
+        }
+
+        // 선택한 가구/가전 관련 메모를 요약에 포함합니다. 사용자가 입력한 메모가 있을 경우만 추가합니다.
+        if (state.itemsNote && state.itemsNote.trim()) {
+          lines.push(`가구·가전 기타사항: ${state.itemsNote.trim()}`);
+        }
 
         if (state.cantCarryFrom || state.cantCarryTo) {
           lines.push(`직접 나르기 어려움: ${state.cantCarryFrom ? "출발 " : ""}${state.cantCarryTo ? "도착" : ""}`.trim());
@@ -1421,6 +1429,10 @@ function normalizeItemKey(k) {
 
         if (state.throwToggle) {
           lines.push(`버려주세요: ${summarizeDict(state.throwFrom)} / ${summarizeDict(state.throwTo)}`);
+          // 버려주세요 모드에서도 메모를 포함합니다. 입력한 메모가 있을 경우에만 추가합니다.
+          if (state.throwNote && state.throwNote.trim()) {
+            lines.push(`버려주세요 기타사항: ${state.throwNote.trim()}`);
+          }
         }
 
         if (state.ride > 0) lines.push(`동승: ${state.ride}명`);
