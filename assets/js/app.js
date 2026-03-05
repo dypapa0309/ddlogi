@@ -1154,7 +1154,7 @@
   }
 
   // ✅ 반포장 배율(작업비에만)
-  const HALF_MULT = 1.25;
+  const HALF_MULT = 1.32;
   const isHalf =
     (state.moveType === "half") ||
     (state.moveType === "storage" && state.storageBase === "half");
