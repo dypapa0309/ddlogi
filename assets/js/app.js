@@ -1583,9 +1583,14 @@ function normalizeItemKey(k) {
         const elevTo = state.noTo ? `도착 엘베없음(${state.toFloor}층)` : "도착 엘베있음";
 
         const items = summarizeItemsWithMattress(state.items);
+        const itemsLine = `가구·가전: ${items}`;
+        const itemsNoteLine = (state.itemsNote && state.itemsNote.trim()) ? `가구·가전 기타사항: ${state.itemsNote.trim()}` : null;
         const throwInfo = state.throwToggle
           ? `버려주세요: ${summarizeDict(state.throwFrom)} / ${summarizeDict(state.throwTo)}`
           : "버려주세요: 미사용";
+        const throwNoteLine = (state.throwToggle && state.throwNote && state.throwNote.trim())
+          ? `버려주세요 기타사항: ${state.throwNote.trim()}`
+          : null;
 
         const ladderInfo =
           (state.ladderFromEnabled || state.ladderToEnabled)
@@ -1623,11 +1628,14 @@ function normalizeItemKey(k) {
           elevFrom,
           elevTo,
           `짐양: ${load}`,
+          itemsLine,
+          itemsNoteLine,
           helperInfo,
           cantCarryInfo,
           ladderInfo,
           cleanOpt,
           throwInfo,
+          throwNoteLine,
           state.ride > 0 ? `동승: ${state.ride}명` : null,
           "",
           `예상 견적: ${price}`,
