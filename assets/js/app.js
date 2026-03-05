@@ -1046,7 +1046,7 @@
     }
 
     function moveLoadFee(level) {
-      const map = { 1: 10000, 2: 21000, 3: 36000, 4: 49000 };
+      const map = { 1: 10000, 2: 23000, 3: 40000, 4: 66000 };
       return map[level] ?? 0;
     }
 
@@ -1057,19 +1057,19 @@
     }
 
     function helperFee(helper) {
-      return helper ? 50000 : 0;
+      return helper ? 40000 : 0;
     }
 
     function cantCarryFee(flag) {
-      return flag ? 20000 : 0;
+      return flag ? 30000 : 0;
     }
 
     function ladderFee(enabled, floor) {
       if (!enabled) return 0;
       const f = Math.max(1, toInt(floor, 1));
-      if (f <= 6) return 100000;
-      if (f <= 12) return 120000;
-      return 140000;
+      if (f <= 6) return 110000;
+      if (f <= 12) return 140000;
+      return 160000;
     }
 
     function rideFee(n) {
@@ -1116,35 +1116,64 @@
     }
 
     function calcMovePrice() {
-      if (!state.vehicle) return 0;
+  if (!state.vehicle) return 0;
 
-      let price = 0;
-      price += moveBaseByVehicle(state.vehicle);
-      price += moveDistanceFee(state.distanceKm);
-      price += moveLoadFee(state.loadLevel);
+  const base = moveBaseByVehicle(state.vehicle);
+  const load = moveLoadFee(state.loadLevel);
 
-      if (state.moveType === "half") price += 25000;
-      if (state.moveType === "storage") {
-        price += state.storageBase === "half" ? 25000 : 0;
-        price += calcStorageFee(state.storageDays);
-      }
+  const stairs =
+    stairsFee(state.noFrom, state.fromFloor) +
+    stairsFee(state.noTo, state.toFloor);
 
-      price += stairsFee(state.noFrom, state.fromFloor);
-      price += stairsFee(state.noTo, state.toFloor);
-      price += cantCarryFee(state.cantCarryFrom);
-      price += cantCarryFee(state.cantCarryTo);
-      price += helperFee(state.helperFrom);
-      price += helperFee(state.helperTo);
-      price += ladderFee(state.ladderFromEnabled, state.ladderFromFloor);
-      price += ladderFee(state.ladderToEnabled, state.ladderToFloor);
-      price += rideFee(state.ride);
-      price += moveCleaningFee();
-      price += itemsFee(state.items);
-      price += throwFeeTotal();
+  const cantCarry =
+    cantCarryFee(state.cantCarryFrom) +
+    cantCarryFee(state.cantCarryTo);
 
-      price *= PRICE_MULTIPLIER;
-      return price;
-    }
+  const helpers =
+    helperFee(state.helperFrom) +
+    helperFee(state.helperTo);
+
+  // ✅ 작업비 덩어리(배율 대상)
+  let workSubtotal = base + load + stairs + cantCarry + helpers;
+
+  // ✅ 배율 제외(거리/사다리/동승/가전/폐기/청소옵션/보관비 등)
+  const distance = moveDistanceFee(state.distanceKm);
+
+  const ladders =
+    ladderFee(state.ladderFromEnabled, state.ladderFromFloor) +
+    ladderFee(state.ladderToEnabled, state.ladderToFloor);
+
+  const ride = rideFee(state.ride);
+  const cleanOpt = moveCleaningFee();
+  const items = itemsFee(state.items);
+  const throwFee = throwFeeTotal();
+
+  let storageFee = 0;
+  if (state.moveType === "storage") {
+    storageFee = calcStorageFee(state.storageDays);
+  }
+
+  // ✅ 반포장 배율(작업비에만)
+  const HALF_MULT = 1.18;
+  const isHalf =
+    (state.moveType === "half") ||
+    (state.moveType === "storage" && state.storageBase === "half");
+
+  if (isHalf) workSubtotal *= HALF_MULT;
+
+  let price =
+    workSubtotal +
+    distance +
+    ladders +
+    ride +
+    cleanOpt +
+    items +
+    throwFee +
+    storageFee;
+
+  price *= PRICE_MULTIPLIER;
+  return price;
+}
 
     function cleanBasePrice() {
       const p = Math.max(1, toInt(state.cleanPyeong, 9));
