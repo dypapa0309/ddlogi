@@ -1292,9 +1292,8 @@ function normalizeItemKey(k) {
     function summarizeDict(obj) {
       const entries = Object.entries(obj || {}).filter(([, v]) => toInt(v, 0) > 0);
       if (!entries.length) return "선택 없음";
-      const head = entries.slice(0, 6).map(([k, v]) => `${k}×${toInt(v, 0)}`).join(", ");
-      const more = entries.length > 6 ? ` 외 ${entries.length - 6}개` : "";
-      return head + more;
+      // ✅ 요약에서 "외 N개"로 잘라내지 않고, 선택한 항목을 전부 보여줍니다.
+      return entries.map(([k, v]) => `${k}×${toInt(v, 0)}`).join(", ");
     }
 
     function summarizeMattressSizes() {
@@ -1311,8 +1310,8 @@ function normalizeItemKey(k) {
       const entries = Object.entries(obj).filter(([, v]) => toInt(v, 0) > 0);
       if (!entries.length) return "선택 없음";
 
-      const head = entries
-        .slice(0, 6)
+      // ✅ "외 N개"로 잘라내지 않고, 선택한 항목을 전부 보여줍니다.
+      const all = entries
         .map(([k, v]) => {
           const qty = toInt(v, 0);
           if (k === "침대매트리스(킹제외)") {
@@ -1323,8 +1322,7 @@ function normalizeItemKey(k) {
         })
         .join(", ");
 
-      const more = entries.length > 6 ? ` 외 ${entries.length - 6}개` : "";
-      return head + more;
+      return all;
     }
 
     /* =========================================================
