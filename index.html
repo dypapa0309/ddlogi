@@ -700,7 +700,22 @@
         <div>
           <div class="price" id="price">₩0</div>
           <div class="price-under" id="priceUnder">
-            예상 견적은 <br><b>시장 평균가격보다<br> 약 13.8% 저렴합니다.</b>
+            예상 견적은 <br><b>7개 업체 평균가격보다<br> 약 13.8% 저렴합니다.</b>
+          </div>
+
+          <div class="compare-chart-section" id="compareChartSection">
+            <div class="compare-chart-head">
+              <div class="compare-chart-title">7개 업체 평균 가격 비교</div>
+              <div class="compare-chart-average" id="compareAverageLabel">7개 업체 평균 ₩0</div>
+            </div>
+
+            <div class="compare-chart-wrap">
+              <canvas id="priceCompareChart" aria-label="7개 업체 평균 가격 비교 그래프"></canvas>
+            </div>
+
+            <div class="compare-chart-note">
+              동일 조건 기준 7개 업체 평균 가격과 비교한 값입니다.
+            </div>
           </div>
         </div>
       </div>
@@ -768,7 +783,7 @@
 
         <p class="dd-popup__text">
           AI로 계산된 이사비용,<br>
-          전국 평균 대비 약 <b>13.8%</b> 낮은 구조.
+          7개 업체 평균 대비 약 <b>13.8%</b> 낮은 구조.
         </p>
 
         <p class="dd-popup__text dd-popup__text--muted">
@@ -801,7 +816,7 @@
         <div class="sticky-label">현재 예상 금액</div>
         <div class="sticky-price" id="stickyPrice">₩0</div>
         <div class="sticky-under">
-          <br>예상 견적은 <br>시장 평균 가격보다 <br>약 <b>13.8% 저렴합니다</b>
+          <br>예상 견적은 <br>7개 업체 평균 가격보다 <br>약 <b>13.8% 저렴합니다</b>
         </div>
       </div>
     </div>
@@ -1535,6 +1550,7 @@
 <!-- =========================
      Scripts
 ========================= -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
 

@@ -1014,3 +1014,53 @@ pointer-events:none;
   margin-top: 8px;
   font-size: 12px;
 }
+/* =========================
+   Quote comparison chart
+========================= */
+.compare-chart-section{
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.compare-chart-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom: 10px;
+}
+.compare-chart-title{
+  font-size: 14px;
+  font-weight: 1000;
+  color: var(--text);
+}
+.compare-chart-average{
+  font-size: 12px;
+  font-weight: 1000;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.compare-chart-wrap{
+  position: relative;
+  height: 180px;
+  margin-top: 8px;
+}
+.compare-chart-note{
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(230,237,246,0.68);
+}
+
+@media (max-width: 520px){
+  .compare-chart-head{
+    flex-direction: column;
+    gap: 6px;
+  }
+  .compare-chart-average{
+    white-space: normal;
+  }
+  .compare-chart-wrap{
+    height: 168px;
+  }
+}

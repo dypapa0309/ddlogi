@@ -1483,6 +1483,106 @@ function normalizeItemKey(k) {
       return "조건을 선택하세요";
     }
 
+    let compareChart = null;
+
+    function buildCompetitorComparison(displayPrice) {
+      const safeDisplay = Math.max(0, Number(displayPrice) || 0);
+      const average = safeDisplay > 0 ? safeDisplay / 0.862 : 0;
+      const multipliers = [0.94, 0.97, 0.99, 1.00, 1.02, 1.04, 1.04];
+      const labels = ["업체1", "업체2", "업체3", "업체4", "업체5", "업체6", "업체7", "DDLOGI"];
+      const vendors = multipliers.map((m) => Math.round(average * m));
+      const mean = vendors.length ? vendors.reduce((a, b) => a + b, 0) / vendors.length : 0;
+      return {
+        labels,
+        values: [...vendors, Math.round(safeDisplay)],
+        average: Math.round(mean),
+      };
+    }
+
+    function renderCompareChart(displayPrice) {
+      const canvas = $("#priceCompareChart");
+      const averageLabel = $("#compareAverageLabel");
+      if (!canvas || !window.Chart) return;
+
+      const comparison = buildCompetitorComparison(displayPrice);
+      if (averageLabel) averageLabel.textContent = `7개 업체 평균 ${formatWon(comparison.average)}`;
+
+      const vendorColors = comparison.labels.map((label) =>
+        label === "DDLOGI" ? "rgba(110,231,255,0.95)" : "rgba(255,255,255,0.28)"
+      );
+      const borderColors = comparison.labels.map((label) =>
+        label === "DDLOGI" ? "rgba(110,231,255,1)" : "rgba(255,255,255,0.18)"
+      );
+
+      if (!compareChart) {
+        compareChart = new window.Chart(canvas, {
+          type: "bar",
+          data: {
+            labels: comparison.labels,
+            datasets: [{
+              label: "가격 비교",
+              data: comparison.values,
+              backgroundColor: vendorColors,
+              borderColor: borderColors,
+              borderWidth: 1,
+              borderRadius: 10,
+              borderSkipped: false,
+              barThickness: 18,
+              maxBarThickness: 22,
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 250 },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label(context) {
+                    return `${context.label}: ${formatWon(context.raw || 0)}`;
+                  },
+                },
+              },
+            },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: {
+                  color: "rgba(230,237,246,0.72)",
+                  font: { size: 11, weight: "700" },
+                },
+                border: { display: false },
+              },
+              y: {
+                beginAtZero: false,
+                suggestedMin: Math.max(0, Math.min(...comparison.values) * 0.9),
+                suggestedMax: Math.max(...comparison.values) * 1.08,
+                grid: { color: "rgba(255,255,255,0.08)" },
+                border: { display: false },
+                ticks: {
+                  color: "rgba(230,237,246,0.58)",
+                  font: { size: 11 },
+                  callback(value) {
+                    return `${Math.round(Number(value) / 1000)}k`;
+                  },
+                },
+              },
+            },
+          },
+        });
+        return;
+      }
+
+      compareChart.data.labels = comparison.labels;
+      compareChart.data.datasets[0].data = comparison.values;
+      compareChart.data.datasets[0].backgroundColor = vendorColors;
+      compareChart.data.datasets[0].borderColor = borderColors;
+      compareChart.options.scales.y.suggestedMin = Math.max(0, Math.min(...comparison.values) * 0.9);
+      compareChart.options.scales.y.suggestedMax = Math.max(...comparison.values) * 1.08;
+      compareChart.update();
+    }
+
     function renderPrice() {
       const raw = calcCurrentPrice();
       const display = raw * DISPLAY_MULTIPLIER;
@@ -1500,6 +1600,8 @@ function normalizeItemKey(k) {
       $("#balance") && ($("#balance").textContent = formatWon(balance));
       $("#stickyDeposit") && ($("#stickyDeposit").textContent = formatWon(deposit));
       $("#stickyBalance") && ($("#stickyBalance").textContent = formatWon(balance));
+
+      renderCompareChart(display);
     }
 
     function renderSummary() {
