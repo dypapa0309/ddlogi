@@ -1042,8 +1042,17 @@ pointer-events:none;
 }
 .compare-chart-wrap{
   position: relative;
+  width: 100%;
+  min-width: 0;
   height: 180px;
+  min-height: 180px;
   margin-top: 8px;
+  overflow: hidden;
+}
+.compare-chart-wrap canvas{
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 .compare-chart-note{
   margin-top: 12px;
@@ -1061,6 +1070,7 @@ pointer-events:none;
     white-space: normal;
   }
   .compare-chart-wrap{
-    height: 168px;
+    height: 220px;
+    min-height: 220px;
   }
 }

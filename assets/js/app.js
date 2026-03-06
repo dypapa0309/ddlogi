@@ -249,7 +249,11 @@ function normalizeItemKey(k) {
 
       const token = getStepToken(sec);
       if (token === 3) refreshTimeSlotAvailability();
-      if (token === 12) renderAll();
+      if (token === 12) {
+        renderAll();
+        queueCompareChartResize();
+        setTimeout(queueCompareChartResize, 120);
+      }
 
       if (!opts.noScroll) window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -1484,6 +1488,41 @@ function normalizeItemKey(k) {
     }
 
     let compareChart = null;
+    let compareChartResizeRaf = null;
+
+    function isMobileViewport() {
+      return window.matchMedia && window.matchMedia("(max-width: 520px)").matches;
+    }
+
+    function queueCompareChartResize() {
+      if (compareChartResizeRaf) cancelAnimationFrame(compareChartResizeRaf);
+      compareChartResizeRaf = requestAnimationFrame(() => {
+        compareChartResizeRaf = null;
+        if (!compareChart) return;
+        applyCompareChartResponsiveOptions(compareChart);
+        compareChart.resize();
+        compareChart.update("none");
+      });
+    }
+
+    function applyCompareChartResponsiveOptions(chart) {
+      if (!chart?.options) return;
+      const mobile = isMobileViewport();
+      const dataset = chart.data?.datasets?.[0];
+      if (dataset) {
+        dataset.barThickness = mobile ? 12 : 18;
+        dataset.maxBarThickness = mobile ? 16 : 22;
+      }
+      if (chart.options.scales?.x?.ticks) {
+        chart.options.scales.x.ticks.font = { size: mobile ? 9 : 11, weight: "700" };
+        chart.options.scales.x.ticks.maxRotation = 0;
+        chart.options.scales.x.ticks.minRotation = 0;
+        chart.options.scales.x.ticks.autoSkip = false;
+      }
+      if (chart.options.scales?.y?.ticks) {
+        chart.options.scales.y.ticks.font = { size: mobile ? 10 : 11 };
+      }
+    }
 
     function buildCompetitorComparison(displayPrice) {
       const safeDisplay = Math.max(0, Number(displayPrice) || 0);
@@ -1503,6 +1542,12 @@ function normalizeItemKey(k) {
       const canvas = $("#priceCompareChart");
       const averageLabel = $("#compareAverageLabel");
       if (!canvas || !window.Chart) return;
+
+      const parentWidth = canvas.parentElement?.clientWidth || 0;
+      if (parentWidth <= 0) {
+        requestAnimationFrame(() => renderCompareChart(displayPrice));
+        return;
+      }
 
       const comparison = buildCompetitorComparison(displayPrice);
       if (averageLabel) averageLabel.textContent = `7개 업체 평균 ${formatWon(comparison.average)}`;
@@ -1527,8 +1572,8 @@ function normalizeItemKey(k) {
               borderWidth: 1,
               borderRadius: 10,
               borderSkipped: false,
-              barThickness: 18,
-              maxBarThickness: 22,
+              barThickness: isMobileViewport() ? 12 : 18,
+              maxBarThickness: isMobileViewport() ? 16 : 22,
             }],
           },
           options: {
@@ -1550,7 +1595,10 @@ function normalizeItemKey(k) {
                 grid: { display: false },
                 ticks: {
                   color: "rgba(230,237,246,0.72)",
-                  font: { size: 11, weight: "700" },
+                  font: { size: isMobileViewport() ? 9 : 11, weight: "700" },
+                  maxRotation: 0,
+                  minRotation: 0,
+                  autoSkip: false,
                 },
                 border: { display: false },
               },
@@ -1562,7 +1610,7 @@ function normalizeItemKey(k) {
                 border: { display: false },
                 ticks: {
                   color: "rgba(230,237,246,0.58)",
-                  font: { size: 11 },
+                  font: { size: isMobileViewport() ? 10 : 11 },
                   callback(value) {
                     return `${Math.round(Number(value) / 1000)}k`;
                   },
@@ -1571,6 +1619,8 @@ function normalizeItemKey(k) {
             },
           },
         });
+        applyCompareChartResponsiveOptions(compareChart);
+        queueCompareChartResize();
         return;
       }
 
@@ -1580,7 +1630,9 @@ function normalizeItemKey(k) {
       compareChart.data.datasets[0].borderColor = borderColors;
       compareChart.options.scales.y.suggestedMin = Math.max(0, Math.min(...comparison.values) * 0.9);
       compareChart.options.scales.y.suggestedMax = Math.max(...comparison.values) * 1.08;
+      applyCompareChartResponsiveOptions(compareChart);
       compareChart.update();
+      queueCompareChartResize();
     }
 
     function renderPrice() {
