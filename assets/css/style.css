@@ -1321,3 +1321,153 @@ pointer-events:none;
   border-radius:16px;
   background:#111;
 }
+
+.waypoint-step-panel[hidden]{ display:none !important; }
+/* ===== DDLOGI v3 modal/button hotfix ===== */
+.waypoint-actions .wizard-primary,
+#openWaypointSetupModalBtn,
+#openWaypointItemsModalBtn,
+#openWaypointThrowModalBtn,
+#openDamageCasesModalBtn,
+.case-image{
+  pointer-events:auto !important;
+  touch-action:manipulation;
+}
+#waypointWrap, .waypoint-tools, .waypoint-actions{
+  position:relative;
+  z-index:1;
+}
+.modal{
+  isolation:isolate;
+}
+.modal.open{
+  display:flex !important;
+}
+.modal-panel{
+  position:relative;
+  z-index:2;
+  pointer-events:auto;
+}
+.modal-backdrop{
+  z-index:1;
+}
+.modal-x, .modal-foot button, .wizard-btn, .wizard-primary, .ghost-lite{
+  touch-action:manipulation;
+}
+body.modal-open{
+  overflow:hidden;
+}
+.case-image{
+  cursor:zoom-in;
+}
+@media (max-width:640px){
+  .modal-panel{
+    width:min(92vw, 720px);
+    max-height:86vh;
+  }
+}
+
+/* waypoint nested modal */
+#waypointSetupModal.has-nested-modal > .modal-panel > .modal-body > .waypoint-step-panel,
+#waypointSetupModal.has-nested-modal > .modal-panel > .modal-body > #waypointModalStepLabel,
+#waypointSetupModal.has-nested-modal > .modal-panel > .modal-foot{
+  opacity:.18;
+  pointer-events:none;
+  user-select:none;
+}
+
+#waypointNestedHost{
+  position:absolute;
+  inset:0;
+  z-index:40;
+  display:none;
+  pointer-events:none;
+}
+#waypointSetupModal.has-nested-modal #waypointNestedHost{
+  display:block;
+}
+
+#waypointNestedHost > .modal.nested-in-waypoint{
+  position:absolute;
+  inset:0;
+  opacity:1;
+  pointer-events:auto;
+  background:rgba(9,12,17,.32);
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:14px 14px calc(14px + var(--safe-bottom));
+  z-index:30;
+}
+
+#waypointNestedHost > .modal.nested-in-waypoint[aria-hidden="true"]{
+  display:none;
+}
+
+#waypointNestedHost > .modal.nested-in-waypoint .modal-backdrop{
+  display:none;
+}
+
+#waypointNestedHost > .modal.nested-in-waypoint .modal-panel{
+  width:min(100%, 640px);
+  max-width:100%;
+  max-height:72vh;
+  overflow:auto;
+  box-shadow:0 24px 64px rgba(0,0,0,.28);
+}
+
+
+/* nested waypoint modal hardening */
+#waypointSetupModal.has-nested-modal #waypointNestedHost,
+#waypointSetupModal.has-nested-modal #waypointNestedHost *{
+  pointer-events:auto;
+}
+#waypointSetupModal.has-nested-modal #waypointNestedHost .modal-foot,
+#waypointSetupModal.has-nested-modal #waypointNestedHost .wizard-btn,
+#waypointSetupModal.has-nested-modal #waypointNestedHost .modal-x,
+#waypointSetupModal.has-nested-modal #waypointNestedHost .stepper-btn{
+  opacity:1 !important;
+  filter:none !important;
+  pointer-events:auto !important;
+}
+#waypointNestedHost > .modal.nested-in-waypoint{
+  width:100%;
+  box-sizing:border-box;
+}
+#waypointNestedHost > .modal.nested-in-waypoint .modal-panel{
+  width:min(92vw, 640px);
+  max-width:92vw;
+  min-width:0;
+  box-sizing:border-box;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+#waypointNestedHost > .modal.nested-in-waypoint .modal-body,
+#waypointNestedHost > .modal.nested-in-waypoint .modal-head,
+#waypointNestedHost > .modal.nested-in-waypoint .modal-foot{
+  min-width:0;
+  box-sizing:border-box;
+}
+.option.item-qty-row{
+  min-width:0;
+}
+.option.item-qty-row > :first-child{
+  flex:1 1 auto;
+  min-width:0;
+  overflow-wrap:anywhere;
+  word-break:keep-all;
+  padding-right:8px;
+}
+.stepper{
+  flex:0 0 auto;
+  min-width:0;
+}
+.stepper-btn{
+  flex:0 0 34px;
+}
+.stepper input{
+  width:72px;
+  min-width:0;
+  box-sizing:border-box;
+}

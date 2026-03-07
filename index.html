@@ -236,15 +236,17 @@
             <input type="text" id="waypointAddress" class="address-input" placeholder="예: 경기도 성남시 분당구..." />
 
             <div class="waypoint-tools">
-              <div class="sub" style="margin-top:12px;">경유지 작업 선택</div>
+              <div class="sub" style="margin-top:12px;">경유지 상세 설정</div>
               <div class="waypoint-actions">
-                <button type="button" class="wizard-primary" id="openWaypointItemsModalBtn">경유지 짐 선택하기</button>
-                <button type="button" class="wizard-primary ghost-lite" id="openWaypointThrowModalBtn">경유지 버려주세요 선택</button>
+                <button type="button" class="wizard-primary" id="openWaypointSetupModalBtn" data-open-modal="waypointSetupModal">경유지 상세 설정하기</button>
               </div>
-              <div class="mini-summary" id="waypointItemsMiniSummary">경유지 짐: 선택 없음</div>
+              <div class="mini-summary" id="waypointLoadMiniSummary">경유지 짐양: 선택 없음</div>
+              <div class="mini-summary" id="waypointItemsMiniSummary">경유지 가구·가전: 선택 없음</div>
               <div class="mini-summary" id="waypointItemsNotePreview" style="margin-top:10px; opacity:.9;">경유지 짐 기타사항: 없음</div>
               <div class="mini-summary" id="waypointThrowMiniSummary" style="margin-top:10px;">경유지 버려주세요: 선택 없음</div>
               <div class="mini-summary" id="waypointThrowNotePreview" style="margin-top:10px; opacity:.9;">경유지 버려주세요 기타사항: 없음</div>
+              <div class="mini-summary" id="waypointCarryMiniSummary" style="margin-top:10px;">경유지 계단: 엘리베이터 있음</div>
+              <div class="mini-summary" id="waypointLadderMiniSummary" style="margin-top:10px;">경유지 사다리차: 불필요</div>
             </div>
           </div>
 
@@ -437,10 +439,10 @@
 
           <hr />
 
-          <button type="button" class="wizard-primary" id="openCleanBasicModalBtn">특수 청소 선택</button>
+          <button type="button" class="wizard-primary" id="openCleanBasicModalBtn" data-open-modal="cleanBasicModal">특수 청소 선택</button>
           <div class="mini-summary" id="cleanBasicMiniSummary">선택 없음</div>
 
-          <button type="button" class="wizard-primary" id="openCleanApplianceModalBtn" style="margin-top:12px;">가전·가구 클리닝 선택</button>
+          <button type="button" class="wizard-primary" id="openCleanApplianceModalBtn" data-open-modal="cleanApplianceModal" style="margin-top:12px;">가전·가구 클리닝 선택</button>
           <div class="mini-summary" id="cleanApplianceMiniSummary">선택 없음</div>
 
           <hr />
@@ -497,7 +499,7 @@
     <section class="section step-card" data-step="6" data-only="move">
       <h2>가구·가전</h2>
       <div class="card">
-        <button type="button" class="wizard-primary" id="openItemsModalBtn">가구·가전 선택하기</button>
+        <button type="button" class="wizard-primary" id="openItemsModalBtn" data-open-modal="itemsModal">가구·가전 선택하기</button>
         <div class="mini-summary" id="itemsMiniSummary">선택 없음</div>
 
         <div class="mini-summary" id="itemsNotePreview" style="margin-top:10px; opacity:.9;">
@@ -507,6 +509,7 @@
         <hr />
 
         <div class="sub">짐양 (5호 이사박스 기준)</div>
+        <div class="option"><div>없음</div><input type="radio" name="load" value="0" /></div>
         <div class="option"><div>1~5개</div><input type="radio" name="load" value="1" /></div>
         <div class="option"><div>6~10개</div><input type="radio" name="load" value="2" /></div>
         <div class="option"><div>11~15개</div><input type="radio" name="load" value="3" /></div>
@@ -663,7 +666,7 @@
 
           <hr />
 
-          <button type="button" class="wizard-primary" id="openThrowModalBtn">버릴 물건 선택하기</button>
+          <button type="button" class="wizard-primary" id="openThrowModalBtn" data-open-modal="throwModal">버릴 물건 선택하기</button>
           <div class="mini-summary" id="throwMiniSummary">선택 없음</div>
 
           <div class="mini-summary" id="throwNotePreview" style="margin-top:10px; opacity:.9;">
@@ -704,7 +707,7 @@
               동일 조건 기준 7개 업체 평균 가격과 비교한 값입니다.
             </div>
 
-            <button type="button" class="case-view-btn" id="openDamageCasesModalBtn">
+            <button type="button" class="case-view-btn" id="openDamageCasesModalBtn" data-open-modal="damageCasesModal">
               이사업체 피해사례 보기
             </button>
           </div>
@@ -714,12 +717,12 @@
       <div class="contact-actions">
         <a href="#" class="contact-btn mega" id="channelInquiry">
           <span class="cta-text">
-            <span class="title">💬 버튼을 눌러 견적 보내고</span>
-            <span class="desc">AI로 예약 완료하기</span>
+            <span class="title">💬 버튼을 눌러 상담사에게</span>
+            <span class="desc">견적보내기</span>
           </span>
         </a>
 
-        <a href="tel:01058363055" class="contact-btn ghost">
+        <a href="tel:01040941666" class="contact-btn ghost">
           📞 전화 문의하기
         </a>
       </div>
@@ -1544,6 +1547,75 @@
 <!-- =========================
      Scripts
 ========================= -->
+<div class="modal" id="waypointSetupModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="경유지 상세 설정">
+  <div class="modal-backdrop" data-close="waypointSetupModal"></div>
+  <div class="modal-panel">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">경유지 상세 설정</div>
+        <div class="sub">경유지에서 발생하는 작업을 순서대로 선택해줘.</div>
+      </div>
+      <button class="modal-x" type="button" data-close="waypointSetupModal" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="waypointNestedHost" class="waypoint-nested-host" aria-live="polite"></div>
+      <div class="mini-summary" id="waypointModalStepLabel">1 / 4 · 경유지 짐양</div>
+
+      <div class="waypoint-step-panel" data-waypoint-step="0">
+        <div class="sub" style="margin-bottom:10px;">경유지 짐양 (5호 이사박스 기준)</div>
+        <div class="option"><div>없음</div><input type="radio" name="waypointLoad" value="0" /></div>
+        <div class="option"><div>1~5개</div><input type="radio" name="waypointLoad" value="1" /></div>
+        <div class="option"><div>6~10개</div><input type="radio" name="waypointLoad" value="2" /></div>
+        <div class="option"><div>11~15개</div><input type="radio" name="waypointLoad" value="3" /></div>
+        <div class="option"><div>16~20개</div><input type="radio" name="waypointLoad" value="4" /></div>
+      </div>
+
+      <div class="waypoint-step-panel" data-waypoint-step="1" hidden>
+        <div class="sub" style="margin-bottom:12px;">경유지 가구·가전 / 버려주세요</div>
+        <button type="button" class="wizard-primary" id="openWaypointItemsModalBtn" data-open-modal="itemsModal">경유지 가구·가전 선택</button>
+        <div class="mini-summary" id="waypointItemsMiniSummaryModal">경유지 가구·가전: 선택 없음</div>
+        <div class="mini-summary" id="waypointItemsNotePreviewModal" style="margin-top:10px; opacity:.9;">경유지 짐 기타사항: 없음</div>
+        <div style="height:10px"></div>
+        <button type="button" class="wizard-primary ghost-lite" id="openWaypointThrowModalBtn" data-open-modal="throwModal">경유지 버려주세요 선택</button>
+        <div class="mini-summary" id="waypointThrowMiniSummaryModal" style="margin-top:10px;">경유지 버려주세요: 선택 없음</div>
+        <div class="mini-summary" id="waypointThrowNotePreviewModal" style="margin-top:10px; opacity:.9;">경유지 버려주세요 기타사항: 없음</div>
+      </div>
+
+      <div class="waypoint-step-panel" data-waypoint-step="2" hidden>
+        <div class="sub" style="margin-bottom:10px;">경유지 계단 여부</div>
+        <div class="option"><div>엘리베이터 있음</div><input type="radio" name="waypointNoElevator" value="0" /></div>
+        <div class="option"><div>엘리베이터 없음</div><input type="radio" name="waypointNoElevator" value="1" /></div>
+        <div id="waypointFloorBody" hidden style="margin-top:10px;">
+          <label>경유지 층수</label>
+          <div class="stepper">
+            <button type="button" class="minus" data-target="waypointFloor">-</button>
+            <input id="waypointFloor" type="number" min="1" max="30" value="1" readonly />
+            <button type="button" class="plus" data-target="waypointFloor">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="waypoint-step-panel" data-waypoint-step="3" hidden>
+        <div class="sub" style="margin-bottom:10px;">경유지 사다리차</div>
+        <div class="option"><div>사다리차 불필요</div><input type="radio" name="waypointLadderEnabled" value="0" /></div>
+        <div class="option"><div>사다리차 필요</div><input type="radio" name="waypointLadderEnabled" value="1" /></div>
+        <div id="waypointLadderBody" hidden style="margin-top:10px;">
+          <label>경유지 사다리차 층수</label>
+          <div class="stepper">
+            <button type="button" class="minus" data-target="waypointLadderFloor">-</button>
+            <input id="waypointLadderFloor" type="number" min="1" max="30" value="6" readonly />
+            <button type="button" class="plus" data-target="waypointLadderFloor">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="wizard-btn ghost" id="waypointModalPrev">이전</button>
+      <button type="button" class="wizard-btn" id="waypointModalNext">다음</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="damageCasesModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="이사업체 피해사례">
   <div class="modal-backdrop" data-close="damageCasesModal"></div>
   <div class="modal-panel modal-panel-wide">
@@ -1614,31 +1686,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
-
-<!-- ChannelTalk Loader (먼저 로드: app.js보다 위에 둬야 안정적) -->
-<script>
-  (function(){
-    var w=window;
-    if(w.ChannelIO){return;}
-    var ch=function(){ch.c(arguments);};
-    ch.q=[]; ch.c=function(args){ch.q.push(args);};
-    w.ChannelIO=ch;
-
-    function l(){
-      if(w.ChannelIOInitialized){return;}
-      w.ChannelIOInitialized=true;
-      var s=document.createElement("script");
-      s.type="text/javascript";
-      s.async=true;
-      s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";
-      var x=document.getElementsByTagName("script")[0];
-      if(x && x.parentNode){x.parentNode.insertBefore(s,x);}      
-    }
-
-    if(document.readyState==="complete"){l();}
-    else{w.addEventListener("DOMContentLoaded",l); w.addEventListener("load",l);}  
-  })();
-</script>
+<script src="/assets/js/common/dom-helpers.js"></script>
+<script src="/assets/js/common/modal-helpers.js"></script>
+<script src="/assets/js/vendor/channel-loader.js"></script>
+<script src="/assets/js/ui/footer-toggle.js"></script>
 
 <!-- app.js는 맨 마지막 -->
 <script src="/assets/js/app.js"></script>
