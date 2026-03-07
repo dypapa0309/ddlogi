@@ -121,6 +121,10 @@ function normalizeItemKey(k) {
       vehicle: "",
       startAddress: "",
       waypointAddress: "",
+      waypointItems: {},
+      waypointItemsNote: "",
+      waypointThrow: {},
+      waypointThrowNote: "",
       endAddress: "",
       hasWaypoint: false,
       distanceKm: 0,
@@ -414,7 +418,80 @@ function normalizeItemKey(k) {
       document.body.classList.remove("modal-open");
     }
 
-    $$("[data-close]").forEach((btn) => {
+    let itemsModalContext = "main";
+    let throwModalContext = "main";
+
+    function getItemsStateTarget() {
+      return itemsModalContext === "waypoint" ? state.waypointItems : state.items;
+    }
+
+    function getItemsNoteTarget() {
+      return itemsModalContext === "waypoint" ? "waypointItemsNote" : "itemsNote";
+    }
+
+    function getThrowStateTarget() {
+      return throwModalContext === "waypoint" ? state.waypointThrow : null;
+    }
+
+    function syncItemsModalFromState() {
+      const target = getItemsStateTarget();
+      const noteKey = getItemsNoteTarget();
+      const title = document.querySelector("#itemsModal .modal-title");
+      if (title) title.textContent = itemsModalContext === "waypoint" ? "경유지 짐 선택" : "가구·가전 선택";
+
+      document.querySelectorAll("#itemsModal .itemQty").forEach((inp) => {
+        const item = inp.getAttribute("data-item");
+        inp.value = String(toInt(target[item], 0));
+      });
+
+      const note = document.getElementById("itemsNote");
+      if (note) {
+        note.value = state[noteKey] || "";
+        note.placeholder = itemsModalContext === "waypoint"
+          ? "예) 경유지에서만 싣는 짐 / 잠깐 상차 후 다시 이동할 짐 / 현장 메모"
+          : "예) TV 벽걸이 분리 필요 / 냉장고 문 분리 가능 / 엘베 예약 필요 / 주차 위치 등";
+      }
+    }
+
+    function syncThrowModalFromState() {
+      const title = document.querySelector("#throwModal .modal-title");
+      const fromHeading = document.querySelector("#throwModal .throw-from-heading");
+      const toBlock = document.getElementById("throwToBlock");
+      const note = document.getElementById("throwNote");
+
+      if (throwModalContext === "waypoint") {
+        if (title) title.textContent = "경유지 버릴 물건 선택";
+        if (fromHeading) fromHeading.textContent = "경유지 짐(수량)";
+        if (toBlock) toBlock.hidden = true;
+        document.querySelectorAll('#throwModal .throwQty[data-loc="from"]').forEach((inp) => {
+          const item = inp.getAttribute("data-item");
+          inp.value = String(toInt(state.waypointThrow[item], 0));
+        });
+        document.querySelectorAll('#throwModal .throwQty[data-loc="to"]').forEach((inp) => { inp.value = "0"; });
+        if (note) {
+          note.value = state.waypointThrowNote || "";
+          note.placeholder = "예) 경유지에서 폐기할 짐 / 지정 위치 / 기사님 도착 전 연락 요청";
+        }
+      } else {
+        if (title) title.textContent = "버릴 물건 선택";
+        if (fromHeading) fromHeading.textContent = "출발지 짐(수량)";
+        if (toBlock) toBlock.hidden = false;
+        document.querySelectorAll('#throwModal .throwQty[data-loc="from"]').forEach((inp) => {
+          const item = inp.getAttribute("data-item");
+          inp.value = String(toInt(state.throwFrom[item], 0));
+        });
+        document.querySelectorAll('#throwModal .throwQty[data-loc="to"]').forEach((inp) => {
+          const item = inp.getAttribute("data-item");
+          inp.value = String(toInt(state.throwTo[item], 0));
+        });
+        if (note) {
+          note.value = state.throwNote || "";
+          note.placeholder = "예) 1층 분리수거장 위치 / 엘베 사용 불가 시간 / 폐기물 봉투 필요 여부 / 기사님 도착 전 연락 요청";
+        }
+      }
+    }
+
+    $$('[data-close]').forEach((btn) => {
       btn.addEventListener("click", () => {
         const id = btn.getAttribute("data-close");
         if (id) closeModal(id);
@@ -428,8 +505,27 @@ function normalizeItemKey(k) {
       });
     });
 
-    $("#openItemsModalBtn")?.addEventListener("click", () => openModal("itemsModal"));
-    $("#openThrowModalBtn")?.addEventListener("click", () => openModal("throwModal"));
+    $("#openItemsModalBtn")?.addEventListener("click", () => {
+      itemsModalContext = "main";
+      syncItemsModalFromState();
+      openModal("itemsModal");
+    });
+    $("#openWaypointItemsModalBtn")?.addEventListener("click", () => {
+      itemsModalContext = "waypoint";
+      syncItemsModalFromState();
+      openModal("itemsModal");
+    });
+    $("#openThrowModalBtn")?.addEventListener("click", () => {
+      throwModalContext = "main";
+      syncThrowModalFromState();
+      openModal("throwModal");
+    });
+    $("#openWaypointThrowModalBtn")?.addEventListener("click", () => {
+      throwModalContext = "waypoint";
+      syncThrowModalFromState();
+      openModal("throwModal");
+    });
+    $("#openDamageCasesModalBtn")?.addEventListener("click", () => openModal("damageCasesModal"));
     $("#openCleanBasicModalBtn")?.addEventListener("click", () => openModal("cleanBasicModal"));
     $("#openCleanApplianceModalBtn")?.addEventListener("click", () => openModal("cleanApplianceModal"));
 
@@ -501,7 +597,14 @@ function normalizeItemKey(k) {
       state.hasWaypoint = !!e.target.checked;
       const wrap = $("#waypointWrap");
       if (wrap) wrap.style.display = state.hasWaypoint ? "" : "none";
-      if (!state.hasWaypoint) state.waypointAddress = "";
+      if (!state.hasWaypoint) {
+        state.waypointAddress = "";
+        state.waypointItems = {};
+        state.waypointItemsNote = "";
+        state.waypointThrow = {};
+        state.waypointThrowNote = "";
+      }
+      renderAll();
     });
 
     let kakaoReady = false;
@@ -751,25 +854,15 @@ function normalizeItemKey(k) {
       renderAll();
     });
 
-    $("#cleaningToggle")?.addEventListener("change", (e) => {
-      state.cleaningToggle = !!e.target.checked;
-      setHidden($("#cleaningBody"), !state.cleaningToggle);
-      renderAll();
-    });
-    $("#cleaningFrom")?.addEventListener("change", (e) => {
-      state.cleaningFrom = !!e.target.checked;
-      renderAll();
-    });
-    $("#cleaningTo")?.addEventListener("change", (e) => {
-      state.cleaningTo = !!e.target.checked;
-      renderAll();
-    });
-    $$('input[name="cleaningType"]').forEach((r) => {
-      r.addEventListener("change", (e) => {
-        if (e.target.checked) state.cleaningType = e.target.value;
-        renderAll();
-      });
-    });
+    const cleaningToggleEl = $("#cleaningToggle");
+    if (cleaningToggleEl) {
+      cleaningToggleEl.checked = false;
+      cleaningToggleEl.disabled = true;
+    }
+    state.cleaningToggle = false;
+    state.cleaningFrom = false;
+    state.cleaningTo = false;
+    state.cleaningType = "light";
 
     /* =========================================================
        Throw toggle (move)
@@ -797,10 +890,11 @@ function normalizeItemKey(k) {
       const k = safeText(itemKey);
       const q = Math.max(0, toInt(qty, 0));
       if (!k) return;
-      if (q <= 0) delete state.items[k];
-      else state.items[k] = q;
+      const target = getItemsStateTarget();
+      if (q <= 0) delete target[k];
+      else target[k] = q;
 
-      if (k === "침대매트리스(킹제외)") {
+      if (itemsModalContext === "main" && k === "침대매트리스(킹제외)") {
         const total = q;
         const sumSizes = Object.values(state.mattressSizes).reduce((a, b) => a + toInt(b, 0), 0);
         if (total > 0 && sumSizes === 0) openModal("mattressSizeModal");
@@ -838,7 +932,7 @@ function normalizeItemKey(k) {
     });
 
     $("#itemsNote")?.addEventListener("input", (e) => {
-      state.itemsNote = e.target.value || "";
+      state[getItemsNoteTarget()] = e.target.value || "";
       renderAll();
     });
 
@@ -892,7 +986,12 @@ function normalizeItemKey(k) {
       const q = Math.max(0, toInt(qty, 0));
       if (!k) return;
 
-      const target = where === "to" ? state.throwTo : state.throwFrom;
+      let target;
+      if (throwModalContext === "waypoint") {
+        target = state.waypointThrow;
+      } else {
+        target = where === "to" ? state.throwTo : state.throwFrom;
+      }
       if (q <= 0) delete target[k];
       else target[k] = q;
     }
@@ -925,7 +1024,8 @@ function normalizeItemKey(k) {
     });
 
     $("#throwNote")?.addEventListener("input", (e) => {
-      state.throwNote = e.target.value || "";
+      if (throwModalContext === "waypoint") state.waypointThrowNote = e.target.value || "";
+      else state.throwNote = e.target.value || "";
       renderAll();
     });
 
@@ -1160,12 +1260,24 @@ function normalizeItemKey(k) {
   return fee;
 }
 
+    function waypointItemsFeeTotal() {
+      if (!state.hasWaypoint) return 0;
+      return itemsFee(state.waypointItems);
+    }
+
     function throwFeeTotal() {
-      if (!state.throwToggle) return 0;
-      const base = (state.workFrom ? 20000 : 0) + (state.workTo ? 20000 : 0);
-      const sumFrom = Object.values(state.throwFrom).reduce((a, b) => a + toInt(b, 0), 0);
-      const sumTo = Object.values(state.throwTo).reduce((a, b) => a + toInt(b, 0), 0);
-      return base + (sumFrom + sumTo) * 5000;
+      let total = 0;
+      if (state.throwToggle) {
+        const base = (state.workFrom ? 20000 : 0) + (state.workTo ? 20000 : 0);
+        const sumFrom = Object.values(state.throwFrom).reduce((a, b) => a + toInt(b, 0), 0);
+        const sumTo = Object.values(state.throwTo).reduce((a, b) => a + toInt(b, 0), 0);
+        total += base + (sumFrom + sumTo) * 5000;
+      }
+      if (state.hasWaypoint) {
+        const wpSum = Object.values(state.waypointThrow).reduce((a, b) => a + toInt(b, 0), 0);
+        total += wpSum * 5000;
+      }
+      return total;
     }
 
     function calcMovePrice() {
@@ -1198,7 +1310,7 @@ function normalizeItemKey(k) {
 
   const ride = rideFee(state.ride);
   const cleanOpt = moveCleaningFee();
-  const items = itemsFee(state.items);
+  const items = itemsFee(state.items) + waypointItemsFeeTotal();
   const throwFee = throwFeeTotal();
 
   let storageFee = 0;
@@ -1339,6 +1451,12 @@ function normalizeItemKey(k) {
       const itemsNotePrev = $("#itemsNotePreview");
       if (itemsNotePrev) itemsNotePrev.textContent = `기타사항: ${state.itemsNote.trim() ? state.itemsNote.trim() : "없음"}`;
 
+      const waypointItemsMini = $("#waypointItemsMiniSummary");
+      if (waypointItemsMini) waypointItemsMini.textContent = `경유지 짐: ${summarizeItemsWithMattress(state.waypointItems)}`;
+
+      const waypointItemsNotePrev = $("#waypointItemsNotePreview");
+      if (waypointItemsNotePrev) waypointItemsNotePrev.textContent = `경유지 짐 기타사항: ${state.waypointItemsNote.trim() ? state.waypointItemsNote.trim() : "없음"}`;
+
       const throwMini = $("#throwMiniSummary");
       if (throwMini) {
         const from = summarizeDict(state.throwFrom);
@@ -1349,6 +1467,12 @@ function normalizeItemKey(k) {
 
       const throwNotePrev = $("#throwNotePreview");
       if (throwNotePrev) throwNotePrev.textContent = `기타사항: ${state.throwNote.trim() ? state.throwNote.trim() : "없음"}`;
+
+      const waypointThrowMini = $("#waypointThrowMiniSummary");
+      if (waypointThrowMini) waypointThrowMini.textContent = `경유지 버려주세요: ${summarizeDict(state.waypointThrow)}`;
+
+      const waypointThrowNotePrev = $("#waypointThrowNotePreview");
+      if (waypointThrowNotePrev) waypointThrowNotePrev.textContent = `경유지 버려주세요 기타사항: ${state.waypointThrowNote.trim() ? state.waypointThrowNote.trim() : "없음"}`;
 
       const cleanBasicMini = $("#cleanBasicMiniSummary");
       if (cleanBasicMini) cleanBasicMini.textContent = summarizeDict(state.cleanBasic);
@@ -1385,6 +1509,7 @@ function normalizeItemKey(k) {
 
         if (state.moveDate) lines.push(`일정: ${state.moveDate} / ${state.timeSlot ? state.timeSlot + "시" : "시간 미선택"}`);
         if (state.distanceKm > 0) lines.push(`거리: ${state.distanceKm} km`);
+        if (state.hasWaypoint) lines.push(`경유지: ${state.waypointAddress || "-"}`);
 
         if (state.noFrom) lines.push(`출발: 엘베없음 ${state.fromFloor}층`);
         else lines.push(`출발: 엘베있음`);
@@ -1406,6 +1531,14 @@ function normalizeItemKey(k) {
         // 선택한 가구/가전 관련 메모를 요약에 포함합니다. 사용자가 입력한 메모가 있을 경우만 추가합니다.
         if (state.itemsNote && state.itemsNote.trim()) {
           lines.push(`가구·가전 기타사항: ${state.itemsNote.trim()}`);
+        }
+
+        if (state.hasWaypoint) {
+          const waypointItems = summarizeItemsWithMattress(state.waypointItems);
+          if (waypointItems !== "선택 없음") lines.push(`경유지 짐: ${waypointItems}`);
+          if (state.waypointItemsNote && state.waypointItemsNote.trim()) {
+            lines.push(`경유지 짐 기타사항: ${state.waypointItemsNote.trim()}`);
+          }
         }
 
         if (state.cantCarryFrom || state.cantCarryTo) {
@@ -1434,6 +1567,14 @@ function normalizeItemKey(k) {
           // 버려주세요 모드에서도 메모를 포함합니다. 입력한 메모가 있을 경우에만 추가합니다.
           if (state.throwNote && state.throwNote.trim()) {
             lines.push(`버려주세요 기타사항: ${state.throwNote.trim()}`);
+          }
+        }
+
+        if (state.hasWaypoint) {
+          const waypointThrow = summarizeDict(state.waypointThrow);
+          if (waypointThrow !== "선택 없음") lines.push(`경유지 버려주세요: ${waypointThrow}`);
+          if (state.waypointThrowNote && state.waypointThrowNote.trim()) {
+            lines.push(`경유지 버려주세요 기타사항: ${state.waypointThrowNote.trim()}`);
           }
         }
 
@@ -1669,8 +1810,12 @@ function normalizeItemKey(k) {
       setHidden($("#storageBody"), state.moveType !== "storage");
       setHidden($("#ladderFromBody"), !state.ladderFromEnabled);
       setHidden($("#ladderToBody"), !state.ladderToEnabled);
-      setHidden($("#cleaningBody"), !state.cleaningToggle);
+      state.cleaningToggle = false;
+      setHidden($("#cleaningBody"), true);
       setHidden($("#cleanOuterWindowBody"), !state.cleanOuterWindowEnabled);
+
+      const waypointWrap = $("#waypointWrap");
+      if (waypointWrap) waypointWrap.style.display = state.hasWaypoint ? "" : "none";
 
       const throwWrap = $("#throwMiniWrap");
       if (throwWrap) throwWrap.style.display = state.throwToggle ? "" : "none";
@@ -1739,11 +1884,17 @@ function normalizeItemKey(k) {
         const items = summarizeItemsWithMattress(state.items);
         const itemsLine = `가구·가전: ${items}`;
         const itemsNoteLine = (state.itemsNote && state.itemsNote.trim()) ? `가구·가전 기타사항: ${state.itemsNote.trim()}` : null;
+        const waypointItemsLine = state.hasWaypoint ? `경유지 짐: ${summarizeItemsWithMattress(state.waypointItems)}` : null;
+        const waypointItemsNoteLine = (state.hasWaypoint && state.waypointItemsNote && state.waypointItemsNote.trim()) ? `경유지 짐 기타사항: ${state.waypointItemsNote.trim()}` : null;
         const throwInfo = state.throwToggle
           ? `버려주세요: ${summarizeDict(state.throwFrom)} / ${summarizeDict(state.throwTo)}`
           : "버려주세요: 미사용";
         const throwNoteLine = (state.throwToggle && state.throwNote && state.throwNote.trim())
           ? `버려주세요 기타사항: ${state.throwNote.trim()}`
+          : null;
+        const waypointThrowLine = state.hasWaypoint ? `경유지 버려주세요: ${summarizeDict(state.waypointThrow)}` : null;
+        const waypointThrowNoteLine = (state.hasWaypoint && state.waypointThrowNote && state.waypointThrowNote.trim())
+          ? `경유지 버려주세요 기타사항: ${state.waypointThrowNote.trim()}`
           : null;
 
         const ladderInfo =
@@ -1784,12 +1935,16 @@ function normalizeItemKey(k) {
           `짐양: ${load}`,
           itemsLine,
           itemsNoteLine,
+          waypointItemsLine,
+          waypointItemsNoteLine,
           helperInfo,
           cantCarryInfo,
           ladderInfo,
           cleanOpt,
           throwInfo,
           throwNoteLine,
+          waypointThrowLine,
+          waypointThrowNoteLine,
           state.ride > 0 ? `동승: ${state.ride}명` : null,
           "",
           `예상 견적: ${price}`,

@@ -1074,3 +1074,148 @@ pointer-events:none;
     min-height: 220px;
   }
 }
+/* =========================
+   Waypoint / disabled option / damage cases
+========================= */
+.waypoint-tools{
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.02);
+}
+.waypoint-actions{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+.ghost-lite{
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.is-disabled-option{
+  opacity: .72;
+}
+.switch.is-disabled{
+  pointer-events: none;
+  opacity: .65;
+}
+.disabled-note{
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px dashed rgba(255,255,255,0.12);
+}
+.case-view-btn{
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+}
+.case-view-btn:hover{
+  background: rgba(255,255,255,0.08);
+}
+.modal-panel-wide{
+  max-width: 760px;
+}
+.case-intro{
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.case-list{
+  display: grid;
+  gap: 12px;
+}
+.case-card{
+  display:grid;
+  grid-template-columns: 160px 1fr;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.case-shot{
+  min-height: 110px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255,255,255,0.16);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color: var(--muted);
+  font-size: 13px;
+  text-align:center;
+  padding: 10px;
+}
+.case-copy strong{
+  display:block;
+  margin-bottom:8px;
+  color: var(--text);
+}
+.case-copy p{
+  margin:0;
+  color: rgba(230,237,246,0.78);
+  line-height:1.6;
+}
+#throwToBlock[hidden]{
+  display:none !important;
+}
+@media (max-width: 640px){
+  .waypoint-actions{
+    grid-template-columns: 1fr;
+  }
+  .case-card{
+    grid-template-columns: 1fr;
+  }
+}
+
+.case-list{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.case-card{
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;
+  overflow:hidden;
+  background:rgba(255,255,255,0.02);
+}
+
+.case-shot{
+  width:100%;
+  background:#111;
+}
+
+.case-image{
+  display:block;
+  width:100%;
+  height:auto;
+}
+
+.case-copy{
+  padding:14px;
+}
+
+.case-copy strong{
+  display:block;
+  margin-bottom:8px;
+}
+
+.case-copy p{
+  margin:0;
+  line-height:1.6;
+  color:rgba(255,255,255,0.82);
+}

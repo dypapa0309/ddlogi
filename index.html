@@ -234,6 +234,18 @@
           <div id="waypointWrap" style="display:none; margin-top:10px;">
             <div class="sub">경유지 주소</div>
             <input type="text" id="waypointAddress" class="address-input" placeholder="예: 경기도 성남시 분당구..." />
+
+            <div class="waypoint-tools">
+              <div class="sub" style="margin-top:12px;">경유지 작업 선택</div>
+              <div class="waypoint-actions">
+                <button type="button" class="wizard-primary" id="openWaypointItemsModalBtn">경유지 짐 선택하기</button>
+                <button type="button" class="wizard-primary ghost-lite" id="openWaypointThrowModalBtn">경유지 버려주세요 선택</button>
+              </div>
+              <div class="mini-summary" id="waypointItemsMiniSummary">경유지 짐: 선택 없음</div>
+              <div class="mini-summary" id="waypointItemsNotePreview" style="margin-top:10px; opacity:.9;">경유지 짐 기타사항: 없음</div>
+              <div class="mini-summary" id="waypointThrowMiniSummary" style="margin-top:10px;">경유지 버려주세요: 선택 없음</div>
+              <div class="mini-summary" id="waypointThrowNotePreview" style="margin-top:10px; opacity:.9;">경유지 버려주세요 기타사항: 없음</div>
+            </div>
           </div>
 
           <div class="sub" style="margin-top: 15px;">도착지 주소</div>
@@ -603,50 +615,25 @@
 
         <div class="sub">청소 옵션</div>
 
-        <div class="option">
+        <div class="option is-disabled-option">
           <div>
             청소 서비스 추가
             <div class="sub" style="margin:6px 0 0;">
-              (간단 정리/마무리 청소 — 선택 시 견적에 반영)
+              현재 이사 견적에서는 비활성화되어 있습니다.
             </div>
           </div>
 
-          <label class="switch" aria-label="청소 옵션 토글">
-            <input type="checkbox" id="cleaningToggle" />
+          <label class="switch is-disabled" aria-label="청소 옵션 비활성화">
+            <input type="checkbox" id="cleaningToggle" disabled />
             <span class="slider"></span>
           </label>
         </div>
 
-        <div class="card-sub" id="cleaningBody" hidden>
-          <div class="sub">청소 범위</div>
-          <div class="toggles">
-            <label class="toggle">
-              <input type="checkbox" id="cleaningFrom" />
-              <span>출발지</span>
-            </label>
-            <label class="toggle">
-              <input type="checkbox" id="cleaningTo" />
-              <span>도착지</span>
-            </label>
-          </div>
-
-          <div class="sub" style="margin-top:10px;">청소 타입</div>
-          <div class="seg">
-            <label class="seg-item">
-              <input type="radio" name="cleaningType" value="light" checked />
-              <span>간단 청소</span>
-            </label>
-            <label class="seg-item">
-              <input type="radio" name="cleaningType" value="deep" />
-              <span>집중 청소</span>
-            </label>
-          </div>
-
-          <div class="hint" style="margin-top:10px;">
-            ※ 기준: 간단 30,000원 / 집중 60,000원 (출발·도착 각각 합산)<br/>
-            ※ 현장 상황(면적/오염도/주차/동선)에 따라 조정될 수 있습니다.
-          </div>
+        <div class="hint disabled-note" id="cleaningDisabledNote">
+          ※ 간단청소 옵션은 잠시 비활성화했습니다. 필요 시 상담에서 별도 안내드릴게요.
         </div>
+
+        <div class="card-sub" id="cleaningBody" hidden></div>
 
       </div>
     </section>
@@ -716,6 +703,10 @@
             <div class="compare-chart-note">
               동일 조건 기준 7개 업체 평균 가격과 비교한 값입니다.
             </div>
+
+            <button type="button" class="case-view-btn" id="openDamageCasesModalBtn">
+              이사업체 피해사례 보기
+            </button>
           </div>
         </div>
       </div>
@@ -1141,7 +1132,7 @@
       </div>
 
       <div class="modal-body">
-        <div class="sub">출발지 짐(수량)</div>
+        <div class="sub throw-from-heading">출발지 짐(수량)</div>
 
         <!-- throw from -->
         <div class="option item-qty-row">
@@ -1234,6 +1225,7 @@
         </div>
 
         <hr />
+        <div id="throwToBlock"><hr />
         <div class="sub">도착지 짐(수량)</div>
         <div class="option item-qty-row">
           <div>세탁기 (12kg 이하)</div>
@@ -1250,6 +1242,8 @@
             <input type="number" class="throwQty" data-loc="to" data-item="냉장고(380L이하)" min="0" value="0" inputmode="numeric" />
             <button type="button" class="stepper-btn" data-stepper-loc="to" data-stepper-item="냉장고(380L이하)" data-dir="1">+</button>
           </div>
+        </div>
+
         </div>
 
         <hr />
@@ -1550,6 +1544,57 @@
 <!-- =========================
      Scripts
 ========================= -->
+<div class="modal" id="damageCasesModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="이사업체 피해사례">
+  <div class="modal-backdrop" data-close="damageCasesModal"></div>
+  <div class="modal-panel modal-panel-wide">
+    <div class="modal-head">
+      <div class="modal-title">이사업체 피해사례</div>
+      <button class="modal-x" type="button" data-close="damageCasesModal" aria-label="닫기">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="case-intro">
+        현장 추가금, 저가 미끼 견적, 일정 지연 같은 실제 피해 유형을 미리 확인해보세요.
+      </div>
+
+      <div class="case-list">
+  <article class="case-card">
+    <div class="case-shot">
+      <img src="/assets/img/case1.jpg" alt="이사업체 피해사례 1" class="case-image" />
+    </div>
+    <div class="case-copy">
+      <strong>현장에서 갑자기 추가금을 요구한 사례</strong>
+      <p>전화나 메시지에서는 저렴하게 안내하고, 도착 후 계단·거리·가전 등을 이유로 큰 금액을 더 요구하는 경우가 있습니다.</p>
+    </div>
+  </article>
+
+  <article class="case-card">
+    <div class="case-shot">
+      <img src="/assets/img/case2.jpg" alt="이사업체 피해사례 2" class="case-image" />
+    </div>
+    <div class="case-copy">
+      <strong>너무 싼 업체를 골랐다가 작업 품질이 무너진 사례</strong>
+      <p>정리 미흡, 파손 대응 부재, 기사 교체 등으로 오히려 시간과 비용을 더 쓰게 되는 경우가 있습니다.</p>
+    </div>
+  </article>
+
+  <article class="case-card">
+    <div class="case-shot">
+      <img src="/assets/img/case3.jpg" alt="이사업체 피해사례 3" class="case-image" />
+    </div>
+    <div class="case-copy">
+      <strong>예약 때와 다른 조건으로 진행된 사례</strong>
+      <p>차량 종류, 기사 수, 약속 시간, 포함 작업 범위가 달라져 고객이 현장에서 당황하는 경우가 있습니다.</p>
+    </div>
+  </article>
+</div>
+
+    <div class="modal-foot">
+      <button type="button" class="wizard-btn ghost" data-close="damageCasesModal">닫기</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
