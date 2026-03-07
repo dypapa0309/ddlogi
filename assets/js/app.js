@@ -526,6 +526,18 @@ function normalizeItemKey(k) {
       openModal("throwModal");
     });
     $("#openDamageCasesModalBtn")?.addEventListener("click", () => openModal("damageCasesModal"));
+
+    const caseImageModal = $("#caseImageModal");
+    const caseImageModalImg = $("#caseImageModalImg");
+    $$(".case-image").forEach((img) => {
+      img.addEventListener("click", () => {
+        if (!caseImageModal || !caseImageModalImg) return;
+        caseImageModalImg.src = img.currentSrc || img.src || "";
+        caseImageModalImg.alt = img.alt || "피해사례 이미지 확대";
+        openModal("caseImageModal");
+      });
+    });
+
     $("#openCleanBasicModalBtn")?.addEventListener("click", () => openModal("cleanBasicModal"));
     $("#openCleanApplianceModalBtn")?.addEventListener("click", () => openModal("cleanApplianceModal"));
 
@@ -2073,3 +2085,40 @@ function normalizeItemKey(k) {
     panel.hidden = isOpen;
   });
 })();
+/* =========================
+   Damage Cases Modal
+========================= */
+const openDamageCasesModalBtn = document.getElementById("openDamageCasesModalBtn");
+const damageCasesModal = document.getElementById("damageCasesModal");
+
+if (openDamageCasesModalBtn && damageCasesModal) {
+  openDamageCasesModalBtn.addEventListener("click", () => {
+    damageCasesModal.classList.add("is-open");
+    damageCasesModal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  });
+}
+
+/* 공통 모달 닫기 */
+document.querySelectorAll("[data-close]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const targetId = btn.getAttribute("data-close");
+    const modal = document.getElementById(targetId);
+    if (!modal) return;
+
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  });
+});
+
+/* ESC로 닫기 */
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+
+  document.querySelectorAll(".modal.is-open").forEach((modal) => {
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  });
+});
