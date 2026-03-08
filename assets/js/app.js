@@ -2369,3 +2369,77 @@ function normalizeItemKey(k) {
     window.addEventListener("load", updateStickyBarVisibility);
   });
 })();
+
+/* ===== Animation Helpers ===== */
+
+/* 스크롤 등장 애니메이션 */
+const revealObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add("visible");
+    }
+  });
+},{threshold:0.15});
+
+document.querySelectorAll("section,.card,.service-card").forEach(el=>{
+  el.classList.add("reveal");
+  revealObserver.observe(el);
+});
+
+
+/* 가격 카운트 애니메이션 */
+function animateNumber(el,newValue,duration=500){
+
+  const start = parseInt(el.innerText.replace(/[^0-9]/g,'')) || 0
+  const startTime = performance.now()
+
+  function frame(time){
+
+    const progress = Math.min((time-startTime)/duration,1)
+
+    const value = Math.floor(start+(newValue-start)*progress)
+
+    el.innerText = value.toLocaleString()
+
+    if(progress < 1){
+      requestAnimationFrame(frame)
+    }
+
+  }
+
+  requestAnimationFrame(frame)
+
+}
+
+
+/* data-price 자동 애니메이션 */
+document.querySelectorAll("[data-price]").forEach(el=>{
+
+  const v = parseInt(el.dataset.price)
+
+  if(!isNaN(v)){
+    animateNumber(el,v)
+  }
+
+})
+
+
+/* 거리 계산 버튼 로딩 */
+const distanceBtn = document.querySelector("#calcDistance")
+
+if(distanceBtn){
+
+  distanceBtn.addEventListener("click",()=>{
+
+    const original = distanceBtn.innerText
+
+    distanceBtn.innerHTML =
+    '거리 계산 중 <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>'
+
+    setTimeout(()=>{
+      distanceBtn.innerText = original
+    },2000)
+
+  })
+
+}
