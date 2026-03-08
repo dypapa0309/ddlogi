@@ -1961,11 +1961,16 @@ function normalizeItemKey(k) {
       if (averageLabel) averageLabel.textContent = `7개 업체 평균 ${formatWon(comparison.average)}`;
 
       const vendorColors = comparison.labels.map((label) =>
-        label === "DDLOGI" ? "rgba(110,231,255,0.95)" : "rgba(255,255,255,0.28)"
-      );
-      const borderColors = comparison.labels.map((label) =>
-        label === "DDLOGI" ? "rgba(110,231,255,1)" : "rgba(255,255,255,0.18)"
-      );
+  label === "DDLOGI"
+    ? "#2F80ED"          // 디디운송 (파란색)
+    : "#CBD5E1"          // 다른 업체 (연회색)
+);
+
+const borderColors = comparison.labels.map((label) =>
+  label === "DDLOGI"
+    ? "#1D4ED8"
+    : "#94A3B8"
+);
 
       if (!compareChart) {
         compareChart = new window.Chart(canvas, {
@@ -2002,7 +2007,7 @@ function normalizeItemKey(k) {
               x: {
                 grid: { display: false },
                 ticks: {
-                  color: "rgba(230,237,246,0.72)",
+                  color: "rgba(140, 171, 211, 0.72)",
                   font: { size: isMobileViewport() ? 9 : 11, weight: "700" },
                   maxRotation: 0,
                   minRotation: 0,
