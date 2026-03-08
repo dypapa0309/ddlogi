@@ -18,7 +18,7 @@
     /* =========================================================
        Global knobs
     ========================================================= */
-    const PRICE_MULTIPLIER = 0.87;
+    const PRICE_MULTIPLIER = 0.1;
     const DISPLAY_MULTIPLIER = 0.95;
     const SERVICE = { MOVE: "move", CLEAN: "clean" };
 
