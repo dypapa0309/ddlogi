@@ -39,6 +39,8 @@ ensureDir(DIST);
 // 2) 기본 파일 복사 (원본 통째로 dist에 먼저 복사)
 copyRecursive(path.join(ROOT, "assets"), path.join(DIST, "assets"));
 copyRecursive(path.join(ROOT, "assets", "img"), path.join(DIST, "assets", "img"));
+copyRecursive(path.join(ROOT, "en"), path.join(DIST, "en"));
+
 if (fs.existsSync(path.join(ROOT, "config.js"))) {
   fs.copyFileSync(path.join(ROOT, "config.js"), path.join(DIST, "config.js"));
 }
