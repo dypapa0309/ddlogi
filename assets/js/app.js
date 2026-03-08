@@ -2073,6 +2073,7 @@ function normalizeItemKey(k) {
       renderMiniSummaries();
       renderSummary();
       renderPrice();
+      updateStickyBarVisibility();
 
       setHidden($("#storageBody"), state.moveType !== "storage");
       setHidden($("#ladderFromBody"), !state.ladderFromEnabled);
@@ -2287,6 +2288,29 @@ function normalizeItemKey(k) {
       openModal("confirmInquiryModal");
     });
 
+    function updateStickyBarVisibility() {
+      const stickyBarEl = $("#stickyPriceBar");
+      if (!stickyBarEl) return;
+
+      const quoteCardEl = $("#priceCardStatic") || $(".section.step-card[data-step=\"12\"] .price-card") || $(".section.step-card[data-step=\"12\"]");
+      if (!quoteCardEl) {
+        stickyBarEl.classList.remove("is-hidden");
+        return;
+      }
+
+      const rect = quoteCardEl.getBoundingClientRect();
+      const viewportH = window.innerHeight || document.documentElement.clientHeight || 0;
+      const hideStart = window.matchMedia("(max-width: 768px)").matches
+        ? viewportH * 0.28
+        : viewportH * 0.5;
+
+      const shouldHide = rect.top <= hideStart && rect.bottom > 0;
+      stickyBarEl.classList.toggle("is-hidden", shouldHide);
+    }
+
+    window.addEventListener("scroll", updateStickyBarVisibility, { passive: true });
+    window.addEventListener("resize", updateStickyBarVisibility);
+
     function openChannelTalkWithPrefill(text) {
       ensureChannelBoot();
 
@@ -2334,5 +2358,8 @@ function normalizeItemKey(k) {
     // Initial render
     gotoStep(0, { noScroll: true });
     renderAll();
+    updateStickyBarVisibility();
+
+    window.addEventListener("load", updateStickyBarVisibility);
   });
 })();

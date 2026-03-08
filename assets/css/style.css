@@ -63,8 +63,8 @@ body{
   font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
   background: var(--bg);
   color:var(--text);
-  padding-top: var(--topbar-h);
-  padding-bottom: var(--bottom-safe);
+  padding-top: 16px;
+  padding-bottom: calc(var(--bottom-safe) + var(--stickybar-h));
 }
 
 a{ color:inherit; text-decoration:none; }
@@ -617,11 +617,11 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
 }
 
 /* =========================
-   TOP STICKY BAR
+   BOTTOM STICKY BAR
 ========================= */
 #stickyPriceBar{
   position: fixed;
-  top: calc(var(--safe-top) + 10px);
+  bottom: calc(12px + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
   z-index: var(--z-sticky);
@@ -640,11 +640,20 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   padding: 12px 12px;
   border-radius: 16px;
 
-  background: rgba(17,24,39,0.92);
+  background: rgba(17,24,39,0.72);
   color: var(--text);
   border: 1px solid rgba(255,255,255,0.10);
   box-shadow: none;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: opacity .28s ease, transform .28s ease, visibility .28s ease;
+}
+
+#stickyPriceBar.is-hidden{
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(14px);
 }
 
 #stickyPriceBar .sticky-left{ display:flex; flex-direction:column; gap:2px; }
