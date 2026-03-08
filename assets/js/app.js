@@ -2283,9 +2283,15 @@ function normalizeItemKey(k) {
       return "";
     }
 
-    $("#channelInquiry")?.addEventListener("click", (e) => {
+    $("#channelInquiry")?.addEventListener("click", async (e) => {
       e.preventDefault();
-      openModal("confirmInquiryModal");
+      const msg = buildInquiryMessage();
+      await copyToClipboard(msg);
+      const ok = openChannelTalkWithPrefill(msg);
+
+      if (!ok) {
+        alert("채널톡을 열었어. 만약 메시지가 자동 입력 안 되면, 방금 복사된 내용을 붙여넣고 전송해줘!");
+      }
     });
 
     function updateStickyBarVisibility() {
