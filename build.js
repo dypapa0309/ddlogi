@@ -40,6 +40,9 @@ ensureDir(DIST);
 copyRecursive(path.join(ROOT, "assets"), path.join(DIST, "assets"));
 copyRecursive(path.join(ROOT, "assets", "img"), path.join(DIST, "assets", "img"));
 copyRecursive(path.join(ROOT, "en"), path.join(DIST, "en"));
+copyRecursive(path.join(ROOT, "ddclean"), path.join(DIST, "ddclean"));
+copyRecursive(path.join(ROOT, "admin"), path.join(DIST, "admin"));
+copyRecursive(path.join(ROOT, "netlify"), path.join(DIST, "netlify"));
 
 if (fs.existsSync(path.join(ROOT, "config.js"))) {
   fs.copyFileSync(path.join(ROOT, "config.js"), path.join(DIST, "config.js"));
