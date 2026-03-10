@@ -30,6 +30,12 @@
     const safeText = (v) => (v == null ? "" : String(v));
     const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
+
+    const DEFAULT_SERVICE = document.body?.dataset.defaultService || "move";
+    const SITE_BRAND = document.body?.dataset.siteBrand || (DEFAULT_SERVICE === "clean" ? "디디클린" : "디디운송");
+    const CROSS_LINK = document.body?.dataset.crossLink || "";
+    const CROSS_LABEL = document.body?.dataset.crossLabel || (DEFAULT_SERVICE === "clean" ? "이사도 필요하시다면 클릭해주세요" : "청소도 필요하시다면 클릭해주세요");
+
     function formatWon(n) {
       const x = Math.trunc(Number(n) || 0); // ✅ 반올림 X (원단위 버림)
       return "₩" + x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -113,7 +119,7 @@ function normalizeItemKey(k) {
        State
     ========================================================= */
     const state = {
-      activeService: "move",
+      activeService: (document.body?.dataset.defaultService || "move"),
       stepIndex: 0,
       moveDate: "",
       timeSlot: null,
@@ -2360,7 +2366,7 @@ const borderColors = comparison.labels.map((label) =>
         const balance = formatWon(display * 0.8);
 
         return [
-          "디디운송 견적 문의",
+          `${SITE_BRAND} 견적 문의`,
           "",
           "서비스: 이사·용달",
           `차량: ${vehicle}`,
@@ -2428,7 +2434,7 @@ const borderColors = comparison.labels.map((label) =>
         const price = formatWon(calcCurrentPrice() * DISPLAY_MULTIPLIER);
 
         return [
-          "디디운송 견적 문의 (입주청소)",
+          `${SITE_BRAND} 견적 문의 (${SITE_BRAND === "디디클린" ? "입주청소" : "입주청소"})`,
           "",
           `유형: ${type}`,
           `오염도: ${soil}`,
@@ -2493,6 +2499,10 @@ const borderColors = comparison.labels.map((label) =>
 
     $("#askClean")?.addEventListener("click", () => {
       closeModal("confirmInquiryModal");
+      if (CROSS_LINK) {
+        window.location.href = CROSS_LINK;
+        return;
+      }
       state.cleaningToggle = true;
       const cleaningToggle = $("#cleaningToggle");
       if (cleaningToggle) cleaningToggle.checked = true;
@@ -2510,6 +2520,16 @@ const borderColors = comparison.labels.map((label) =>
     });
     gotoStep(initialFirst >= 0 ? initialFirst : 0, { noScroll: true });
     renderAll();
+
+    const askCleanBtn = $("#askClean");
+    if (askCleanBtn && CROSS_LINK) askCleanBtn.textContent = DEFAULT_SERVICE === "clean" ? "디디운송으로 이동하기" : "디디클린으로 이동하기";
+
+    const altServiceLink = document.querySelector(".alt-service-link");
+    if (altServiceLink) {
+      altServiceLink.setAttribute("href", CROSS_LINK || (DEFAULT_SERVICE === "clean" ? "/" : "/ddclean/"));
+      altServiceLink.textContent = DEFAULT_SERVICE === "clean" ? "🚚 이사도 필요하시다면 클릭해주세요" : "🧼 청소도 필요하시다면 클릭해주세요";
+    }
+
     updateStickyBarVisibility();
 
     window.addEventListener("load", updateStickyBarVisibility);
