@@ -1286,3 +1286,206 @@ button:active{ transform:scale(0.97); }
     transition:none !important;
   }
 }
+.service-step-hidden{display:none !important;}
+[data-step="service"]{display:none !important;}
+
+.cleaning-upsell-body{
+  margin-top:14px;
+  border:1px solid rgba(17,24,39,0.08);
+  background:linear-gradient(180deg,#ffffff 0%, #f8fbff 100%);
+  border-radius:18px;
+  padding:16px;
+}
+.cleaning-upsell-tip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(47,128,237,0.10);
+  color:var(--text);
+  margin-bottom:14px;
+  font-weight:700;
+}
+.cleaning-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.cleaning-option-card{
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px;
+  background:#fff;
+  box-shadow:0 6px 18px rgba(15,23,42,0.04);
+}
+.seg.compact{gap:8px; flex-wrap:wrap;}
+.clean-check-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px 12px;
+  margin-top:10px;
+}
+.clean-check-grid label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:14px;
+  color:var(--text);
+}
+.clean-inline-steppers,
+.clean-metrics-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:12px;
+}
+.cleaning-actions{
+  margin-top:12px;
+}
+.option.compact,.field.compact{
+  padding:10px 0 0;
+  border-top:1px solid rgba(17,24,39,0.06);
+  margin-top:10px;
+}
+.cleaning-estimate-row{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid rgba(17,24,39,0.08);
+}
+.cleaning-estimate-price{
+  font-size:28px;
+  font-weight:800;
+  line-height:1;
+}
+@media (max-width: 768px){
+  .cleaning-grid,
+  .clean-check-grid,
+  .clean-inline-steppers,
+  .clean-metrics-grid{
+    grid-template-columns:1fr;
+  }
+  .cleaning-estimate-row{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .cleaning-estimate-price{
+    font-size:24px;
+  }
+}
+
+
+.cleaning-upsell-body .option input[type="text"],
+.cleaning-upsell-body .option input[type="number"],
+.cleaning-upsell-body .option select,
+.cleaning-upsell-body textarea,
+.cleaning-upsell-body .field,
+.cleaning-upsell-body .input,
+.cleaning-upsell-body .text-input{
+  width:100%;
+  box-sizing:border-box;
+}
+
+.cleaning-upsell-body textarea{
+  min-height:110px;
+  resize:vertical;
+}
+
+.cleaning-upsell-body label{
+  word-break:keep-all;
+}
+
+.cleaning-upsell-body .modal-grid,
+.cleaning-upsell-body .grid-2,
+.cleaning-upsell-body .form-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+.cleaning-upsell-body .chip,
+.cleaning-upsell-body .pill,
+.cleaning-upsell-body .seg-item{
+  min-width:0;
+}
+
+.sticky-subamount-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:6px;
+  font-size:13px;
+  color:var(--muted);
+}
+.sticky-subamount-value{
+  color:var(--text);
+  font-weight:700;
+}
+@media (max-width:768px){
+  .cleaning-upsell-body .modal-grid,
+  .cleaning-upsell-body .grid-2,
+  .cleaning-upsell-body .form-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+
+.clean-inline-steppers{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  align-items:start;
+}
+.clean-inline-steppers .option.compact{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-width:0;
+}
+.clean-inline-steppers .stepper{
+  width:100%;
+  justify-content:flex-end;
+  flex-wrap:nowrap;
+}
+.clean-inline-steppers .stepper input{
+  width:56px;
+  flex:0 0 56px;
+}
+.clean-inline-steppers .stepper-btn{
+  flex:0 0 34px;
+}
+.clean-inline-steppers .stepper-unit{
+  flex:0 0 auto;
+  white-space:nowrap;
+}
+.cleaning-actions .mini-summary{
+  width:100%;
+  box-sizing:border-box;
+}
+@media (max-width: 980px){
+  .clean-inline-steppers{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 768px){
+  .clean-inline-steppers{
+    grid-template-columns:1fr;
+  }
+  .clean-inline-steppers .stepper{
+    justify-content:flex-start;
+  }
+}
+
+
+#moveCleanBasicMiniSummary,
+#moveCleanApplianceMiniSummary,
+#moveCleanNotePreview{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  overflow-wrap:anywhere;
+}

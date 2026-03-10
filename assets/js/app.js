@@ -113,7 +113,7 @@ function normalizeItemKey(k) {
        State
     ========================================================= */
     const state = {
-      activeService: null,
+      activeService: "move",
       stepIndex: 0,
       moveDate: "",
       timeSlot: null,
@@ -352,8 +352,8 @@ function normalizeItemKey(k) {
     $("#wizardPrev")?.addEventListener("click", goPrev);
     $("#wizardNext")?.addEventListener("click", goNext);
     $("#heroStartBtn")?.addEventListener("click", () => {
-      const serviceSection = document.querySelector('[data-step="service"]');
-      serviceSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const firstSection = document.querySelector('[data-step="1"]');
+      firstSection?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
     /* =========================================================
@@ -983,14 +983,14 @@ function normalizeItemKey(k) {
       if (id === "waypointFloor") state.waypointFloor = v;
       if (id === "waypointLadderFloor") state.waypointLadderFloor = v;
 
-      if (id === "cleanPyeong") state.cleanPyeong = v;
-      if (id === "cleanRooms") state.cleanRooms = v;
-      if (id === "cleanBaths") state.cleanBaths = v;
-      if (id === "cleanBalconies") state.cleanBalconies = v;
-      if (id === "cleanWardrobes") state.cleanWardrobes = v;
-      if (id === "cleanFloor") state.cleanFloor = v;
-      if (id === "cleanOuterWindowPyeong") state.cleanOuterWindowPyeong = v;
-      if (id === "cleanTrashBags") state.cleanTrashBags = v;
+      if (id === "cleanPyeong" || id === "moveCleanPyeong") state.cleanPyeong = v;
+      if (id === "cleanRooms" || id === "moveCleanRooms") state.cleanRooms = v;
+      if (id === "cleanBaths" || id === "moveCleanBaths") state.cleanBaths = v;
+      if (id === "cleanBalconies" || id === "moveCleanBalconies") state.cleanBalconies = v;
+      if (id === "cleanWardrobes" || id === "moveCleanWardrobes") state.cleanWardrobes = v;
+      if (id === "cleanFloor" || id === "moveCleanFloor") state.cleanFloor = v;
+      if (id === "cleanOuterWindowPyeong" || id === "moveCleanOuterWindowPyeong") state.cleanOuterWindowPyeong = v;
+      if (id === "cleanTrashBags" || id === "moveCleanTrashBags") state.cleanTrashBags = v;
 
       renderAll();
     }
@@ -1023,6 +1023,14 @@ function normalizeItemKey(k) {
       "cleanFloor",
       "cleanOuterWindowPyeong",
       "cleanTrashBags",
+      "moveCleanPyeong",
+      "moveCleanRooms",
+      "moveCleanBaths",
+      "moveCleanBalconies",
+      "moveCleanWardrobes",
+      "moveCleanFloor",
+      "moveCleanOuterWindowPyeong",
+      "moveCleanTrashBags",
     ].forEach((id) => {
       const el = document.getElementById(id);
       el?.addEventListener("input", (e) => setStepperValue(el, e.target.value));
@@ -1096,7 +1104,12 @@ function normalizeItemKey(k) {
     const cleaningToggleEl = $("#cleaningToggle");
     if (cleaningToggleEl) {
       cleaningToggleEl.checked = false;
-      cleaningToggleEl.disabled = true;
+      cleaningToggleEl.disabled = false;
+      cleaningToggleEl.addEventListener("change", (e) => {
+        state.cleaningToggle = !!e.target.checked;
+        setHidden($("#cleaningBody"), !state.cleaningToggle);
+        renderAll();
+      });
     }
     state.cleaningToggle = false;
     state.cleaningFrom = false;
@@ -1283,6 +1296,56 @@ function normalizeItemKey(k) {
         if (e.target.checked) state.cleanSoil = e.target.value;
         renderAll();
       });
+    });
+
+    $$('input[name="moveCleanType"]').forEach((r) => {
+      r.addEventListener("change", (e) => {
+        if (e.target.checked) state.cleanType = e.target.value;
+        renderAll();
+      });
+    });
+
+    $$('input[name="moveCleanSoil"]').forEach((r) => {
+      r.addEventListener("change", (e) => {
+        if (e.target.checked) state.cleanSoil = e.target.value;
+        renderAll();
+      });
+    });
+
+    $("#moveCleanAddress")?.addEventListener("input", (e) => {
+      state.cleanAddress = (e.target.value || "").trim();
+      renderAll();
+    });
+    $("#moveCleanAddressNote")?.addEventListener("input", (e) => {
+      state.cleanAddressNote = e.target.value || "";
+      renderAll();
+    });
+    $("#moveCleanParkingHard")?.addEventListener("change", (e) => {
+      state.cleanParkingHard = !!e.target.checked;
+      renderAll();
+    });
+    $("#moveCleanNoElevator")?.addEventListener("change", (e) => {
+      state.cleanNoElevator = !!e.target.checked;
+      renderAll();
+    });
+    $("#moveCleanOuterWindowEnabled")?.addEventListener("change", (e) => {
+      state.cleanOuterWindowEnabled = !!e.target.checked;
+      setHidden($("#moveCleanOuterWindowBody"), !state.cleanOuterWindowEnabled);
+      renderAll();
+    });
+    $("#moveCleanPhytoncideEnabled")?.addEventListener("change", (e) => {
+      state.cleanPhytoncideEnabled = !!e.target.checked;
+      renderAll();
+    });
+    $("#moveCleanDisinfectEnabled")?.addEventListener("change", (e) => {
+      state.cleanDisinfectEnabled = !!e.target.checked;
+      renderAll();
+    });
+    $("#moveCleanNote")?.addEventListener("input", (e) => {
+      state.cleanNote = e.target.value || "";
+      const prev = $("#moveCleanNotePreview");
+      if (prev) prev.textContent = `기타사항: ${state.cleanNote.trim() ? state.cleanNote.trim() : "없음"}`;
+      renderAll();
     });
 
     $("#cleanAddress")?.addEventListener("input", (e) => {
@@ -1644,6 +1707,18 @@ function normalizeItemKey(k) {
       return fee;
     }
 
+    function calcCleanDisplayPrice() {
+      return calcCleanPrice() * DISPLAY_MULTIPLIER;
+    }
+
+    function calcCleanDeposit() {
+      return Math.round(calcCleanDisplayPrice() * 0.2);
+    }
+
+    function calcCleanBalance() {
+      return Math.max(0, calcCleanDisplayPrice() - calcCleanDeposit());
+    }
+
     function calcCleanPrice() {
       let price = 0;
       price += cleanBasePrice();
@@ -1739,12 +1814,18 @@ function normalizeItemKey(k) {
 
       const cleanBasicMini = $("#cleanBasicMiniSummary");
       if (cleanBasicMini) cleanBasicMini.textContent = summarizeDict(state.cleanBasic);
+      const moveCleanBasicMini = $("#moveCleanBasicMiniSummary");
+      if (moveCleanBasicMini) moveCleanBasicMini.textContent = summarizeDict(state.cleanBasic);
 
       const cleanApplianceMini = $("#cleanApplianceMiniSummary");
       if (cleanApplianceMini) cleanApplianceMini.textContent = summarizeDict(state.cleanAppliance);
+      const moveCleanApplianceMini = $("#moveCleanApplianceMiniSummary");
+      if (moveCleanApplianceMini) moveCleanApplianceMini.textContent = summarizeDict(state.cleanAppliance);
 
       const cleanNotePrev = $("#cleanNotePreview");
       if (cleanNotePrev) cleanNotePrev.textContent = `기타사항: ${state.cleanNote.trim() ? state.cleanNote.trim() : "없음"}`;
+      const moveCleanNotePrev = $("#moveCleanNotePreview");
+      if (moveCleanNotePrev) moveCleanNotePrev.textContent = `기타사항: ${state.cleanNote.trim() ? state.cleanNote.trim() : "없음"}`;
     }
 
     function buildSummaryText() {
@@ -1823,10 +1904,31 @@ function normalizeItemKey(k) {
         }
 
         if (state.cleaningToggle) {
-          const scope = [state.cleaningFrom ? "출발" : null, state.cleaningTo ? "도착" : null]
-            .filter(Boolean)
-            .join("/");
-          lines.push(`청소옵션: ${state.cleaningType === "deep" ? "집중" : "간단"} (${scope || "범위 미선택"})`);
+          const cleanTypeLabel =
+            state.cleanType === "movein" ? "입주청소" :
+            state.cleanType === "moveout" ? "이사청소" : "거주청소";
+          const soilLabel =
+            state.cleanSoil === "light" ? "가벼움" :
+            state.cleanSoil === "normal" ? "보통" : "심함";
+          const cleanOpts = [
+            state.cleanParkingHard ? "주차 어려움" : null,
+            state.cleanNoElevator ? `엘베없음(${state.cleanFloor}층)` : null,
+            state.cleanOuterWindowEnabled ? `외창(${state.cleanOuterWindowPyeong}평)` : null,
+            state.cleanPhytoncideEnabled ? "피톤치드/탈취" : null,
+            state.cleanDisinfectEnabled ? "살균/소독" : null,
+            state.cleanTrashBags > 0 ? `폐기/정리 봉투(${state.cleanTrashBags}개)` : null,
+          ].filter(Boolean).join(", ") || "없음";
+          lines.push(`[입주청소] ${state.cleanPyeong}평 · ${cleanTypeLabel} · ${soilLabel}`);
+          lines.push(`입주청소 구성: 방${state.cleanRooms} · 화장실${state.cleanBaths} · 베란다${state.cleanBalconies} · 붙박이장${state.cleanWardrobes}`);
+          if (state.cleanAddress) lines.push(`입주청소 주소: ${state.cleanAddress}`);
+          if (state.cleanAddressNote && state.cleanAddressNote.trim()) lines.push(`입주청소 주소 메모: ${state.cleanAddressNote.trim()}`);
+          lines.push(`입주청소 옵션: ${cleanOpts}`);
+          const special = summarizeDict(state.cleanBasic);
+          const appliance = summarizeDict(state.cleanAppliance);
+          if (special !== "선택 없음") lines.push(`특수 청소: ${special}`);
+          if (appliance !== "선택 없음") lines.push(`가전·가구 클리닝: ${appliance}`);
+          if (state.cleanNote && state.cleanNote.trim()) lines.push(`입주청소 기타사항: ${state.cleanNote.trim()}`);
+          lines.push(`예상 입주청소비: ${formatWon(calcCleanDisplayPrice())}`);
         }
 
         if (state.throwToggle) {
@@ -2083,9 +2185,29 @@ const borderColors = comparison.labels.map((label) =>
       setHidden($("#storageBody"), state.moveType !== "storage");
       setHidden($("#ladderFromBody"), !state.ladderFromEnabled);
       setHidden($("#ladderToBody"), !state.ladderToEnabled);
-      state.cleaningToggle = false;
-      setHidden($("#cleaningBody"), true);
+      setHidden($("#cleaningBody"), !state.cleaningToggle);
       setHidden($("#cleanOuterWindowBody"), !state.cleanOuterWindowEnabled);
+      setHidden($("#moveCleanOuterWindowBody"), !state.cleanOuterWindowEnabled);
+
+      const cleaningToggle = $("#cleaningToggle");
+      if (cleaningToggle) cleaningToggle.checked = !!state.cleaningToggle;
+
+      const moveCleanPrice = $("#moveCleanPrice");
+      if (moveCleanPrice) moveCleanPrice.textContent = formatWon(calcCleanDisplayPrice());
+
+      const moveCleanSummary = $("#moveCleanSummary");
+      if (moveCleanSummary) {
+        const typeLabel = state.cleanType === "movein" ? "입주청소" : state.cleanType === "moveout" ? "이사청소" : "거주청소";
+        const soilLabel = state.cleanSoil === "light" ? "가벼움" : state.cleanSoil === "normal" ? "보통" : "심함";
+        moveCleanSummary.textContent = `${state.cleanPyeong}평 · ${typeLabel} · ${soilLabel}`;
+      }
+
+      const moveCleanAddress = $("#moveCleanAddress");
+      if (moveCleanAddress && moveCleanAddress.value !== state.cleanAddress) moveCleanAddress.value = state.cleanAddress || "";
+      const moveCleanAddressNote = $("#moveCleanAddressNote");
+      if (moveCleanAddressNote && moveCleanAddressNote.value !== state.cleanAddressNote) moveCleanAddressNote.value = state.cleanAddressNote || "";
+      const moveCleanNote = $("#moveCleanNote");
+      if (moveCleanNote && moveCleanNote.value !== state.cleanNote) moveCleanNote.value = state.cleanNote || "";
 
       const waypointWrap = $("#waypointWrap");
       if (waypointWrap) waypointWrap.style.display = state.hasWaypoint ? "" : "none";
@@ -2102,22 +2224,9 @@ const borderColors = comparison.labels.map((label) =>
     }
 
     /* =========================================================
-       ChannelTalk / Inquiry flow
+       SMS / Inquiry flow
     ========================================================= */
-    function ensureChannelBoot() {
-      const key = CFG.channelTalkPluginKey || CFG.channelPluginKey || CFG.channelIOKey;
-      if (!window.ChannelIO) return false;
-      if (!key) return true;
-      if (!window.__DDLOGI_CH_BOOTED__) {
-        try {
-          window.ChannelIO("boot", { pluginKey: key });
-          window.__DDLOGI_CH_BOOTED__ = true;
-        } catch (e) {
-          console.warn("ChannelIO boot failed:", e);
-        }
-      }
-      return true;
-    }
+    const INQUIRY_SMS_PHONE = "01040941666";
 
     async function copyToClipboard(text) {
       try {
@@ -2139,6 +2248,34 @@ const borderColors = comparison.labels.map((label) =>
           return false;
         }
       }
+    }
+
+    function buildSmsHref(phone, text) {
+      const ua = navigator.userAgent || "";
+      const isAppleMobile = /iPhone|iPad|iPod/i.test(ua);
+      const separator = isAppleMobile ? "&" : "?";
+      return `sms:${phone}${separator}body=${encodeURIComponent(String(text || ""))}`;
+    }
+
+    function openSmsAppWithPrefill(text) {
+      const message = String(text || "").trim();
+      if (!message) return false;
+
+      try {
+        const href = buildSmsHref(INQUIRY_SMS_PHONE, message);
+        window.location.href = href;
+        return true;
+      } catch (e) {
+        console.warn("SMS open failed:", e);
+        return false;
+      }
+    }
+
+    function handleInquirySmsFallback(copied) {
+      const fallbackMessage = copied
+        ? "문자 앱이 바로 열리지 않으면, 방금 복사된 견적서를 01040941666 번호로 붙여넣어 전송해줘!"
+        : "문자 앱이 바로 열리지 않으면, 01040941666 번호로 견적 내용을 직접 보내줘!";
+      alert(fallbackMessage);
     }
 
     function buildInquiryMessage() {
@@ -2190,8 +2327,32 @@ const borderColors = comparison.labels.map((label) =>
             : "직접 나르기 어려움: 없음";
 
         const cleanOpt = state.cleaningToggle
-          ? `청소 옵션: ${state.cleaningType === "deep" ? "집중" : "간단"} (${[state.cleaningFrom ? "출발" : null, state.cleaningTo ? "도착" : null].filter(Boolean).join("/") || "-"})`
-          : "청소 옵션: 미사용";
+          ? [
+              "[입주청소 문의]",
+              `평수: ${state.cleanPyeong}평`,
+              `청소 종류: ${state.cleanType === "movein" ? "입주청소" : state.cleanType === "moveout" ? "이사청소" : "거주청소"}`,
+              `오염도: ${state.cleanSoil === "light" ? "가벼움" : state.cleanSoil === "normal" ? "보통" : "심함"}`,
+              `구성: 방${state.cleanRooms} · 화장실${state.cleanBaths} · 베란다${state.cleanBalconies} · 붙박이장${state.cleanWardrobes}`,
+              `주소: ${state.cleanAddress || "-"}`,
+              state.cleanAddressNote && state.cleanAddressNote.trim() ? `주소 메모: ${state.cleanAddressNote.trim()}` : null,
+              `추가 옵션: ${
+                [
+                  state.cleanParkingHard ? "주차 어려움" : null,
+                  state.cleanNoElevator ? `엘베없음(${state.cleanFloor}층)` : null,
+                  state.cleanOuterWindowEnabled ? `외창(${state.cleanOuterWindowPyeong}평)` : null,
+                  state.cleanPhytoncideEnabled ? "피톤치드/탈취" : null,
+                  state.cleanDisinfectEnabled ? "살균/소독" : null,
+                  state.cleanTrashBags > 0 ? `폐기/정리 봉투(${state.cleanTrashBags}개)` : null
+                ].filter(Boolean).join(", ") || "없음"
+              }`,
+              `특수 청소: ${summarizeDict(state.cleanBasic)}`,
+              `가전·가구 클리닝: ${summarizeDict(state.cleanAppliance)}`,
+              state.cleanNote && state.cleanNote.trim() ? `기타사항: ${state.cleanNote.trim()}` : null,
+              `예상 청소비: ${formatWon(calcCleanDisplayPrice())}`,
+              `예약금(20%): ${formatWon(calcCleanDeposit())}`,
+              `잔금(80%): ${formatWon(calcCleanBalance())}`,
+            ].filter(Boolean).join("\n")
+          : "입주청소: 미사용";
 
         const display = calcCurrentPrice() * DISPLAY_MULTIPLIER;
         const price = formatWon(display);
@@ -2291,12 +2452,10 @@ const borderColors = comparison.labels.map((label) =>
     $("#channelInquiry")?.addEventListener("click", async (e) => {
       e.preventDefault();
       const msg = buildInquiryMessage();
-      await copyToClipboard(msg);
-      const ok = openChannelTalkWithPrefill(msg);
+      const copied = await copyToClipboard(msg);
+      const ok = openSmsAppWithPrefill(msg);
 
-      if (!ok) {
-        alert("채널톡을 열었어. 만약 메시지가 자동 입력 안 되면, 방금 복사된 내용을 붙여넣고 전송해줘!");
-      }
+      if (!ok) handleInquirySmsFallback(copied);
     });
 
     function updateStickyBarVisibility() {
@@ -2322,52 +2481,34 @@ const borderColors = comparison.labels.map((label) =>
     window.addEventListener("scroll", updateStickyBarVisibility, { passive: true });
     window.addEventListener("resize", updateStickyBarVisibility);
 
-    function openChannelTalkWithPrefill(text) {
-      ensureChannelBoot();
-
-      if (typeof window.ChannelIO !== "function") {
-        alert("채널톡 로딩이 아직 안 됐어. 잠깐 후 다시 눌러줘.");
-        return false;
-      }
-
-      try {
-        window.ChannelIO("openChat", undefined, String(text || ""));
-        return true;
-      } catch (e) {
-        console.warn("ChannelIO openChat failed:", e);
-        window.ChannelIO?.("showMessenger");
-        return false;
-      }
-    }
-
     $("#sendInquiry")?.addEventListener("click", async () => {
       const msg = buildInquiryMessage();
       closeModal("confirmInquiryModal");
 
-      await copyToClipboard(msg);
-      const ok = openChannelTalkWithPrefill(msg);
+      const copied = await copyToClipboard(msg);
+      const ok = openSmsAppWithPrefill(msg);
 
-      if (!ok) {
-        alert("채널톡을 열었어. 만약 메시지가 자동 입력 안 되면, 방금 복사된 내용을 붙여넣고 전송해줘!");
-      }
+      if (!ok) handleInquirySmsFallback(copied);
     });
 
     $("#askClean")?.addEventListener("click", () => {
       closeModal("confirmInquiryModal");
-      state.activeService = SERVICE.CLEAN;
-
-      const visible = computeVisibleSteps();
-      const first = visible.findIndex((s) => {
-        const t = getStepToken(s);
-        return t !== 0 && t !== "service";
-      });
-
-      gotoStep(first >= 0 ? first : 0);
+      state.cleaningToggle = true;
+      const cleaningToggle = $("#cleaningToggle");
+      if (cleaningToggle) cleaningToggle.checked = true;
+      setHidden($("#cleaningBody"), false);
+      const host = $("#cleaningBody") || document.querySelector('[data-step="11"]');
+      host?.scrollIntoView({ behavior: "smooth", block: "center" });
       renderAll();
     });
 
     // Initial render
-    gotoStep(0, { noScroll: true });
+    const initialVisible = computeVisibleSteps();
+    const initialFirst = initialVisible.findIndex((s) => {
+      const t = getStepToken(s);
+      return t !== 0 && t !== "service";
+    });
+    gotoStep(initialFirst >= 0 ? initialFirst : 0, { noScroll: true });
     renderAll();
     updateStickyBarVisibility();
 
