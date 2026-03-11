@@ -2284,6 +2284,14 @@ const borderColors = comparison.labels.map((label) =>
       alert(fallbackMessage);
     }
 
+    function calcSmsMoveDiscountQuote(displayTotal) {
+      const safeTotal = Number(displayTotal) || 0;
+      const discountedTotal = Math.max(0, Math.round(safeTotal * 0.97));
+      const deposit = Math.round(discountedTotal * 0.2);
+      const balance = discountedTotal - deposit;
+      return { discountedTotal, deposit, balance };
+    }
+
     function buildInquiryMessage() {
       if (state.activeService === SERVICE.MOVE) {
         const vehicle = state.vehicle || "-";
@@ -2362,8 +2370,10 @@ const borderColors = comparison.labels.map((label) =>
 
         const display = calcCurrentPrice() * DISPLAY_MULTIPLIER;
         const price = formatWon(display);
-        const deposit = formatWon(display * 0.2);
-        const balance = formatWon(display * 0.8);
+        const smsQuote = calcSmsMoveDiscountQuote(display);
+        const discountPrice = formatWon(smsQuote.discountedTotal);
+        const deposit = formatWon(smsQuote.deposit);
+        const balance = formatWon(smsQuote.balance);
 
         return [
           `${SITE_BRAND} 견적 문의`,
@@ -2397,9 +2407,11 @@ const borderColors = comparison.labels.map((label) =>
           waypointThrowNoteLine,
           state.ride > 0 ? `동승: ${state.ride}명` : null,
           "",
-          `예상 견적: ${price}`,
+          `홈페이지 예상 견적: ${price}`,
+          `문자 상담 3% 추가 할인 적용 견적: ${discountPrice}`,
           `예약금(20%): ${deposit}`,
           `잔금(80%): ${balance}`,
+          "(3% 할인 적용 된 위 금액은 문자 전송 후 24시간 이내에 적용됩니다)",
         ]
           .filter(Boolean)
           .join("\n");
