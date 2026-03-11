@@ -1502,3 +1502,11 @@ button:active{ transform:scale(0.97); }
   box-sizing:border-box;
   overflow-wrap:anywhere;
 }
+
+.small-discount{
+  display:block;
+  font-size:12px;
+  margin-top:4px;
+  color:#6ee7ff;
+  opacity:0.85;
+}
