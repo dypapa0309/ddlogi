@@ -927,7 +927,9 @@ function normalizeItemKey(k) {
           state.distanceKm = 0;
           state.lastDistanceRouteKey = "";
           if (distanceText) distanceText.textContent = "주소를 다시 확인해주세요";
-          alert("거리 계산에 실패했어. 주소를 더 구체적으로 입력해줘 (도로명/건물명 추천).");
+          const hasDetail = isLikelyDetailedAddress(start) || isLikelyDetailedAddress(end) || (state.hasWaypoint && isLikelyDetailedAddress(wp));
+          if (hasDetail) showAddressGuidePopup();
+          else alert("거리 계산에 실패했어. 주소를 더 구체적으로 입력해줘 (도로명/건물명 추천).");
         }
       });
     }
@@ -2182,6 +2184,85 @@ const borderColors = comparison.labels.map((label) =>
       if (sum) sum.innerHTML = buildSummaryText();
     }
 
+    function isLikelyDetailedAddress(addr) {
+      const value = String(addr || "").trim();
+      if (!value) return false;
+      return /(\d+\s*동)|(\d+\s*호)|(\d+\s*층)|(b\d+\s*층)|([A-Za-z]\d+\s*동)|([A-Za-z]\d+\s*호)/i.test(value);
+    }
+
+    function ensureAddressGuideModal() {
+      let modal = document.getElementById("addressGuideModal");
+      if (modal) return modal;
+
+      modal = document.createElement("div");
+      modal.className = "modal";
+      modal.id = "addressGuideModal";
+      modal.setAttribute("aria-hidden", "true");
+      modal.setAttribute("role", "dialog");
+      modal.setAttribute("aria-modal", "true");
+      modal.setAttribute("aria-label", "주소 입력 안내");
+      modal.innerHTML = `
+        <div class="modal-backdrop" data-close="addressGuideModal"></div>
+        <div class="modal-panel">
+          <div class="modal-head">
+            <div class="modal-title">주소를 다시 입력해주세요</div>
+            <button class="modal-x" type="button" data-close="addressGuideModal" aria-label="닫기">×</button>
+          </div>
+          <div class="modal-body">
+            <p style="margin:0; line-height:1.7; color:var(--text,#111);">세부 주소(몇 동, 몇 호, 몇 층)까지 넣으면 주소를 찾지 못해 거리가 0으로 계산될 수 있어요.</p>
+            <p style="margin:12px 0 0; line-height:1.7; color:var(--muted,#666);">동·호수는 빼고 <b>도로명주소/건물명까지만</b> 입력한 뒤 다시 거리 계산을 해주세요.</p>
+          </div>
+          <div class="modal-foot">
+            <button type="button" class="wizard-btn" data-close="addressGuideModal">확인</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      return modal;
+    }
+
+    function showAddressGuidePopup() {
+      ensureAddressGuideModal();
+      if (typeof openModal === "function") {
+        openModal("addressGuideModal");
+        return;
+      }
+      alert("주소는 동·호수를 빼고 도로명주소/건물명까지만 입력해줘.");
+    }
+
+    function isMoveInquiryReady() {
+      return !!state.startAddress && !!state.endAddress && state.distanceKm > 0 && state.lastDistanceRouteKey === currentRouteKey();
+    }
+
+    function validateMoveInquiryBeforeSend() {
+      if (state.activeService !== SERVICE.MOVE) return true;
+      if (isMoveInquiryReady()) return true;
+
+      const hasDetail = isLikelyDetailedAddress(state.startAddress) || isLikelyDetailedAddress(state.endAddress) || (state.hasWaypoint && isLikelyDetailedAddress(state.waypointAddress));
+      if (hasDetail || (!!state.startAddress && !!state.endAddress && state.distanceKm <= 0)) {
+        showAddressGuidePopup();
+      } else {
+        alert("거리 계산이 완료돼야 견적서를 발송할 수 있어. 주소 입력 후 거리 계산하기를 다시 눌러줘.");
+      }
+      return false;
+    }
+
+    function updateInquiryButtonsState() {
+      const shouldDisableMoveInquiry = state.activeService === SERVICE.MOVE && !isMoveInquiryReady();
+      [document.getElementById("channelInquiry"), document.getElementById("sendInquiry")].forEach((btn) => {
+        if (!btn) return;
+        if (shouldDisableMoveInquiry) {
+          btn.classList.add("is-disabled");
+          btn.setAttribute("aria-disabled", "true");
+          if (btn.tagName === "BUTTON") btn.disabled = true;
+        } else {
+          btn.classList.remove("is-disabled");
+          btn.removeAttribute("aria-disabled");
+          if (btn.tagName === "BUTTON") btn.disabled = false;
+        }
+      });
+    }
+
     function renderAll() {
       renderMiniSummaries();
       renderSummary();
@@ -2227,6 +2308,8 @@ const borderColors = comparison.labels.map((label) =>
         else if (state.startAddress && state.endAddress) distText.textContent = "거리 계산하기를 눌러주세요";
         else distText.textContent = "주소를 입력해주세요";
       }
+
+      updateInquiryButtonsState();
     }
 
     /* =========================================================
@@ -2469,6 +2552,7 @@ const borderColors = comparison.labels.map((label) =>
 
     $("#channelInquiry")?.addEventListener("click", async (e) => {
       e.preventDefault();
+      if (!validateMoveInquiryBeforeSend()) return;
       const msg = buildInquiryMessage();
       const copied = await copyToClipboard(msg);
       const ok = openSmsAppWithPrefill(msg);
@@ -2500,6 +2584,7 @@ const borderColors = comparison.labels.map((label) =>
     window.addEventListener("resize", updateStickyBarVisibility);
 
     $("#sendInquiry")?.addEventListener("click", async () => {
+      if (!validateMoveInquiryBeforeSend()) return;
       const msg = buildInquiryMessage();
       closeModal("confirmInquiryModal");
 
