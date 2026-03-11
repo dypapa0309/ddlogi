@@ -2269,6 +2269,17 @@ const borderColors = comparison.labels.map((label) =>
       renderPrice();
       updateStickyBarVisibility();
 
+      // 중요: 보관이사/보관타입/보관일수는 state를 단일 진실 원천으로 유지
+      // 모달 조작이나 다른 입력 후에도 DOM이 기본값으로 돌아가며 금액이 내려가는 현상을 막음
+      $$('input[name="moveType"]').forEach((r) => {
+        r.checked = String(r.value) === String(state.moveType);
+      });
+      $$('input[name="storageBase"]').forEach((r) => {
+        r.checked = String(r.value) === String(state.storageBase);
+      });
+      const storageDaysInput = $("#storageDays");
+      if (storageDaysInput) storageDaysInput.value = String(Math.max(1, toInt(state.storageDays, 1)));
+
       setHidden($("#storageBody"), state.moveType !== "storage");
       setHidden($("#ladderFromBody"), !state.ladderFromEnabled);
       setHidden($("#ladderToBody"), !state.ladderToEnabled);
