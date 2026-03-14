@@ -36,6 +36,170 @@
     const CROSS_LINK = document.body?.dataset.crossLink || "";
     const CROSS_LABEL = document.body?.dataset.crossLabel || (DEFAULT_SERVICE === "clean" ? "이사도 필요하시다면 클릭해주세요" : "청소도 필요하시다면 클릭해주세요");
 
+
+    function createGaFloatingBadge() {
+  const langbar = document.querySelector('.langbar');
+  if (!langbar || document.getElementById('gaFloatingBadge')) return null;
+
+  const lang = (document.body?.dataset.lang || 'ko').toLowerCase();
+  const dict = {
+    ko: {
+      badge: '실시간 이용 현황',
+      liveLabel: '지금',
+      liveSuffix: '명이 견적 확인 중',
+      desc: '방문자가 있는 순간을 보여줍니다',
+      viewsLabel: '최근 30분 조회',
+      updated: '업데이트',
+      fallbackTitle: '연결 확인 중',
+      fallbackDesc: 'GA 실시간 데이터를 불러오는 중입니다',
+      emptyDesc: '지금 첫 방문자를 기다리고 있어요',
+    },
+    en: {
+      badge: 'Live activity',
+      liveLabel: 'Now',
+      liveSuffix: 'visitors checking quotes',
+      desc: 'Showing real-time visitor activity',
+      viewsLabel: 'Views in last 30m',
+      updated: 'Updated',
+      fallbackTitle: 'Connecting…',
+      fallbackDesc: 'Loading GA realtime data',
+      emptyDesc: 'Waiting for the next visitor',
+    },
+  };
+
+  const t = dict[lang] || dict.ko;
+
+  const badge = document.createElement('aside');
+  badge.id = 'gaFloatingBadge';
+  badge.className = 'ga-floating-badge is-loading';
+  badge.setAttribute('aria-live', 'polite');
+
+  badge.innerHTML = `
+    <div class="ga-floating-badge__header">
+      <div class="ga-floating-badge__eyebrow">
+        <span class="ga-floating-badge__dot" aria-hidden="true"></span>
+        <span>${t.badge}</span>
+      </div>
+    </div>
+
+    <div class="ga-floating-badge__hero">
+      <div class="ga-floating-badge__hero-main">
+        <strong class="ga-floating-badge__value" data-ga-active>0</strong>
+        <span class="ga-floating-badge__unit">${lang === 'ko' ? '명' : ''}</span>
+      </div>
+      <div class="ga-floating-badge__hero-copy" data-ga-copy>
+        ${t.liveLabel} 0${lang === 'ko' ? '명' : ''} ${t.liveSuffix}
+      </div>
+    </div>
+
+    <div class="ga-floating-badge__desc" data-ga-desc>${t.desc}</div>
+
+    <div class="ga-floating-badge__stats">
+      <div class="ga-floating-badge__stat">
+        <span class="ga-floating-badge__stat-label">${t.viewsLabel}</span>
+        <strong class="ga-floating-badge__stat-value" data-ga-secondary>0</strong>
+      </div>
+      <div class="ga-floating-badge__stat">
+        <span class="ga-floating-badge__stat-label">${t.updated}</span>
+        <strong class="ga-floating-badge__stat-value" data-ga-time>-</strong>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(badge);
+
+  function positionBadge() {
+    const rect = langbar.getBoundingClientRect();
+    const badgeRect = badge.getBoundingClientRect();
+    const gap = 8;
+    const top = Math.max(12, Math.round(rect.bottom + gap));
+    const left = Math.max(12, Math.round(rect.right - badgeRect.width));
+    badge.style.top = `${top}px`;
+    badge.style.left = `${left}px`;
+    badge.style.right = 'auto';
+  }
+
+  positionBadge();
+  window.addEventListener('resize', positionBadge, { passive: true });
+  window.addEventListener('scroll', positionBadge, { passive: true });
+
+  return { badge, positionBadge, dict: t, lang };
+}
+
+const gaBadge = createGaFloatingBadge();
+
+async function loadGaRealtimeBadge() {
+  if (!gaBadge?.badge) return;
+
+  const { badge, positionBadge, dict, lang } = gaBadge;
+
+  try {
+    badge.classList.add('is-loading');
+
+    const res = await fetch('/.netlify/functions/gaRealtime', {
+      cache: 'no-store',
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data?.ok) {
+      throw new Error(data?.error || 'GA realtime request failed');
+    }
+
+    const activeUsers = Number(data.activeUsers || 0);
+    const pageViews = Number(data.screenPageViews || 0);
+    const fetchedAt = data.fetchedAtKst || '-';
+
+    const activeEl = badge.querySelector('[data-ga-active]');
+    const copyEl = badge.querySelector('[data-ga-copy]');
+    const descEl = badge.querySelector('[data-ga-desc]');
+    const secondaryEl = badge.querySelector('[data-ga-secondary]');
+    const timeEl = badge.querySelector('[data-ga-time]');
+
+    if (activeEl) activeEl.textContent = activeUsers.toLocaleString();
+    if (secondaryEl) secondaryEl.textContent = pageViews.toLocaleString();
+    if (timeEl) timeEl.textContent = fetchedAt;
+
+    if (copyEl) {
+      if (lang === 'ko') {
+        copyEl.textContent = `지금 ${activeUsers.toLocaleString()}명이 견적 확인 중`;
+      } else {
+        copyEl.textContent = `${activeUsers.toLocaleString()} visitors checking quotes now`;
+      }
+    }
+
+    if (descEl) {
+      if (activeUsers > 0) {
+        descEl.textContent =
+          lang === 'ko'
+            ? '실시간 방문 흐름이 반영되고 있어요'
+            : 'Realtime visitor flow is being reflected';
+      } else {
+        descEl.textContent = dict.emptyDesc;
+      }
+    }
+  } catch (err) {
+    const activeEl = badge.querySelector('[data-ga-active]');
+    const copyEl = badge.querySelector('[data-ga-copy]');
+    const descEl = badge.querySelector('[data-ga-desc]');
+    const secondaryEl = badge.querySelector('[data-ga-secondary]');
+    const timeEl = badge.querySelector('[data-ga-time]');
+
+    if (activeEl) activeEl.textContent = '0';
+    if (copyEl) copyEl.textContent = dict.fallbackTitle;
+    if (descEl) descEl.textContent = dict.fallbackDesc;
+    if (secondaryEl) secondaryEl.textContent = '-';
+    if (timeEl) timeEl.textContent = '-';
+
+    console.error('GA realtime badge load failed:', err);
+  } finally {
+    badge.classList.remove('is-loading');
+    positionBadge?.();
+  }
+}
+
+    loadGaRealtimeBadge();
+    window.setInterval(loadGaRealtimeBadge, 30000);
+
     function formatWon(n) {
       const x = Math.trunc(Number(n) || 0); // ✅ 반올림 X (원단위 버림)
       return "₩" + x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
