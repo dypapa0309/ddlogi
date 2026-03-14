@@ -2552,6 +2552,67 @@ const borderColors = comparison.labels.map((label) =>
       ].join("\n");
     }
 
+    function getKakaoShareKey() {
+      return (
+        window.DDLOGI_CONFIG?.kakaoJavaScriptKey ||
+        document.querySelector('script[src*="dapi.kakao.com/v2/maps/sdk.js"]')
+          ?.getAttribute('src')
+          ?.match(/[?&]appkey=([^&]+)/)?.[1] ||
+        ""
+      );
+    }
+
+    function ensureKakaoShareReady() {
+      if (!window.Kakao) return false;
+      const key = getKakaoShareKey();
+      if (!key) return false;
+      try {
+        if (!window.Kakao.isInitialized || !window.Kakao.isInitialized()) {
+          window.Kakao.init(key);
+        }
+        return !!(window.Kakao.Share && typeof window.Kakao.Share.sendDefault === "function");
+      } catch (err) {
+        console.warn("Kakao Share init failed:", err);
+        return false;
+      }
+    }
+
+    async function shareViaKakaoTalk() {
+      if (!ensureKakaoShareReady()) {
+        showShareToast("카카오 공유 준비가 안 되어 주소를 먼저 복사했어. 카톡에 붙여넣어줘.");
+        return copyShareMessage();
+      }
+
+      try {
+        const shareText = buildReferralShareMessage();
+        window.Kakao.Share.sendDefault({
+          objectType: 'text',
+          text: shareText,
+          link: {
+            mobileWebUrl: SHARE_SITE_URL,
+            webUrl: SHARE_SITE_URL,
+          },
+          buttons: [
+            {
+              title: '사이트 보러가기',
+              link: {
+                mobileWebUrl: SHARE_SITE_URL,
+                webUrl: SHARE_SITE_URL,
+              },
+            },
+          ],
+        });
+        closeModal('shareSiteModal');
+        showShareToast("카카오톡 공유창을 열었어. 친구 채팅방을 선택해 보내줘.");
+        return true;
+      } catch (err) {
+        console.warn("Kakao share failed:", err);
+        if (err && err.name === 'AbortError') return false;
+        showShareToast("카카오 공유가 바로 안 돼서 주소를 복사했어. 카톡에 붙여넣어줘.");
+        return copyShareMessage();
+      }
+    }
+
     let shareToastTimer = null;
     function showShareToast(message) {
       const toast = $("#shareToast");
@@ -2811,12 +2872,17 @@ const borderColors = comparison.labels.map((label) =>
       if (!ok) handleInquirySmsFallback(copied);
     });
 
-    $("#shareSiteBtn")?.addEventListener("click", async () => {
-      await copyShareMessage();
+    $("#shareSiteBtn")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      openModal("shareSiteModal");
     });
 
     $("#copyShareBtn")?.addEventListener("click", async () => {
       await copyShareMessage();
+    });
+
+    $("#kakaoShareBtn")?.addEventListener("click", async () => {
+      await shareViaKakaoTalk();
     });
 
     $("#webShareBtn")?.addEventListener("click", async () => {

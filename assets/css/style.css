@@ -1760,3 +1760,10 @@ button:active{ transform:scale(0.97); }
 @media (max-width: 380px){
   .crew-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
 }
+
+#kakaoShareBtn{
+  border-color: rgba(255, 226, 82, 0.35);
+}
+#kakaoShareBtn:hover{
+  transform: translateY(-1px);
+}
