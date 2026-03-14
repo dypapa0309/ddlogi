@@ -2545,9 +2545,8 @@ const borderColors = comparison.labels.map((label) =>
 
     function buildReferralShareMessage() {
       return [
-        "디디운송 이사 견적 사이트 공유할게!",
-        "거리랑 짐 넣으면 바로 예상 금액 볼 수 있어서 편해.",
-        "문자 상담으로 진행하면 추가 할인도 있고, 추천 받고 예약하면 추천인 5,000원 혜택도 있어.",
+        "고객이 직접 견적 내는 소형 이사 & 청소",
+        "디디운송 & 디디클린 "+ (state.activeService === SERVICE.MOVE ? "이사 견적 계산해보기" : "입주청소 견적 계산해보기"),
         SHARE_SITE_URL,
       ].join("\n");
     }
