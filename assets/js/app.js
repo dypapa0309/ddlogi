@@ -171,7 +171,7 @@ async function loadGaRealtimeBadge() {
       if (activeUsers > 0) {
         descEl.textContent =
           lang === 'ko'
-            ? '실시간 방문 흐름이 반영되고 있어요'
+            ? '방문자 실시간 반영 중입니다'
             : 'Realtime visitor flow is being reflected';
       } else {
         descEl.textContent = dict.emptyDesc;
