@@ -2545,8 +2545,8 @@ const borderColors = comparison.labels.map((label) =>
 
     function buildReferralShareMessage() {
       return [
-        "고객이 직접 견적 내는 소형 이사 & 청소",
-        "디디운송 & 디디클린 "+ (state.activeService === SERVICE.MOVE ? "이사 견적 계산해보기" : "입주청소 견적 계산해보기"),
+        "'고객이 직접' 견적 내는 소형 이사 & 청소",
+        "'디디운송 & 디디클린' "+ (state.activeService === SERVICE.MOVE ? "이사 견적 계산해보기" : "입주청소 견적 계산해보기"),
         SHARE_SITE_URL,
       ].join("\n");
     }
