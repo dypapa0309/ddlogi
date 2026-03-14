@@ -2572,6 +2572,7 @@ const borderColors = comparison.labels.map((label) =>
     async function copyShareMessage() {
       const copied = await copyToClipboard(buildReferralShareMessage());
       if (copied) {
+        closeModal('shareSiteModal');
         showShareToast("복사했습니다. 친구와의 채팅방에 붙여넣기 해주세요. 추천인 5,000원 안내도 함께 복사됐어요.");
         return true;
       }
@@ -2589,6 +2590,7 @@ const borderColors = comparison.labels.map((label) =>
       if (navigator.share) {
         try {
           await navigator.share(shareData);
+          closeModal('shareSiteModal');
           showShareToast("공유 창을 열었어요. 친구에게 바로 보내주세요.");
           return true;
         } catch (err) {
@@ -2601,6 +2603,7 @@ const borderColors = comparison.labels.map((label) =>
     function openSmsShare() {
       const ok = openSmsAppWithPrefill(buildReferralShareMessage());
       if (ok) {
+        closeModal('shareSiteModal');
         showShareToast("문자 앱을 열었어요. 공유 문구와 추천인 5,000원 안내가 함께 들어가요.");
         return true;
       }

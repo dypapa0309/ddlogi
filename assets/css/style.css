@@ -669,11 +669,6 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   font-size:14px;
   font-weight:1100;
 }
-.contact-share-panel{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:8px;
-}
 .share-sub-btn{
   font-size:13px;
   font-weight:1000;
@@ -694,6 +689,28 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   font-weight:900;
   text-align:center;
   line-height:1.5;
+}
+.share-modal-panel{
+  max-width:520px;
+}
+.share-modal-body{
+  display:grid;
+  gap:12px;
+}
+.share-modal-copy{
+  margin:0;
+  font-size:14px;
+  font-weight:800;
+  color:var(--text);
+  line-height:1.5;
+}
+.share-modal-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.share-modal-foot .wizard-btn{
+  width:100%;
 }
 .share-toast{
   position:fixed;
