@@ -2535,6 +2535,79 @@ const borderColors = comparison.labels.map((label) =>
       }
     }
 
+    const SHARE_SITE_URL = (() => {
+      try {
+        return new URL("/", window.location.origin).toString();
+      } catch (_) {
+        return `${window.location.origin}/`;
+      }
+    })();
+
+    function buildReferralShareMessage() {
+      return [
+        "디디운송 이사 견적 사이트 공유할게!",
+        "거리랑 짐 넣으면 바로 예상 금액 볼 수 있어서 편해.",
+        "문자 상담으로 진행하면 추가 할인도 있고, 추천 받고 예약하면 추천인 5,000원 혜택도 있어.",
+        SHARE_SITE_URL,
+      ].join("\n");
+    }
+
+    let shareToastTimer = null;
+    function showShareToast(message) {
+      const toast = $("#shareToast");
+      if (!toast) {
+        alert(message);
+        return;
+      }
+      toast.textContent = message;
+      toast.setAttribute("aria-hidden", "false");
+      toast.classList.add("is-visible");
+      clearTimeout(shareToastTimer);
+      shareToastTimer = window.setTimeout(() => {
+        toast.classList.remove("is-visible");
+        toast.setAttribute("aria-hidden", "true");
+      }, 2600);
+    }
+
+    async function copyShareMessage() {
+      const copied = await copyToClipboard(buildReferralShareMessage());
+      if (copied) {
+        showShareToast("복사했습니다. 친구와의 채팅방에 붙여넣기 해주세요. 추천인 5,000원 안내도 함께 복사됐어요.");
+        return true;
+      }
+      showShareToast("복사에 실패했어요. 잠시 후 다시 시도해주세요.");
+      return false;
+    }
+
+    async function tryWebShare() {
+      const shareData = {
+        title: "디디운송 이사 견적 사이트",
+        text: "이사 견적 바로 계산해보고 추천인 5,000원 혜택도 받아봐.",
+        url: SHARE_SITE_URL,
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+          showShareToast("공유 창을 열었어요. 친구에게 바로 보내주세요.");
+          return true;
+        } catch (err) {
+          if (err && err.name === "AbortError") return false;
+        }
+      }
+      return copyShareMessage();
+    }
+
+    function openSmsShare() {
+      const ok = openSmsAppWithPrefill(buildReferralShareMessage());
+      if (ok) {
+        showShareToast("문자 앱을 열었어요. 공유 문구와 추천인 5,000원 안내가 함께 들어가요.");
+        return true;
+      }
+      copyShareMessage();
+      return false;
+    }
+
     function handleInquirySmsFallback(copied) {
       const fallbackMessage = copied
         ? "문자 앱이 바로 열리지 않으면, 방금 복사된 견적서를 01040941666 번호로 붙여넣어 전송해줘!"
@@ -2733,6 +2806,22 @@ const borderColors = comparison.labels.map((label) =>
       const ok = openSmsAppWithPrefill(msg);
 
       if (!ok) handleInquirySmsFallback(copied);
+    });
+
+    $("#shareSiteBtn")?.addEventListener("click", async () => {
+      await copyShareMessage();
+    });
+
+    $("#copyShareBtn")?.addEventListener("click", async () => {
+      await copyShareMessage();
+    });
+
+    $("#webShareBtn")?.addEventListener("click", async () => {
+      await tryWebShare();
+    });
+
+    $("#smsShareBtn")?.addEventListener("click", () => {
+      openSmsShare();
     });
 
     function updateStickyBarVisibility() {
