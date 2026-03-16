@@ -726,11 +726,49 @@ function normalizeItemKey(k) {
       });
     });
 
-    $$(".modal-panel").forEach((panel) => {
-      panel.addEventListener("click", (e) => {
-        e.stopPropagation();
+    // NOTE:
+    // .modal-backdrop 는 .modal-panel 의 형제 요소라서,
+    // panel 내부 클릭이 backdrop 으로 전파될 일이 없음.
+    // 여기서 stopPropagation()을 걸면 modal 내부 버튼(data-open-modal, 동적 data-close,
+    // 이미지 확대 등)이 document 위임 리스너까지 도달하지 못해서 기능이 끊길 수 있다.
+    // 그래서 panel 클릭은 막지 않고 그대로 두고, 실제 닫힘 제어는 backdrop/data-close 만 사용한다.
+
+    function bindDirectModalOpeners() {
+      $$('[data-open-modal]').forEach((btn) => {
+        if (btn.dataset.modalOpenBound === '1') return;
+        btn.dataset.modalOpenBound = '1';
+        btn.addEventListener('click', (e) => {
+          const targetId = btn.getAttribute('data-open-modal');
+          if (!targetId) return;
+
+          const isWaypointItems = btn.id === 'openWaypointItemsModalBtn';
+          const isWaypointThrow = btn.id === 'openWaypointThrowModalBtn';
+
+          if (targetId === 'itemsModal') {
+            itemsModalContext = isWaypointItems ? 'waypoint' : 'main';
+            syncItemsModalFromState();
+            if (isWaypointItems) mountNestedModalInWaypoint(targetId);
+            else unmountNestedModalFromWaypoint(targetId);
+          }
+
+          if (targetId === 'throwModal') {
+            throwModalContext = isWaypointThrow ? 'waypoint' : 'main';
+            syncThrowModalFromState();
+            if (isWaypointThrow) mountNestedModalInWaypoint(targetId);
+            else unmountNestedModalFromWaypoint(targetId);
+          }
+
+          if (targetId === 'waypointSetupModal') {
+            syncWaypointSetupModal();
+          }
+
+          openModal(targetId);
+          e.preventDefault();
+        });
       });
-    });
+    }
+
+    bindDirectModalOpeners();
 
     document.addEventListener("click", (e) => {
       const openBtn = e.target.closest('[data-open-modal]');
