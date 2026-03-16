@@ -171,7 +171,7 @@ async function loadGaRealtimeBadge() {
       if (activeUsers > 0) {
         descEl.textContent =
           lang === 'ko'
-            ? '방문자 실시간 반영 중입니다'
+            ? '실시간 방문 흐름이 반영되고 있어요'
             : 'Realtime visitor flow is being reflected';
       } else {
         descEl.textContent = dict.emptyDesc;
@@ -618,6 +618,10 @@ function normalizeItemKey(k) {
       if (!m) return false;
       m.setAttribute("aria-hidden", "true");
       m.classList.remove("open");
+      if (id === 'caseImageModal' && caseImageModalImg) {
+        caseImageModalImg.removeAttribute('src');
+        caseImageModalImg.removeAttribute('alt');
+      }
       if (m.classList.contains('nested-in-waypoint')) unmountNestedModalFromWaypoint(id);
       syncModalBodyLock();
       return true;
@@ -713,9 +717,18 @@ function normalizeItemKey(k) {
     });
 
     $$(".modal-backdrop").forEach((bd) => {
-      bd.addEventListener("click", () => {
+      bd.addEventListener("click", (e) => {
+        if (e.target !== bd) return;
+        e.preventDefault();
+        e.stopPropagation();
         const id = bd.getAttribute("data-close");
         if (id) closeModal(id);
+      });
+    });
+
+    $$(".modal-panel").forEach((panel) => {
+      panel.addEventListener("click", (e) => {
+        e.stopPropagation();
       });
     });
 
@@ -752,9 +765,12 @@ function normalizeItemKey(k) {
 
       const zoomImg = e.target.closest('.case-image');
       if (zoomImg && caseImageModal && caseImageModalImg) {
+        e.preventDefault();
+        e.stopPropagation();
         caseImageModalImg.src = zoomImg.currentSrc || zoomImg.src || '';
         caseImageModalImg.alt = zoomImg.alt || '피해사례 이미지 확대';
         openModal('caseImageModal');
+        return;
       }
     });
 
@@ -781,6 +797,17 @@ function normalizeItemKey(k) {
 
     const caseImageModal = $("#caseImageModal");
     const caseImageModalImg = $("#caseImageModalImg");
+
+    $$(".case-image").forEach((img) => {
+      img.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!caseImageModal || !caseImageModalImg) return;
+        caseImageModalImg.src = img.currentSrc || img.src || '';
+        caseImageModalImg.alt = img.alt || '이미지 확대 보기';
+        openModal('caseImageModal');
+      });
+    });
 
     /* =========================================================
        Waypoint setup modal
@@ -2535,142 +2562,6 @@ const borderColors = comparison.labels.map((label) =>
       }
     }
 
-    const SHARE_SITE_URL = (() => {
-      try {
-        return new URL("/", window.location.origin).toString();
-      } catch (_) {
-        return `${window.location.origin}/`;
-      }
-    })();
-
-    function buildReferralShareMessage() {
-      return [
-        "'고객이 직접' 견적 내는 소형 이사 & 청소",
-        "'디디운송 & 디디클린' "+ (state.activeService === SERVICE.MOVE ? "이사 견적 계산해보기" : "입주청소 견적 계산해보기"),
-        SHARE_SITE_URL,
-      ].join("\n");
-    }
-
-    function getKakaoShareKey() {
-      return (
-        window.DDLOGI_CONFIG?.kakaoJavaScriptKey ||
-        document.querySelector('script[src*="dapi.kakao.com/v2/maps/sdk.js"]')
-          ?.getAttribute('src')
-          ?.match(/[?&]appkey=([^&]+)/)?.[1] ||
-        ""
-      );
-    }
-
-    function ensureKakaoShareReady() {
-      if (!window.Kakao) return false;
-      const key = getKakaoShareKey();
-      if (!key) return false;
-      try {
-        if (!window.Kakao.isInitialized || !window.Kakao.isInitialized()) {
-          window.Kakao.init(key);
-        }
-        return !!(window.Kakao.Share && typeof window.Kakao.Share.sendDefault === "function");
-      } catch (err) {
-        console.warn("Kakao Share init failed:", err);
-        return false;
-      }
-    }
-
-    async function shareViaKakaoTalk() {
-      if (!ensureKakaoShareReady()) {
-        showShareToast("카카오 공유 준비가 안 되어 주소를 먼저 복사했어. 카톡에 붙여넣어줘.");
-        return copyShareMessage();
-      }
-
-      try {
-        const shareText = buildReferralShareMessage();
-        window.Kakao.Share.sendDefault({
-          objectType: 'text',
-          text: shareText,
-          link: {
-            mobileWebUrl: SHARE_SITE_URL,
-            webUrl: SHARE_SITE_URL,
-          },
-          buttons: [
-            {
-              title: '사이트 보러가기',
-              link: {
-                mobileWebUrl: SHARE_SITE_URL,
-                webUrl: SHARE_SITE_URL,
-              },
-            },
-          ],
-        });
-        closeModal('shareSiteModal');
-        showShareToast("카카오톡 공유창을 열었어. 친구 채팅방을 선택해 보내줘.");
-        return true;
-      } catch (err) {
-        console.warn("Kakao share failed:", err);
-        if (err && err.name === 'AbortError') return false;
-        showShareToast("카카오 공유가 바로 안 돼서 주소를 복사했어. 카톡에 붙여넣어줘.");
-        return copyShareMessage();
-      }
-    }
-
-    let shareToastTimer = null;
-    function showShareToast(message) {
-      const toast = $("#shareToast");
-      if (!toast) {
-        alert(message);
-        return;
-      }
-      toast.textContent = message;
-      toast.setAttribute("aria-hidden", "false");
-      toast.classList.add("is-visible");
-      clearTimeout(shareToastTimer);
-      shareToastTimer = window.setTimeout(() => {
-        toast.classList.remove("is-visible");
-        toast.setAttribute("aria-hidden", "true");
-      }, 2600);
-    }
-
-    async function copyShareMessage() {
-      const copied = await copyToClipboard(buildReferralShareMessage());
-      if (copied) {
-        closeModal('shareSiteModal');
-        showShareToast("복사했습니다. 친구와의 채팅방에 붙여넣기 해주세요. 추천인 5,000원 안내도 함께 복사됐어요.");
-        return true;
-      }
-      showShareToast("복사에 실패했어요. 잠시 후 다시 시도해주세요.");
-      return false;
-    }
-
-    async function tryWebShare() {
-      const shareData = {
-        title: "디디운송 이사 견적 사이트",
-        text: "이사 견적 바로 계산해보고 추천인 5,000원 혜택도 받아봐.",
-        url: SHARE_SITE_URL,
-      };
-
-      if (navigator.share) {
-        try {
-          await navigator.share(shareData);
-          closeModal('shareSiteModal');
-          showShareToast("공유 창을 열었어요. 친구에게 바로 보내주세요.");
-          return true;
-        } catch (err) {
-          if (err && err.name === "AbortError") return false;
-        }
-      }
-      return copyShareMessage();
-    }
-
-    function openSmsShare() {
-      const ok = openSmsAppWithPrefill(buildReferralShareMessage());
-      if (ok) {
-        closeModal('shareSiteModal');
-        showShareToast("문자 앱을 열었어요. 공유 문구와 추천인 5,000원 안내가 함께 들어가요.");
-        return true;
-      }
-      copyShareMessage();
-      return false;
-    }
-
     function handleInquirySmsFallback(copied) {
       const fallbackMessage = copied
         ? "문자 앱이 바로 열리지 않으면, 방금 복사된 견적서를 01040941666 번호로 붙여넣어 전송해줘!"
@@ -2869,27 +2760,6 @@ const borderColors = comparison.labels.map((label) =>
       const ok = openSmsAppWithPrefill(msg);
 
       if (!ok) handleInquirySmsFallback(copied);
-    });
-
-    $("#shareSiteBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      openModal("shareSiteModal");
-    });
-
-    $("#copyShareBtn")?.addEventListener("click", async () => {
-      await copyShareMessage();
-    });
-
-    $("#kakaoShareBtn")?.addEventListener("click", async () => {
-      await shareViaKakaoTalk();
-    });
-
-    $("#webShareBtn")?.addEventListener("click", async () => {
-      await tryWebShare();
-    });
-
-    $("#smsShareBtn")?.addEventListener("click", () => {
-      openSmsShare();
     });
 
     function updateStickyBarVisibility() {

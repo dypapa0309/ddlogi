@@ -664,85 +664,6 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   opacity:0.9;
 }
 
-
-.contact-btn.share-main-btn{
-  font-size:14px;
-  font-weight:1100;
-}
-.share-sub-btn{
-  font-size:13px;
-  font-weight:1000;
-  min-height:48px;
-  background:#FFFFFF;
-}
-.share-sub-btn:hover{
-  background:#F8FAFC;
-}
-.share-referral-note{
-  margin-top:2px;
-  padding:10px 12px;
-  border-radius:14px;
-  background:rgba(47,128,237,0.08);
-  border:1px solid rgba(47,128,237,0.14);
-  color:#1E40AF;
-  font-size:12px;
-  font-weight:900;
-  text-align:center;
-  line-height:1.5;
-}
-.share-modal-panel{
-  max-width:520px;
-}
-.share-modal-body{
-  display:grid;
-  gap:12px;
-}
-.share-modal-copy{
-  margin:0;
-  font-size:14px;
-  font-weight:800;
-  color:var(--text);
-  line-height:1.5;
-}
-.share-modal-actions{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:10px;
-}
-.share-modal-foot .wizard-btn{
-  width:100%;
-}
-.share-toast{
-  position:fixed;
-  left:50%;
-  bottom:calc(92px + var(--safe-bottom));
-  transform:translateX(-50%) translateY(12px);
-  width:min(calc(100% - 24px), 520px);
-  padding:14px 16px;
-  border-radius:16px;
-  background:rgba(15,23,42,0.94);
-  color:#fff;
-  text-align:center;
-  font-size:13px;
-  font-weight:900;
-  line-height:1.5;
-  box-shadow:0 18px 38px rgba(15,23,42,0.28);
-  opacity:0;
-  pointer-events:none;
-  z-index:9999;
-  transition:opacity .22s ease, transform .22s ease;
-}
-.share-toast.is-visible{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
-}
-@media (max-width: 640px){
-  .share-toast{
-    bottom:calc(86px + var(--safe-bottom));
-    font-size:12px;
-  }
-}
-
 .contact-btn.is-disabled,
 .wizard-btn.is-disabled,
 button[disabled].wizard-btn{
@@ -1760,10 +1681,5 @@ button:active{ transform:scale(0.97); }
 @media (max-width: 380px){
   .crew-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
 }
-
-#kakaoShareBtn{
-  border-color: rgba(255, 226, 82, 0.35);
-}
-#kakaoShareBtn:hover{
-  transform: translateY(-1px);
-}
+#caseImageModal{ z-index: 9999 !important; }
+#caseImageModal .modal-panel{ z-index: 10000 !important; }
