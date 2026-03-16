@@ -812,6 +812,85 @@ function normalizeItemKey(k) {
       }
     });
 
+    document.addEventListener('click', (e) => {
+      const itemStepperBtn = e.target.closest('.stepper-btn[data-stepper-item]:not([data-stepper-loc]):not([data-clean-group])');
+      if (itemStepperBtn) {
+        e.preventDefault();
+        handleItemStepperButton(itemStepperBtn);
+        return;
+      }
+
+      const throwStepperBtn = e.target.closest('.stepper-btn[data-stepper-loc][data-stepper-item]');
+      if (throwStepperBtn) {
+        e.preventDefault();
+        handleThrowStepperButton(throwStepperBtn);
+        return;
+      }
+
+      const mattressStepperBtn = e.target.closest('.stepper-btn[data-stepper-size]');
+      if (mattressStepperBtn) {
+        e.preventDefault();
+        handleMattressStepperButton(mattressStepperBtn);
+        return;
+      }
+
+      const cleanStepperBtn = e.target.closest('.stepper-btn[data-clean-group][data-clean-item]');
+      if (cleanStepperBtn) {
+        e.preventDefault();
+        handleCleanStepperButton(cleanStepperBtn);
+      }
+    });
+
+    document.addEventListener('input', (e) => {
+      const itemQtyInput = e.target.closest('.itemQty');
+      if (itemQtyInput) {
+        handleItemQtyInput(itemQtyInput);
+        return;
+      }
+
+      const throwQtyInput = e.target.closest('.throwQty');
+      if (throwQtyInput) {
+        handleThrowQtyInput(throwQtyInput);
+        return;
+      }
+
+      const mattressSizeInput = e.target.closest('#mattressSizeModal input[data-size]');
+      if (mattressSizeInput) {
+        handleMattressSizeInput(mattressSizeInput);
+        return;
+      }
+
+      const cleanQtyInput = e.target.closest('.cleanQty');
+      if (cleanQtyInput) {
+        handleCleanQtyInput(cleanQtyInput);
+      }
+    });
+
+    document.addEventListener('change', (e) => {
+      const itemQtyInput = e.target.closest('.itemQty');
+      if (itemQtyInput) {
+        handleItemQtyInput(itemQtyInput);
+        return;
+      }
+
+      const throwQtyInput = e.target.closest('.throwQty');
+      if (throwQtyInput) {
+        handleThrowQtyInput(throwQtyInput);
+        return;
+      }
+
+      const mattressSizeInput = e.target.closest('#mattressSizeModal input[data-size]');
+      if (mattressSizeInput) {
+        handleMattressSizeInput(mattressSizeInput);
+        return;
+      }
+
+      const cleanQtyInput = e.target.closest('.cleanQty');
+      if (cleanQtyInput) {
+        handleCleanQtyInput(cleanQtyInput);
+      }
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeAllModals();
     });
@@ -1397,28 +1476,32 @@ function normalizeItemKey(k) {
       }
     }
 
-    $$(".stepper-btn[data-stepper-item]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const item = btn.getAttribute("data-stepper-item");
-        const dir = toInt(btn.getAttribute("data-dir"), 0);
-        const modal = btn.closest(".modal") || document;
-        const inp = modal.querySelector('.itemQty[data-item="' + item + '"]');
-        if (!inp) return;
-        const cur = toInt(inp.value, 0);
-        const next = Math.max(0, cur + dir);
-        inp.value = String(next);
-        setItemQty(item, next);
-        renderAll();
-      });
-    });
+    function handleItemStepperButton(btn) {
+      const item = btn?.getAttribute("data-stepper-item");
+      const dir = toInt(btn?.getAttribute("data-dir"), 0);
+      if (!item || !dir) return false;
+      const modal = btn.closest(".modal") || document;
+      const inp = modal.querySelector('.itemQty[data-item="' + item + '"]');
+      if (!inp) return false;
+      const cur = toInt(inp.value, 0);
+      const next = Math.max(0, cur + dir);
+      inp.value = String(next);
+      setItemQty(item, next);
+      renderAll();
+      return true;
+    }
 
-    $$(".itemQty").forEach((inp) => {
-      inp.addEventListener("input", () => {
-        const item = inp.getAttribute("data-item");
-        setItemQty(item, inp.value);
-        renderAll();
-      });
-    });
+    function handleItemQtyInput(inp) {
+      const item = inp?.getAttribute("data-item");
+      if (!item) return false;
+      const next = Math.max(0, toInt(inp.value, 0));
+      inp.value = String(next);
+      setItemQty(item, next);
+      renderAll();
+      return true;
+    }
+
+    // item modal controls are handled by delegated listeners below
 
     $("#itemsNote")?.addEventListener("input", (e) => {
       state[getItemsNoteTarget()] = e.target.value || "";
@@ -1444,27 +1527,31 @@ function normalizeItemKey(k) {
       }
     }
 
-    $$(".stepper-btn[data-stepper-size]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const size = btn.getAttribute("data-stepper-size");
-        const dir = toInt(btn.getAttribute("data-dir"), 0);
-        const inp = document.querySelector('#mattressSizeModal input[data-size="' + size + '"]');
-        if (!inp) return;
-        const cur = toInt(inp.value, 0);
-        const next = Math.max(0, cur + dir);
-        inp.value = String(next);
-        setMattressSize(size, next);
-        renderAll();
-      });
-    });
+    function handleMattressStepperButton(btn) {
+      const size = btn?.getAttribute("data-stepper-size");
+      const dir = toInt(btn?.getAttribute("data-dir"), 0);
+      if (!size || !dir) return false;
+      const inp = document.querySelector('#mattressSizeModal input[data-size="' + size + '"]');
+      if (!inp) return false;
+      const cur = toInt(inp.value, 0);
+      const next = Math.max(0, cur + dir);
+      inp.value = String(next);
+      setMattressSize(size, next);
+      renderAll();
+      return true;
+    }
 
-    $$("#mattressSizeModal input[data-size]").forEach((inp) => {
-      inp.addEventListener("input", () => {
-        const size = inp.getAttribute("data-size");
-        setMattressSize(size, inp.value);
-        renderAll();
-      });
-    });
+    function handleMattressSizeInput(inp) {
+      const size = inp?.getAttribute("data-size");
+      if (!size) return false;
+      const next = Math.max(0, toInt(inp.value, 0));
+      inp.value = String(next);
+      setMattressSize(size, next);
+      renderAll();
+      return true;
+    }
+
+    // mattress modal controls are handled by delegated listeners below
 
     /* =========================================================
        Throw modal steppers
@@ -1485,32 +1572,36 @@ function normalizeItemKey(k) {
       else target[k] = q;
     }
 
-    $$(".stepper-btn[data-stepper-loc][data-stepper-item]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const loc = btn.getAttribute("data-stepper-loc");
-        const item = btn.getAttribute("data-stepper-item");
-        const dir = toInt(btn.getAttribute("data-dir"), 0);
-        const modal = btn.closest(".modal") || document;
-        const inp = modal.querySelector(
-          '.throwQty[data-loc="' + loc + '"][data-item="' + item + '"]'
-        );
-        if (!inp) return;
-        const cur = toInt(inp.value, 0);
-        const next = Math.max(0, cur + dir);
-        inp.value = String(next);
-        setThrowQty(loc, item, next);
-        renderAll();
-      });
-    });
+    function handleThrowStepperButton(btn) {
+      const loc = btn?.getAttribute("data-stepper-loc");
+      const item = btn?.getAttribute("data-stepper-item");
+      const dir = toInt(btn?.getAttribute("data-dir"), 0);
+      if (!loc || !item || !dir) return false;
+      const modal = btn.closest(".modal") || document;
+      const inp = modal.querySelector(
+        '.throwQty[data-loc="' + loc + '"][data-item="' + item + '"]'
+      );
+      if (!inp) return false;
+      const cur = toInt(inp.value, 0);
+      const next = Math.max(0, cur + dir);
+      inp.value = String(next);
+      setThrowQty(loc, item, next);
+      renderAll();
+      return true;
+    }
 
-    $$(".throwQty").forEach((inp) => {
-      inp.addEventListener("input", () => {
-        const loc = inp.getAttribute("data-loc");
-        const item = inp.getAttribute("data-item");
-        setThrowQty(loc, item, inp.value);
-        renderAll();
-      });
-    });
+    function handleThrowQtyInput(inp) {
+      const loc = inp?.getAttribute("data-loc");
+      const item = inp?.getAttribute("data-item");
+      if (!loc || !item) return false;
+      const next = Math.max(0, toInt(inp.value, 0));
+      inp.value = String(next);
+      setThrowQty(loc, item, next);
+      renderAll();
+      return true;
+    }
+
+    // throw modal controls are handled by delegated listeners below
 
     $("#throwNote")?.addEventListener("input", (e) => {
       if (throwModalContext === "waypoint") state.waypointThrowNote = e.target.value || "";
@@ -1635,32 +1726,36 @@ function normalizeItemKey(k) {
       else target[k] = q;
     }
 
-    $$(".stepper-btn[data-clean-group][data-clean-item]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const group = btn.getAttribute("data-clean-group");
-        const item = btn.getAttribute("data-clean-item");
-        const dir = toInt(btn.getAttribute("data-dir"), 0);
-        const modal = btn.closest(".modal") || document;
-        const inp = modal.querySelector(
-          '.cleanQty[data-clean-group="' + group + '"][data-clean-item="' + item + '"]'
-        );
-        if (!inp) return;
-        const cur = toInt(inp.value, 0);
-        const next = Math.max(0, cur + dir);
-        inp.value = String(next);
-        setCleanQty(group, item, next);
-        renderAll();
-      });
-    });
+    function handleCleanStepperButton(btn) {
+      const group = btn?.getAttribute("data-clean-group");
+      const item = btn?.getAttribute("data-clean-item");
+      const dir = toInt(btn?.getAttribute("data-dir"), 0);
+      if (!group || !item || !dir) return false;
+      const modal = btn.closest(".modal") || document;
+      const inp = modal.querySelector(
+        '.cleanQty[data-clean-group="' + group + '"][data-clean-item="' + item + '"]'
+      );
+      if (!inp) return false;
+      const cur = toInt(inp.value, 0);
+      const next = Math.max(0, cur + dir);
+      inp.value = String(next);
+      setCleanQty(group, item, next);
+      renderAll();
+      return true;
+    }
 
-    $$(".cleanQty").forEach((inp) => {
-      inp.addEventListener("input", () => {
-        const group = inp.getAttribute("data-clean-group");
-        const item = inp.getAttribute("data-clean-item");
-        setCleanQty(group, item, inp.value);
-        renderAll();
-      });
-    });
+    function handleCleanQtyInput(inp) {
+      const group = inp?.getAttribute("data-clean-group");
+      const item = inp?.getAttribute("data-clean-item");
+      if (!group || !item) return false;
+      const next = Math.max(0, toInt(inp.value, 0));
+      inp.value = String(next);
+      setCleanQty(group, item, next);
+      renderAll();
+      return true;
+    }
+
+    // cleaning modal controls are handled by delegated listeners below
 
     /* =========================================================
        Storage fee model
