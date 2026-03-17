@@ -760,6 +760,9 @@ function normalizeItemKey(k) {
         btn.addEventListener('click', (e) => {
           const targetId = btn.getAttribute('data-open-modal');
           if (!targetId) return;
+          // direct opener + delegated document click 가 동시에 타면
+          // 모달 컨텍스트가 두 번 바뀌거나 nested mount 상태가 꼬일 수 있음
+          e.stopPropagation();
 
           const isWaypointItems = btn.id === 'openWaypointItemsModalBtn';
           const isWaypointThrow = btn.id === 'openWaypointThrowModalBtn';
@@ -944,6 +947,9 @@ function normalizeItemKey(k) {
       btn.dataset.directStepperBound = '1';
       btn.addEventListener('click', (e) => {
         e.preventDefault();
+        // 직접 바인딩 fallback 과 document 위임이 동시에 실행되면
+        // + / - 가 1번 클릭에 2씩 증감되는 문제가 생김
+        e.stopPropagation();
         handleItemStepperButton(btn);
       });
     });
@@ -2696,7 +2702,7 @@ const borderColors = comparison.labels.map((label) =>
     /* =========================================================
        SMS / Inquiry flow
     ========================================================= */
-    const INQUIRY_SMS_PHONE = "01040941666";
+    const INQUIRY_SMS_PHONE = "01075416143";
 
     async function copyToClipboard(text) {
       try {
@@ -2743,8 +2749,8 @@ const borderColors = comparison.labels.map((label) =>
 
     function handleInquirySmsFallback(copied) {
       const fallbackMessage = copied
-        ? "문자 앱이 바로 열리지 않으면, 방금 복사된 견적서를 01040941666 번호로 붙여넣어 전송해줘!"
-        : "문자 앱이 바로 열리지 않으면, 01040941666 번호로 견적 내용을 직접 보내줘!";
+        ? "문자 앱이 바로 열리지 않으면, 방금 복사된 견적서를 01075416143 번호로 붙여넣어 전송해줘!"
+        : "문자 앱이 바로 열리지 않으면, 01075416143 번호로 견적 내용을 직접 보내줘!";
       alert(fallbackMessage);
     }
 
@@ -3087,3 +3093,57 @@ if(distanceBtn){
   })
 
 }
+
+/* ===== FIX PATCH START ===== */
+
+// 상태 통합
+window.getAllItems = function(){
+  const result = {};
+  const merge = (src)=>{
+    if(!src) return;
+    Object.keys(src).forEach(k=>{
+      result[k] = (result[k]||0) + src[k];
+    });
+  };
+  merge(window.state?.items || {});
+  merge(window.state?.waypointItems || {});
+  return result;
+};
+
+// 거리 계산 보정
+window.calculateTotalDistance = function(){
+  if(!window.state?.waypoint){
+    return window.getDistance?.(window.state.start, window.state.end) || 0;
+  }
+  return (window.getDistance?.(window.state.start, window.state.waypoint) || 0)
+       + (window.getDistance?.(window.state.waypoint, window.state.end) || 0);
+};
+
+// 모달 복구
+window.restoreItemsModal = function(){
+  const modal = document.getElementById("itemsModal");
+  if(modal && modal.parentElement !== document.body){
+    document.body.appendChild(modal);
+  }
+};
+
+// 버튼 중복 이벤트 방지
+document.querySelectorAll(".item-plus").forEach(btn=>{
+  btn.onclick = (e)=>{
+    e.stopPropagation();
+    if(window.updateItem){
+      window.updateItem(btn.dataset.key, 1);
+    }
+  }
+});
+
+document.querySelectorAll(".item-minus").forEach(btn=>{
+  btn.onclick = (e)=>{
+    e.stopPropagation();
+    if(window.updateItem){
+      window.updateItem(btn.dataset.key, -1);
+    }
+  }
+});
+
+/* ===== FIX PATCH END ===== */
