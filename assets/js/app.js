@@ -1093,11 +1093,14 @@ function normalizeItemKey(k) {
 
 
     /* =========================================================
-       Popup (season)
+       Exit Popup
     ========================================================= */
     const seasonPopup = $("#seasonPopup");
     const popupToday = $("#popupToday");
     const popupGoQuote = $("#popupGoQuote");
+    let exitPopupShown = false;
+    let exitPopupEnabled = false;
+    let touchStartY = null;
 
     function popupKey() {
       const d = new Date();
@@ -1108,7 +1111,8 @@ function normalizeItemKey(k) {
     }
 
     function openSeasonPopup() {
-      if (!seasonPopup) return;
+      if (!seasonPopup || exitPopupShown) return;
+      exitPopupShown = true;
       seasonPopup.setAttribute("aria-hidden", "false");
       seasonPopup.classList.add("open");
     }
@@ -1120,21 +1124,50 @@ function normalizeItemKey(k) {
     }
 
     if (seasonPopup) {
+      let popupDismissedToday = false;
       try {
-        if (!localStorage.getItem(popupKey())) openSeasonPopup();
+        popupDismissedToday = !!localStorage.getItem(popupKey());
       } catch (_) {}
 
-      $$("[data-popup-close]").forEach((x) => x.addEventListener("click", closeSeasonPopup));
+      if (!popupDismissedToday) {
+        setTimeout(() => {
+          exitPopupEnabled = true;
+        }, 5000);
 
-      popupGoQuote?.addEventListener("click", () => {
+        document.addEventListener("mouseout", (e) => {
+          if (!exitPopupEnabled || exitPopupShown) return;
+          if (e.relatedTarget || e.toElement) return;
+          if (typeof e.clientY === "number" && e.clientY <= 0) {
+            openSeasonPopup();
+          }
+        });
+
+        window.addEventListener("touchstart", (e) => {
+          touchStartY = e.touches && e.touches[0] ? e.touches[0].clientY : null;
+        }, { passive: true });
+
+        window.addEventListener("touchend", (e) => {
+          if (!exitPopupEnabled || exitPopupShown || touchStartY == null) return;
+          const endY = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : null;
+          if (endY == null) return;
+          const movedUp = touchStartY - endY;
+          if (window.scrollY < 80 && movedUp > 80) {
+            openSeasonPopup();
+          }
+        }, { passive: true });
+      }
+
+      $$('[data-popup-close]').forEach((x) => x.addEventListener('click', closeSeasonPopup));
+
+      popupGoQuote?.addEventListener('click', () => {
         closeSeasonPopup();
-        $("#heroStartBtn")?.click();
+        $("#sendInquiry")?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
 
-      popupToday?.addEventListener("change", (e) => {
+      popupToday?.addEventListener('change', (e) => {
         if (e.target.checked) {
           try {
-            localStorage.setItem(popupKey(), "1");
+            localStorage.setItem(popupKey(), '1');
           } catch (_) {}
         }
       });
@@ -1921,10 +1954,10 @@ function normalizeItemKey(k) {
     "소파(2~3인)": 30000,
     "소파(4인이상)": 50000,
 
-    // 침대 / 기타 작업
+    // 침대
     "침대매트리스(킹제외)": 20000,
     "침대프레임(분해/조립)": 40000,
-    "기타 가전가구 분해조립": 20000
+    "기타가전가구(분해/조립)": 20000
   };
 
   // 항목별 합산
@@ -2755,9 +2788,12 @@ const borderColors = comparison.labels.map((label) =>
       alert(fallbackMessage);
     }
 
-    function calcSmsMoveQuote(displayTotal) {
+    function calcSmsMoveDiscountQuote(displayTotal) {
       const safeTotal = Number(displayTotal) || 0;
-      return { total: Math.max(0, Math.round(safeTotal)) };
+      const discountedTotal = Math.max(0, Math.round(safeTotal * 0.97));
+      const deposit = Math.round(discountedTotal * 0.2);
+      const balance = discountedTotal - deposit;
+      return { discountedTotal, deposit, balance };
     }
 
     function buildInquiryMessage() {
@@ -2838,8 +2874,8 @@ const borderColors = comparison.labels.map((label) =>
 
         const display = calcCurrentPrice() * DISPLAY_MULTIPLIER;
         const price = formatWon(display);
-        const smsQuote = calcSmsMoveQuote(display);
-        const smsPrice = formatWon(smsQuote.total);
+        const deposit = formatWon(Math.round(display * 0.2));
+        const balance = formatWon(Math.round(display - Math.round(display * 0.2)));
 
         return [
           `${SITE_BRAND} 견적 문의`,
@@ -2873,8 +2909,10 @@ const borderColors = comparison.labels.map((label) =>
           waypointThrowNoteLine,
           state.ride > 0 ? `동승: ${state.ride}명` : null,
           "",
-          `홈페이지 예상 견적: ${price}`,
-          `문자 접수용 예상 견적: ${smsPrice}`,
+          `예상 견적: ${price}`,
+          `예약금(20%): ${deposit}`,
+          `잔금(80%): ${balance}`,
+          "추가금 없이 진행되는 견적입니다.",
           "문자 보내주시면 예약 가능 여부와 진행 절차를 바로 안내드립니다.",
         ]
           .filter(Boolean)
