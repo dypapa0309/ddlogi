@@ -2650,7 +2650,7 @@ const borderColors = comparison.labels.map((label) =>
     /* =========================================================
        SMS / Inquiry flow
     ========================================================= */
-    const INQUIRY_SMS_PHONE = "01040941666";
+    const INQUIRY_SMS_PHONE = "01075416143";
 
     async function copyToClipboard(text) {
       try {
@@ -2697,8 +2697,8 @@ const borderColors = comparison.labels.map((label) =>
 
     function handleInquirySmsFallback(copied) {
       const fallbackMessage = copied
-        ? "문자 앱이 바로 열리지 않으면, 방금 복사된 견적서를 01040941666 번호로 붙여넣어 전송해줘!"
-        : "문자 앱이 바로 열리지 않으면, 01040941666 번호로 견적 내용을 직접 보내줘!";
+        ? "문자 앱이 바로 열리지 않으면, 방금 복사된 견적서를 01075416143 번호로 붙여넣어 전송해주세요!"
+        : "문자 앱이 바로 열리지 않으면, 01075416143 번호로 견적 내용을 직접 보내주세요!";
       alert(fallbackMessage);
     }
 
