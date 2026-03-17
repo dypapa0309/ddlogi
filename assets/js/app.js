@@ -1100,7 +1100,7 @@ function normalizeItemKey(k) {
     const popupGoQuote = $("#popupGoQuote");
     let exitPopupShown = false;
     let exitPopupEnabled = false;
-    let touchStartY = null;
+    let mobileHistoryGuardArmed = false;
 
     function popupKey() {
       const d = new Date();
@@ -1108,6 +1108,10 @@ function normalizeItemKey(k) {
       const mm = String(d.getMonth() + 1).padStart(2, "0");
       const dd = String(d.getDate()).padStart(2, "0");
       return `ddlogi_popup_hide_${yyyy}${mm}${dd}`;
+    }
+
+    function isMobileViewport() {
+      return window.matchMedia("(max-width: 820px)").matches || ("ontouchstart" in window);
     }
 
     function openSeasonPopup() {
@@ -1135,26 +1139,30 @@ function normalizeItemKey(k) {
         }, 5000);
 
         document.addEventListener("mouseout", (e) => {
-          if (!exitPopupEnabled || exitPopupShown) return;
+          if (!exitPopupEnabled || exitPopupShown || isMobileViewport()) return;
           if (e.relatedTarget || e.toElement) return;
           if (typeof e.clientY === "number" && e.clientY <= 0) {
             openSeasonPopup();
           }
         });
 
-        window.addEventListener("touchstart", (e) => {
-          touchStartY = e.touches && e.touches[0] ? e.touches[0].clientY : null;
-        }, { passive: true });
+        if (isMobileViewport() && window.history && typeof window.history.pushState === "function") {
+          try {
+            window.history.pushState({ ddlogiExitGuard: true }, "", window.location.href);
+            mobileHistoryGuardArmed = true;
+          } catch (_) {}
+        }
 
-        window.addEventListener("touchend", (e) => {
-          if (!exitPopupEnabled || exitPopupShown || touchStartY == null) return;
-          const endY = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : null;
-          if (endY == null) return;
-          const movedUp = touchStartY - endY;
-          if (window.scrollY < 80 && movedUp > 80) {
-            openSeasonPopup();
-          }
-        }, { passive: true });
+        window.addEventListener("popstate", (e) => {
+          if (!isMobileViewport() || !mobileHistoryGuardArmed) return;
+          if (!exitPopupEnabled || exitPopupShown) return;
+          const isGuardState = !!(e.state && e.state.ddlogiExitGuard);
+          if (isGuardState) return;
+          try {
+            window.history.pushState({ ddlogiExitGuard: true }, "", window.location.href);
+          } catch (_) {}
+          openSeasonPopup();
+        });
       }
 
       $$('[data-popup-close]').forEach((x) => x.addEventListener('click', closeSeasonPopup));
