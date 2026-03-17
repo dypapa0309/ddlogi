@@ -18,7 +18,7 @@
     /* =========================================================
        Global knobs
     ========================================================= */
-    const PRICE_MULTIPLIER = 0.874;
+    const PRICE_MULTIPLIER = 0.87;
     const DISPLAY_MULTIPLIER = 0.95;
     const SERVICE = { MOVE: "move", CLEAN: "clean" };
 
@@ -1093,14 +1093,11 @@ function normalizeItemKey(k) {
 
 
     /* =========================================================
-       Exit Popup
+       Popup (season)
     ========================================================= */
     const seasonPopup = $("#seasonPopup");
     const popupToday = $("#popupToday");
     const popupGoQuote = $("#popupGoQuote");
-    let exitPopupShown = false;
-    let exitPopupEnabled = false;
-    let mobileHistoryGuardArmed = false;
 
     function popupKey() {
       const d = new Date();
@@ -1110,13 +1107,8 @@ function normalizeItemKey(k) {
       return `ddlogi_popup_hide_${yyyy}${mm}${dd}`;
     }
 
-    function isMobileViewport() {
-      return window.matchMedia("(max-width: 820px)").matches || ("ontouchstart" in window);
-    }
-
     function openSeasonPopup() {
-      if (!seasonPopup || exitPopupShown) return;
-      exitPopupShown = true;
+      if (!seasonPopup) return;
       seasonPopup.setAttribute("aria-hidden", "false");
       seasonPopup.classList.add("open");
     }
@@ -1128,54 +1120,21 @@ function normalizeItemKey(k) {
     }
 
     if (seasonPopup) {
-      let popupDismissedToday = false;
       try {
-        popupDismissedToday = !!localStorage.getItem(popupKey());
+        if (!localStorage.getItem(popupKey())) openSeasonPopup();
       } catch (_) {}
 
-      if (!popupDismissedToday) {
-        setTimeout(() => {
-          exitPopupEnabled = true;
-        }, 5000);
+      $$("[data-popup-close]").forEach((x) => x.addEventListener("click", closeSeasonPopup));
 
-        document.addEventListener("mouseout", (e) => {
-          if (!exitPopupEnabled || exitPopupShown || isMobileViewport()) return;
-          if (e.relatedTarget || e.toElement) return;
-          if (typeof e.clientY === "number" && e.clientY <= 0) {
-            openSeasonPopup();
-          }
-        });
-
-        if (isMobileViewport() && window.history && typeof window.history.pushState === "function") {
-          try {
-            window.history.pushState({ ddlogiExitGuard: true }, "", window.location.href);
-            mobileHistoryGuardArmed = true;
-          } catch (_) {}
-        }
-
-        window.addEventListener("popstate", (e) => {
-          if (!isMobileViewport() || !mobileHistoryGuardArmed) return;
-          if (!exitPopupEnabled || exitPopupShown) return;
-          const isGuardState = !!(e.state && e.state.ddlogiExitGuard);
-          if (isGuardState) return;
-          try {
-            window.history.pushState({ ddlogiExitGuard: true }, "", window.location.href);
-          } catch (_) {}
-          openSeasonPopup();
-        });
-      }
-
-      $$('[data-popup-close]').forEach((x) => x.addEventListener('click', closeSeasonPopup));
-
-      popupGoQuote?.addEventListener('click', () => {
+      popupGoQuote?.addEventListener("click", () => {
         closeSeasonPopup();
-        $("#sendInquiry")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        $("#heroStartBtn")?.click();
       });
 
-      popupToday?.addEventListener('change', (e) => {
+      popupToday?.addEventListener("change", (e) => {
         if (e.target.checked) {
           try {
-            localStorage.setItem(popupKey(), '1');
+            localStorage.setItem(popupKey(), "1");
           } catch (_) {}
         }
       });
@@ -1964,8 +1923,7 @@ function normalizeItemKey(k) {
 
     // 침대
     "침대매트리스(킹제외)": 20000,
-    "침대프레임(분해/조립)": 40000,
-    "기타가전가구(분해/조립)": 20000
+    "침대프레임(분해/조립)": 40000
   };
 
   // 항목별 합산
@@ -2071,15 +2029,22 @@ function normalizeItemKey(k) {
 
   if (isHalf) workSubtotal *= HALF_MULT;
 
-  let price =
+  // 보관이사는 "출발지 → 보관창고" + "보관창고 → 도착지" 2회 이동으로 계산
+  // 따라서 이동 견적 덩어리를 2배 적용하고, 보관 일수 비용은 별도로 더한다.
+  let moveOnlyPrice =
     workSubtotal +
     distance +
     ladders +
     ride +
     cleanOpt +
     items +
-    throwFee +
-    storageFee;
+    throwFee;
+
+  if (state.moveType === "storage") {
+    moveOnlyPrice *= 2;
+  }
+
+  let price = moveOnlyPrice + storageFee;
 
   price *= PRICE_MULTIPLIER;
   return price;
@@ -2882,8 +2847,10 @@ const borderColors = comparison.labels.map((label) =>
 
         const display = calcCurrentPrice() * DISPLAY_MULTIPLIER;
         const price = formatWon(display);
-        const deposit = formatWon(Math.round(display * 0.2));
-        const balance = formatWon(Math.round(display - Math.round(display * 0.2)));
+        const smsQuote = calcSmsMoveDiscountQuote(display);
+        const discountPrice = formatWon(smsQuote.discountedTotal);
+        const deposit = formatWon(smsQuote.deposit);
+        const balance = formatWon(smsQuote.balance);
 
         return [
           `${SITE_BRAND} 견적 문의`,
@@ -2917,11 +2884,11 @@ const borderColors = comparison.labels.map((label) =>
           waypointThrowNoteLine,
           state.ride > 0 ? `동승: ${state.ride}명` : null,
           "",
-          `예상 견적: ${price}`,
+          `홈페이지 예상 견적: ${price}`,
+          `문자 상담 3% 추가 할인 적용 견적: ${discountPrice}`,
           `예약금(20%): ${deposit}`,
           `잔금(80%): ${balance}`,
-          "추가금 없이 진행되는 견적입니다.",
-          "문자 보내주시면 예약 가능 여부와 진행 절차를 바로 안내드립니다.",
+          "(3% 할인 적용 된 위 금액은 문자 전송 후 24시간 이내에 적용됩니다)",
         ]
           .filter(Boolean)
           .join("\n");
