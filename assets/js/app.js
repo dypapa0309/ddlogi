@@ -18,7 +18,7 @@
     /* =========================================================
        Global knobs
     ========================================================= */
-    const PRICE_MULTIPLIER = 0.87;
+    const PRICE_MULTIPLIER = 0.874;
     const DISPLAY_MULTIPLIER = 0.95;
     const SERVICE = { MOVE: "move", CLEAN: "clean" };
 
@@ -1093,11 +1093,14 @@ function normalizeItemKey(k) {
 
 
     /* =========================================================
-       Popup (season)
+       Popup (season -> exit intent)
     ========================================================= */
     const seasonPopup = $("#seasonPopup");
     const popupToday = $("#popupToday");
     const popupGoQuote = $("#popupGoQuote");
+    let popupArmed = false;
+    let popupShown = false;
+    let backGuardArmed = false;
 
     function popupKey() {
       const d = new Date();
@@ -1107,8 +1110,21 @@ function normalizeItemKey(k) {
       return `ddlogi_popup_hide_${yyyy}${mm}${dd}`;
     }
 
+    function shouldBlockToday() {
+      try {
+        return !!localStorage.getItem(popupKey());
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function isMobileViewport() {
+      return window.matchMedia('(max-width: 900px)').matches || 'ontouchstart' in window;
+    }
+
     function openSeasonPopup() {
-      if (!seasonPopup) return;
+      if (!seasonPopup || popupShown || !popupArmed || shouldBlockToday()) return;
+      popupShown = true;
       seasonPopup.setAttribute("aria-hidden", "false");
       seasonPopup.classList.add("open");
     }
@@ -1120,21 +1136,52 @@ function normalizeItemKey(k) {
     }
 
     if (seasonPopup) {
-      try {
-        if (!localStorage.getItem(popupKey())) openSeasonPopup();
-      } catch (_) {}
+      setTimeout(() => {
+        popupArmed = true;
 
-      $$("[data-popup-close]").forEach((x) => x.addEventListener("click", closeSeasonPopup));
+        if (!isMobileViewport()) {
+          document.addEventListener('mouseout', (e) => {
+            if (!popupArmed || popupShown || shouldBlockToday()) return;
+            const to = e.relatedTarget || e.toElement;
+            if (to) return;
+            if (typeof e.clientY === 'number' && e.clientY <= 0) openSeasonPopup();
+          });
+        } else if (!backGuardArmed) {
+          backGuardArmed = true;
+          try {
+            history.pushState({ ddlogiExitGuard: true }, '', location.href);
+          } catch (_) {}
 
-      popupGoQuote?.addEventListener("click", () => {
+          window.addEventListener('popstate', () => {
+            if (!popupArmed || popupShown || shouldBlockToday()) return;
+            try {
+              history.pushState({ ddlogiExitGuard: true }, '', location.href);
+            } catch (_) {}
+            openSeasonPopup();
+          });
+        }
+      }, 5000);
+
+      $$('[data-popup-close]').forEach((x) => x.addEventListener('click', closeSeasonPopup));
+
+      popupGoQuote?.addEventListener('click', () => {
         closeSeasonPopup();
-        $("#heroStartBtn")?.click();
+        const smsBtn = $("#smsShareBtn");
+        if (smsBtn) {
+          smsBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          $("#heroStartBtn")?.click();
+        }
       });
 
-      popupToday?.addEventListener("change", (e) => {
+      popupToday?.addEventListener('change', (e) => {
         if (e.target.checked) {
           try {
-            localStorage.setItem(popupKey(), "1");
+            localStorage.setItem(popupKey(), '1');
+          } catch (_) {}
+        } else {
+          try {
+            localStorage.removeItem(popupKey());
           } catch (_) {}
         }
       });
@@ -1923,7 +1970,8 @@ function normalizeItemKey(k) {
 
     // 침대
     "침대매트리스(킹제외)": 20000,
-    "침대프레임(분해/조립)": 40000
+    "침대프레임(분해/조립)": 40000,
+    "기타가전가구(분해/조립)": 20000
   };
 
   // 항목별 합산
@@ -2014,6 +2062,9 @@ function normalizeItemKey(k) {
   const ride = rideFee(state.ride);
   const cleanOpt = moveCleaningFee();
   const items = itemsFee(state.items) + waypointItemsFeeTotal();
+  // ensure item cost applied
+  const itemsCost = items;
+
   const throwFee = throwFeeTotal();
 
   let storageFee = 0;
@@ -2259,6 +2310,9 @@ function normalizeItemKey(k) {
 
         // 가구/가전 항목 요약
         const items = summarizeItemsWithMattress(state.items);
+  // ensure item cost applied
+  const itemsCost = items;
+
         if (items !== "선택 없음") {
           lines.push(`가구·가전: ${items}`);
         }
@@ -2787,6 +2841,9 @@ const borderColors = comparison.labels.map((label) =>
         const elevTo = state.noTo ? `도착 엘베없음(${state.toFloor}층)` : "도착 엘베있음";
 
         const items = summarizeItemsWithMattress(state.items);
+  // ensure item cost applied
+  const itemsCost = items;
+
         const itemsLine = `가구·가전: ${items}`;
         const itemsNoteLine = (state.itemsNote && state.itemsNote.trim()) ? `가구·가전 기타사항: ${state.itemsNote.trim()}` : null;
         const waypointLoadLine = state.hasWaypoint ? `경유지 짐양: ${state.waypointLoadLevel === null ? "선택 없음" : (loadMap[state.waypointLoadLevel] || "-")}` : null;
@@ -2848,7 +2905,6 @@ const borderColors = comparison.labels.map((label) =>
         const display = calcCurrentPrice() * DISPLAY_MULTIPLIER;
         const price = formatWon(display);
         const smsQuote = calcSmsMoveDiscountQuote(display);
-        const discountPrice = formatWon(smsQuote.discountedTotal);
         const deposit = formatWon(smsQuote.deposit);
         const balance = formatWon(smsQuote.balance);
 
@@ -2885,10 +2941,8 @@ const borderColors = comparison.labels.map((label) =>
           state.ride > 0 ? `동승: ${state.ride}명` : null,
           "",
           `홈페이지 예상 견적: ${price}`,
-          `문자 상담 3% 추가 할인 적용 견적: ${discountPrice}`,
           `예약금(20%): ${deposit}`,
           `잔금(80%): ${balance}`,
-          "(3% 할인 적용 된 위 금액은 문자 전송 후 24시간 이내에 적용됩니다)",
         ]
           .filter(Boolean)
           .join("\n");
