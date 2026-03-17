@@ -651,6 +651,26 @@ function normalizeItemKey(k) {
       return throwModalContext === "waypoint" ? state.waypointThrow : null;
     }
 
+    function resetItemsModalToMainContext() {
+      itemsModalContext = "main";
+      unmountNestedModalFromWaypoint("itemsModal");
+      const waypointModal = document.getElementById('waypointSetupModal');
+      if (waypointModal && !waypointModal.querySelector('.modal.nested-in-waypoint.open')) {
+        waypointModal.classList.remove('has-nested-modal');
+      }
+      syncItemsModalFromState();
+    }
+
+    function resetThrowModalToMainContext() {
+      throwModalContext = "main";
+      unmountNestedModalFromWaypoint("throwModal");
+      const waypointModal = document.getElementById('waypointSetupModal');
+      if (waypointModal && !waypointModal.querySelector('.modal.nested-in-waypoint.open')) {
+        waypointModal.classList.remove('has-nested-modal');
+      }
+      syncThrowModalFromState();
+    }
+
     function syncItemsModalFromState() {
       const target = getItemsStateTarget();
       const noteKey = getItemsNoteTarget();
@@ -745,17 +765,23 @@ function normalizeItemKey(k) {
           const isWaypointThrow = btn.id === 'openWaypointThrowModalBtn';
 
           if (targetId === 'itemsModal') {
-            itemsModalContext = isWaypointItems ? 'waypoint' : 'main';
-            syncItemsModalFromState();
-            if (isWaypointItems) mountNestedModalInWaypoint(targetId);
-            else unmountNestedModalFromWaypoint(targetId);
+            if (isWaypointItems) {
+              itemsModalContext = 'waypoint';
+              syncItemsModalFromState();
+              mountNestedModalInWaypoint(targetId);
+            } else {
+              resetItemsModalToMainContext();
+            }
           }
 
           if (targetId === 'throwModal') {
-            throwModalContext = isWaypointThrow ? 'waypoint' : 'main';
-            syncThrowModalFromState();
-            if (isWaypointThrow) mountNestedModalInWaypoint(targetId);
-            else unmountNestedModalFromWaypoint(targetId);
+            if (isWaypointThrow) {
+              throwModalContext = 'waypoint';
+              syncThrowModalFromState();
+              mountNestedModalInWaypoint(targetId);
+            } else {
+              resetThrowModalToMainContext();
+            }
           }
 
           if (targetId === 'waypointSetupModal') {
@@ -911,6 +937,16 @@ function normalizeItemKey(k) {
       });
     });
 
+    // main modal steppers can lose delegated clicks after waypoint modal nesting,
+    // so bind them directly as a fallback as well.
+    document.querySelectorAll('#itemsModal .stepper-btn[data-stepper-item]:not([data-stepper-loc]):not([data-clean-group])').forEach((btn) => {
+      if (btn.dataset.directStepperBound === '1') return;
+      btn.dataset.directStepperBound = '1';
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleItemStepperButton(btn);
+      });
+    });
 
     const caseImageModal = $("#caseImageModal");
     const caseImageModalImg = $("#caseImageModalImg");
@@ -1118,6 +1154,14 @@ function normalizeItemKey(k) {
       state.hasWaypoint = !!e.target.checked;
       const wrap = $("#waypointWrap");
       if (wrap) wrap.style.display = state.hasWaypoint ? "" : "none";
+
+      // waypoint on/off 전환 시 nested modal 상태가 남아 있으면
+      // 메인 가구/가전 모달 클릭이 죽는 케이스가 있어서 항상 초기화
+      closeModal("itemsModal");
+      closeModal("throwModal");
+      resetItemsModalToMainContext();
+      resetThrowModalToMainContext();
+
       if (!state.hasWaypoint) {
         state.waypointAddress = "";
         state.waypointLoadLevel = null;
@@ -1129,8 +1173,10 @@ function normalizeItemKey(k) {
         state.waypointItemsNote = "";
         state.waypointThrow = {};
         state.waypointThrowNote = "";
+        closeModal("waypointSetupModal");
       }
       invalidateDistanceIfRouteChanged();
+      renderAll();
     });
 
     let kakaoReady = false;
@@ -2650,7 +2696,7 @@ const borderColors = comparison.labels.map((label) =>
     /* =========================================================
        SMS / Inquiry flow
     ========================================================= */
-    const INQUIRY_SMS_PHONE = "01075416143";
+    const INQUIRY_SMS_PHONE = "01040941666";
 
     async function copyToClipboard(text) {
       try {
@@ -2697,8 +2743,8 @@ const borderColors = comparison.labels.map((label) =>
 
     function handleInquirySmsFallback(copied) {
       const fallbackMessage = copied
-        ? "문자 앱이 바로 열리지 않으면, 방금 복사된 견적서를 01075416143 번호로 붙여넣어 전송해주세요!"
-        : "문자 앱이 바로 열리지 않으면, 01075416143 번호로 견적 내용을 직접 보내주세요!";
+        ? "문자 앱이 바로 열리지 않으면, 방금 복사된 견적서를 01040941666 번호로 붙여넣어 전송해줘!"
+        : "문자 앱이 바로 열리지 않으면, 01040941666 번호로 견적 내용을 직접 보내줘!";
       alert(fallbackMessage);
     }
 
