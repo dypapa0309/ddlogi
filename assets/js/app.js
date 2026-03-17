@@ -18,7 +18,7 @@
     /* =========================================================
        Global knobs
     ========================================================= */
-    const PRICE_MULTIPLIER = 0.87;
+    const PRICE_MULTIPLIER = 0.965;
     const DISPLAY_MULTIPLIER = 0.95;
     const SERVICE = { MOVE: "move", CLEAN: "clean" };
 
@@ -1921,9 +1921,10 @@ function normalizeItemKey(k) {
     "소파(2~3인)": 30000,
     "소파(4인이상)": 50000,
 
-    // 침대
+    // 침대 / 기타 작업
     "침대매트리스(킹제외)": 20000,
-    "침대프레임(분해/조립)": 40000
+    "침대프레임(분해/조립)": 40000,
+    "기타 가전가구 분해조립": 20000
   };
 
   // 항목별 합산
@@ -2754,12 +2755,9 @@ const borderColors = comparison.labels.map((label) =>
       alert(fallbackMessage);
     }
 
-    function calcSmsMoveDiscountQuote(displayTotal) {
+    function calcSmsMoveQuote(displayTotal) {
       const safeTotal = Number(displayTotal) || 0;
-      const discountedTotal = Math.max(0, Math.round(safeTotal * 0.97));
-      const deposit = Math.round(discountedTotal * 0.2);
-      const balance = discountedTotal - deposit;
-      return { discountedTotal, deposit, balance };
+      return { total: Math.max(0, Math.round(safeTotal)) };
     }
 
     function buildInquiryMessage() {
@@ -2840,10 +2838,8 @@ const borderColors = comparison.labels.map((label) =>
 
         const display = calcCurrentPrice() * DISPLAY_MULTIPLIER;
         const price = formatWon(display);
-        const smsQuote = calcSmsMoveDiscountQuote(display);
-        const discountPrice = formatWon(smsQuote.discountedTotal);
-        const deposit = formatWon(smsQuote.deposit);
-        const balance = formatWon(smsQuote.balance);
+        const smsQuote = calcSmsMoveQuote(display);
+        const smsPrice = formatWon(smsQuote.total);
 
         return [
           `${SITE_BRAND} 견적 문의`,
@@ -2878,10 +2874,8 @@ const borderColors = comparison.labels.map((label) =>
           state.ride > 0 ? `동승: ${state.ride}명` : null,
           "",
           `홈페이지 예상 견적: ${price}`,
-          `문자 상담 3% 추가 할인 적용 견적: ${discountPrice}`,
-          `예약금(20%): ${deposit}`,
-          `잔금(80%): ${balance}`,
-          "(3% 할인 적용 된 위 금액은 문자 전송 후 24시간 이내에 적용됩니다)",
+          `문자 접수용 예상 견적: ${smsPrice}`,
+          "문자 보내주시면 예약 가능 여부와 진행 절차를 바로 안내드립니다.",
         ]
           .filter(Boolean)
           .join("\n");
