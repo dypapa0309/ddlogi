@@ -18,8 +18,8 @@
     /* =========================================================
        Global knobs
     ========================================================= */
-    const PRICE_MULTIPLIER = 0.874;
-    const DISPLAY_MULTIPLIER = 0.95;
+    const PRICE_MULTIPLIER = 0.714;
+    const DISPLAY_MULTIPLIER = 1;
     const SERVICE = { MOVE: "move", CLEAN: "clean" };
 
     /* =========================================================
