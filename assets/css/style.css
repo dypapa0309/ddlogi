@@ -93,6 +93,7 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   position:fixed;
   top:72px;
   right:12px;
+  left:auto;
   z-index:55;
   width:min(210px, calc(100vw - 24px));
   padding:10px 12px;
@@ -185,6 +186,8 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
     max-width:182px;
     padding:8px 10px;
     border-radius:14px;
+    right:max(12px, env(safe-area-inset-right, 0px));
+    left:auto !important;
   }
   .ga-floating-badge__desc{
     font-size:11px;

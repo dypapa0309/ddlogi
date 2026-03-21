@@ -20,6 +20,10 @@
     ========================================================= */
     const PRICE_MULTIPLIER = 0.714;
     const DISPLAY_MULTIPLIER = 1;
+    const MOVE_DEPOSIT_RATE = 0.2;
+    const HELPER_FEE_PER_PERSON = 60000;
+    const HELPER_DRIVER_SETTLEMENT_PER_PERSON = 40000;
+    const HELPER_DEPOSIT_ADDON_PER_PERSON = 20000;
     const SERVICE = { MOVE: "move", CLEAN: "clean" };
 
     /* =========================================================
@@ -110,13 +114,13 @@
 
   function positionBadge() {
     const rect = langbar.getBoundingClientRect();
-    const badgeRect = badge.getBoundingClientRect();
     const gap = 8;
     const top = Math.max(12, Math.round(rect.bottom + gap));
-    const left = Math.max(12, Math.round(rect.right - badgeRect.width));
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+    const right = Math.max(12, Math.round(viewportWidth - rect.right));
     badge.style.top = `${top}px`;
-    badge.style.left = `${left}px`;
-    badge.style.right = 'auto';
+    badge.style.right = `${right}px`;
+    badge.style.left = 'auto';
   }
 
   positionBadge();
@@ -1897,7 +1901,7 @@ function normalizeItemKey(k) {
     }
 
     function helperFee(helper) {
-      return helper ? 40000 : 0;
+      return helper ? HELPER_FEE_PER_PERSON : 0;
     }
 
     function cantCarryFee(flag) {
@@ -2153,12 +2157,95 @@ function normalizeItemKey(k) {
       return calcCleanPrice() * DISPLAY_MULTIPLIER;
     }
 
+    function moveHelperCount() {
+      return Number(!!state.helperFrom) + Number(!!state.helperTo);
+    }
+
+    function buildMovePricingBreakdown(totalPrice, options = {}) {
+      const safeTotal = Math.max(0, Math.round(Number(totalPrice) || 0));
+      const helperCount = moveHelperCount();
+      const baseDeposit = Math.round(safeTotal * MOVE_DEPOSIT_RATE);
+      const helperDepositAddon = helperCount * HELPER_DEPOSIT_ADDON_PER_PERSON;
+      const deposit = Math.min(safeTotal, baseDeposit + helperDepositAddon);
+      const balance = Math.max(0, safeTotal - deposit);
+
+      return {
+        total: safeTotal,
+        deposit,
+        balance,
+        helperCount,
+        pricingPolicy: {
+          depositRate: MOVE_DEPOSIT_RATE,
+          helperDepositAddonPerPerson: HELPER_DEPOSIT_ADDON_PER_PERSON,
+        },
+        settlement: {
+          helperDepositAddon,
+          helperDriverBalancePortion: helperCount * HELPER_DRIVER_SETTLEMENT_PER_PERSON,
+          channel: options.channel || "direct",
+        },
+      };
+    }
+
+    function buildCurrentPricingBreakdown(options = {}) {
+      if (state.activeService === SERVICE.MOVE) {
+        const displayTotal = calcCurrentPrice() * DISPLAY_MULTIPLIER;
+        return buildMovePricingBreakdown(displayTotal, options);
+      }
+
+      if (state.activeService === SERVICE.CLEAN) {
+        const total = Math.max(0, Math.round(calcCleanDisplayPrice()));
+        const deposit = Math.round(total * MOVE_DEPOSIT_RATE);
+        return {
+          total,
+          deposit,
+          balance: Math.max(0, total - deposit),
+          helperCount: 0,
+          pricingPolicy: {
+            depositRate: MOVE_DEPOSIT_RATE,
+            helperDepositAddonPerPerson: 0,
+          },
+          settlement: {
+            helperDepositAddon: 0,
+            helperDriverBalancePortion: 0,
+            channel: options.channel || "direct",
+          },
+        };
+      }
+
+      return {
+        total: 0,
+        deposit: 0,
+        balance: 0,
+        helperCount: 0,
+        pricingPolicy: {
+          depositRate: MOVE_DEPOSIT_RATE,
+          helperDepositAddonPerPerson: 0,
+        },
+        settlement: {
+          helperDepositAddon: 0,
+          helperDriverBalancePortion: 0,
+          channel: options.channel || "direct",
+        },
+      };
+    }
+
+    window.DDLOGI_PRICING = {
+      buildCurrentPricingBreakdown,
+      buildMovePricingBreakdown,
+      constants: {
+        depositRate: MOVE_DEPOSIT_RATE,
+        helperFeePerPerson: HELPER_FEE_PER_PERSON,
+        helperDriverSettlementPerPerson: HELPER_DRIVER_SETTLEMENT_PER_PERSON,
+        helperDepositAddonPerPerson: HELPER_DEPOSIT_ADDON_PER_PERSON,
+      },
+    };
+
     function calcCleanDeposit() {
-      return Math.round(calcCleanDisplayPrice() * 0.2);
+      return buildCurrentPricingBreakdown().deposit;
     }
 
     function calcCleanBalance() {
-      return Math.max(0, calcCleanDisplayPrice() - calcCleanDeposit());
+      return buildCurrentPricingBreakdown().balance;
     }
 
     function calcCleanPrice() {
@@ -2340,6 +2427,7 @@ function normalizeItemKey(k) {
 
         if (state.helperFrom || state.helperTo) {
           lines.push(`인부: ${state.helperFrom ? "출발 " : ""}${state.helperTo ? "도착" : ""}`.trim());
+          lines.push(`인부 예약금 추가: ${formatWon(moveHelperCount() * HELPER_DEPOSIT_ADDON_PER_PERSON)}`);
         }
 
         if (state.ladderFromEnabled || state.ladderToEnabled) {
@@ -2598,22 +2686,22 @@ const borderColors = comparison.labels.map((label) =>
     function renderPrice() {
       const raw = calcCurrentPrice();
       const display = raw * DISPLAY_MULTIPLIER;
+      const pricing = buildCurrentPricingBreakdown({
+        channel: document.body?.dataset.siteBrand === "당고" ? "dango" : "direct",
+      });
 
       const priceEl = $("#price");
       const stickyPriceEl = $("#stickyPrice");
 
-      if (priceEl) priceEl.textContent = formatWon(display);
-      if (stickyPriceEl) stickyPriceEl.textContent = formatWon(display);
+      if (priceEl) priceEl.textContent = formatWon(pricing.total || display);
+      if (stickyPriceEl) stickyPriceEl.textContent = formatWon(pricing.total || display);
 
-      const deposit = display * 0.2;
-      const balance = display * 0.8;
+      $("#deposit") && ($("#deposit").textContent = formatWon(pricing.deposit));
+      $("#balance") && ($("#balance").textContent = formatWon(pricing.balance));
+      $("#stickyDeposit") && ($("#stickyDeposit").textContent = formatWon(pricing.deposit));
+      $("#stickyBalance") && ($("#stickyBalance").textContent = formatWon(pricing.balance));
 
-      $("#deposit") && ($("#deposit").textContent = formatWon(deposit));
-      $("#balance") && ($("#balance").textContent = formatWon(balance));
-      $("#stickyDeposit") && ($("#stickyDeposit").textContent = formatWon(deposit));
-      $("#stickyBalance") && ($("#stickyBalance").textContent = formatWon(balance));
-
-      renderCompareChart(display);
+      renderCompareChart(pricing.total || display);
     }
 
     function renderSummary() {
@@ -2818,9 +2906,13 @@ const borderColors = comparison.labels.map((label) =>
     function calcSmsMoveDiscountQuote(displayTotal) {
       const safeTotal = Number(displayTotal) || 0;
       const discountedTotal = Math.max(0, Math.round(safeTotal * 0.97));
-      const deposit = Math.round(discountedTotal * 0.2);
-      const balance = discountedTotal - deposit;
-      return { discountedTotal, deposit, balance };
+      const pricing = buildMovePricingBreakdown(discountedTotal, { channel: "direct" });
+      return {
+        discountedTotal: pricing.total,
+        deposit: pricing.deposit,
+        balance: pricing.balance,
+        helperDepositAddon: pricing.settlement.helperDepositAddon,
+      };
     }
 
     function buildInquiryMessage() {
@@ -2907,6 +2999,14 @@ const borderColors = comparison.labels.map((label) =>
         const smsQuote = calcSmsMoveDiscountQuote(display);
         const deposit = formatWon(smsQuote.deposit);
         const balance = formatWon(smsQuote.balance);
+        const helperAdvanceInfo =
+          smsQuote.helperDepositAddon > 0
+            ? `인부 예약금 추가분: ${formatWon(smsQuote.helperDepositAddon)}`
+            : null;
+        const depositLabel =
+          smsQuote.helperDepositAddon > 0
+            ? `예약금(기본 20% + 인부 선결제): ${deposit}`
+            : `예약금(20%): ${deposit}`;
 
         return [
           `${SITE_BRAND} 견적 문의`,
@@ -2941,7 +3041,8 @@ const borderColors = comparison.labels.map((label) =>
           state.ride > 0 ? `동승: ${state.ride}명` : null,
           "",
           `홈페이지 예상 견적: ${price}`,
-          `예약금(20%): ${deposit}`,
+          depositLabel,
+          helperAdvanceInfo,
           `잔금(80%): ${balance}`,
         ]
           .filter(Boolean)
