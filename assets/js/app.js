@@ -18,12 +18,14 @@
     /* =========================================================
        Global knobs
     ========================================================= */
-    const PRICE_MULTIPLIER = 0.714;
+    const PRICE_MULTIPLIER = 0.59;
     const DISPLAY_MULTIPLIER = 1;
+    const CLEAN_PRICE_MULTIPLIER = 1;
     const MOVE_DEPOSIT_RATE = 0.2;
     const HELPER_FEE_PER_PERSON = 60000;
     const HELPER_DRIVER_SETTLEMENT_PER_PERSON = 40000;
     const HELPER_DEPOSIT_ADDON_PER_PERSON = 20000;
+    const CLEAN_BASE_RATE_PER_PYEONG = 13000;
     const SERVICE = { MOVE: "move", CLEAN: "clean" };
 
     /* =========================================================
@@ -42,8 +44,8 @@
 
 
     function createGaFloatingBadge() {
-  const langbar = document.querySelector('.langbar');
-  if (!langbar || document.getElementById('gaFloatingBadge')) return null;
+  const stickyInner = document.querySelector('#stickyPriceBar .sticky-inner');
+  if (!stickyInner || document.getElementById('gaFloatingBadge')) return null;
 
   const lang = (document.body?.dataset.lang || 'ko').toLowerCase();
   const dict = {
@@ -110,24 +112,9 @@
     </div>
   `;
 
-  document.body.appendChild(badge);
+  stickyInner.appendChild(badge);
 
-  function positionBadge() {
-    const rect = langbar.getBoundingClientRect();
-    const gap = 8;
-    const top = Math.max(12, Math.round(rect.bottom + gap));
-    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
-    const right = Math.max(12, Math.round(viewportWidth - rect.right));
-    badge.style.top = `${top}px`;
-    badge.style.right = `${right}px`;
-    badge.style.left = 'auto';
-  }
-
-  positionBadge();
-  window.addEventListener('resize', positionBadge, { passive: true });
-  window.addEventListener('scroll', positionBadge, { passive: true });
-
-  return { badge, positionBadge, dict: t, lang };
+  return { badge, dict: t, lang };
 }
 
 const gaBadge = createGaFloatingBadge();
@@ -135,7 +122,7 @@ const gaBadge = createGaFloatingBadge();
 async function loadGaRealtimeBadge() {
   if (!gaBadge?.badge) return;
 
-  const { badge, positionBadge, dict, lang } = gaBadge;
+  const { badge, dict, lang } = gaBadge;
 
   try {
     badge.classList.add('is-loading');
@@ -197,7 +184,6 @@ async function loadGaRealtimeBadge() {
     console.error('GA realtime badge load failed:', err);
   } finally {
     badge.classList.remove('is-loading');
-    positionBadge?.();
   }
 }
 
@@ -1562,21 +1548,23 @@ function normalizeItemKey(k) {
       const q = Math.max(0, toInt(qty, 0));
       if (!k) return;
       const target = getItemsStateTarget();
-      if (q <= 0) delete target[k];
-      else target[k] = q;
+      let nextQty = q;
 
       if (itemsModalContext === "main" && k === "침대매트리스(킹제외)") {
-        const total = q;
         const sumSizes = Object.values(state.mattressSizes).reduce((a, b) => a + toInt(b, 0), 0);
-        if (total > 0 && sumSizes === 0) openModal("mattressSizeModal");
-
-        if (sumSizes > total) {
-          state.mattressSizes.S = 0;
-          state.mattressSizes.SS = 0;
-          state.mattressSizes.D = 0;
-          state.mattressSizes.Q = 0;
+        if (nextQty <= 0) {
+          Object.keys(state.mattressSizes).forEach((sizeKey) => {
+            state.mattressSizes[sizeKey] = 0;
+          });
+        } else {
+          if (sumSizes > nextQty) nextQty = sumSizes;
+          if (nextQty > 0 && sumSizes === 0) openModal("mattressSizeModal");
         }
+        syncMattressSizeModalFromState();
       }
+
+      if (nextQty <= 0) delete target[k];
+      else target[k] = nextQty;
     }
 
     function handleItemStepperButton(btn) {
@@ -1618,16 +1606,23 @@ function normalizeItemKey(k) {
       return toInt(state.items["침대매트리스(킹제외)"], 0);
     }
 
+    function syncMattressSizeModalFromState() {
+      const sizes = state.mattressSizes || {};
+      ["S", "SS", "D", "Q", "K"].forEach((sizeKey) => {
+        const input = document.querySelector('#mattressSizeModal input[data-size="' + sizeKey + '"]');
+        if (input) input.value = String(toInt(sizes[sizeKey], 0));
+      });
+    }
+
     function setMattressSize(sizeKey, qty) {
       const key = String(sizeKey);
       const v = Math.max(0, toInt(qty, 0));
       state.mattressSizes[key] = v;
 
-      const total = totalMattressQty();
       const sum = Object.values(state.mattressSizes).reduce((a, b) => a + toInt(b, 0), 0);
-      if (sum > total) {
-        state.mattressSizes[key] = Math.max(0, v - (sum - total));
-      }
+      setItemQty("침대매트리스(킹제외)", sum);
+      syncItemsModalFromState();
+      syncMattressSizeModalFromState();
     }
 
     function handleMattressStepperButton(btn) {
@@ -2044,6 +2039,11 @@ function normalizeItemKey(k) {
     stairsFee(state.noTo, state.toFloor) +
     waypointCarryFeeTotal();
 
+  // ✅ 작업비 덩어리(배율 대상)
+  let workSubtotal = base + load + stairs;
+
+  // ✅ 배율 제외(거리/기사 1인 추가작업/인부/사다리/동승/가전/폐기/청소옵션/보관비 등)
+  const distance = moveDistanceFee(state.distanceKm);
   const cantCarry =
     cantCarryFee(state.cantCarryFrom) +
     cantCarryFee(state.cantCarryTo);
@@ -2051,12 +2051,6 @@ function normalizeItemKey(k) {
   const helpers =
     helperFee(state.helperFrom) +
     helperFee(state.helperTo);
-
-  // ✅ 작업비 덩어리(배율 대상)
-  let workSubtotal = base + load + stairs + cantCarry + helpers;
-
-  // ✅ 배율 제외(거리/사다리/동승/가전/폐기/청소옵션/보관비 등)
-  const distance = moveDistanceFee(state.distanceKm);
 
   const ladders =
     ladderFee(state.ladderFromEnabled, state.ladderFromFloor) +
@@ -2089,6 +2083,8 @@ function normalizeItemKey(k) {
   let moveOnlyPrice =
     workSubtotal +
     distance +
+    cantCarry +
+    helpers +
     ladders +
     ride +
     cleanOpt +
@@ -2111,8 +2107,17 @@ function normalizeItemKey(k) {
         state.cleanType === "moveout" ? 1.05 : state.cleanType === "occupied" ? 1.15 : 1.0;
       const soilMul =
         state.cleanSoil === "heavy" ? 1.2 : state.cleanSoil === "normal" ? 1.1 : 1.0;
-      const per = 11000;
-      return p * per * typeMul * soilMul;
+      const rawBase = p * CLEAN_BASE_RATE_PER_PYEONG;
+
+      let minimumBase = 140000;
+      if (p <= 4) minimumBase = 110000;
+      else if (p <= 9) minimumBase = 140000;
+      else if (p <= 18) minimumBase = 180000;
+      else if (p <= 29) minimumBase = 200000;
+      else if (p <= 39) minimumBase = 300000;
+      else minimumBase = 450000;
+
+      return Math.max(rawBase, minimumBase) * typeMul * soilMul;
     }
 
     function cleanOptionPrice() {
@@ -2252,7 +2257,7 @@ function normalizeItemKey(k) {
       let price = 0;
       price += cleanBasePrice();
       price += cleanOptionPrice();
-      price *= PRICE_MULTIPLIER;
+      price *= CLEAN_PRICE_MULTIPLIER;
       return price;
     }
 
@@ -3172,7 +3177,7 @@ const borderColors = comparison.labels.map((label) =>
 
     const altServiceLink = document.querySelector(".alt-service-link");
     if (altServiceLink) {
-      altServiceLink.setAttribute("href", CROSS_LINK || (DEFAULT_SERVICE === "clean" ? "/" : "/ddclean/"));
+      altServiceLink.setAttribute("href", CROSS_LINK || (DEFAULT_SERVICE === "clean" ? "/calculator/" : "/ddclean/"));
       altServiceLink.textContent = DEFAULT_SERVICE === "clean" ? "🚚 이사도 필요하시다면 클릭해주세요" : "🧼 청소도 필요하시다면 클릭해주세요";
     }
 

@@ -3,121 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>디디운송 랜딩 | 1톤 용달 이사 비용 빠른 확인</title>
-  <meta name="description" content="추가요금 없는 1톤 용달 이사 견적을 빠르게 확인하고, 상담과 전화로 바로 이어질 수 있는 전환용 랜딩입니다." />
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KML8CS1NXL"></script>
+  <title>디디운송 홈화면으로 이동합니다</title>
+  <meta http-equiv="refresh" content="0; url=/" />
+  <link rel="canonical" href="https://ddlogi.netlify.app/" />
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-KML8CS1NXL');
+    window.location.replace('/');
   </script>
-  <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
-<body data-lang="ko">
-  <div class="container">
-    <div class="page-linkbar page-linkbar--space">
-      <div class="page-linkbar__group">
-        <a class="page-link" href="/">메인 계산기</a>
-        <a class="page-link" href="/ddclean/">입주청소 계산기</a>
-        <a class="page-link" href="/en/">English Page</a>
-        <a class="page-link is-current" href="/landing.html">광고 랜딩</a>
-      </div>
-      <div class="langbar" role="navigation" aria-label="Language switch">
-        <a class="lang-pill" href="/landing.html" data-lang="ko" aria-current="page">KR</a>
-        <a class="lang-pill" href="/en/" data-lang="en">EN</a>
-      </div>
-    </div>
-
-    <main class="landing-shell">
-      <section class="landing-hero">
-        <div class="landing-eyebrow">추가요금 없음 · 기사 직접 연결 · 1분 견적</div>
-        <h1 class="landing-title">1톤 용달 이사,<br><span class="accent">지금 바로 비용 확인</span></h1>
-        <p class="landing-copy">견적 비교하느라 시간 쓰지 마세요.<br>지금 조건 그대로 입력하면 실제 비용이 바로 나옵니다.</p>
-
-        <div class="landing-live" id="landingRealtimeBox">
-          <div class="landing-live__title" id="landingRealtimeTitle">지금 실제 이용 흐름을 불러오는 중입니다</div>
-          <div class="landing-live__sub" id="landingRealtimeSub">최근 이용 흐름 기준으로 실제 상담이 이어지고 있습니다.</div>
-        </div>
-
-        <div class="landing-cta-stack">
-          <a class="landing-main-cta" href="/">👉 지금 바로 내 이사 비용 확인하기</a>
-          <a class="landing-sub-cta" href="tel:01075416143">📞 전화로 바로 연결하기 (가장 빠름)</a>
-        </div>
-      </section>
-
-      <section class="landing-grid">
-        <article class="landing-card">
-          <h3>지금 확인해야 하는 이유</h3>
-          <ul class="landing-checklist">
-            <li>✔ 지금 확인하면 현재 기준 정확한 비용 확인 가능</li>
-            <li>✔ 시간 지나면 기사 수요로 금액 변동 가능</li>
-            <li>✔ 늦어지면 원하는 날짜 예약 마감될 수 있음</li>
-          </ul>
-          <p class="landing-warning">※ 같은 조건이어도 시점에 따라 비용이 달라질 수 있습니다.</p>
-
-          <div class="landing-proof">
-            <h3>여기서 바로 진행하는 이유</h3>
-            <ul class="landing-proof-list">
-              <li>✔ 계산된 금액 그대로 진행 (추가요금 없음)</li>
-              <li>✔ 계산 → 상담 → 예약까지 한 번에 연결</li>
-              <li>✔ 기사 직접 연결로 불필요한 중간 비용 없음</li>
-            </ul>
-          </div>
-        </article>
-
-        <article class="landing-card">
-          <h3>바로 시작</h3>
-          <ul class="landing-links">
-            <li>→ <a href="/">용달 비용 바로 확인하기</a></li>
-            <li>→ <a href="/ddclean/">입주청소 같이 확인하기</a></li>
-            <li>→ <a href="/en/">English Page</a></li>
-          </ul>
-          <p class="landing-note">계산 후 바로 상담으로 이어집니다.<br>다시 견적 요청하거나 설명할 필요 없습니다.</p>
-        </article>
-      </section>
-    </main>
-  </div>
-
-  <script>
-    async function loadLandingRealtime() {
-      const titleEl = document.getElementById('landingRealtimeTitle');
-      const subEl = document.getElementById('landingRealtimeSub');
-      if (!titleEl || !subEl) return;
-
-      try {
-        const res = await fetch('/.netlify/functions/gaRealtime', { cache: 'no-store' });
-        const data = await res.json();
-        if (!res.ok || !data?.ok) throw new Error(data?.error || 'GA realtime request failed');
-
-        const activeUsers = Number(data.activeUsers || 0);
-        const pageViews = Number(data.screenPageViews || 0);
-        const eventCount = Number(data.eventCount || 0);
-        const fetchedAt = data.fetchedAtKst || '-';
-
-        titleEl.textContent = activeUsers > 0
-          ? `지금 ${activeUsers.toLocaleString()}명이 견적을 확인하고 있습니다`
-          : '지금은 한가한 시간대라 더 빠르게 상담 연결 가능합니다';
-        subEl.textContent = `최근 30분 조회 ${pageViews.toLocaleString()}회 · 실시간 이벤트 ${eventCount.toLocaleString()}건 · 업데이트 ${fetchedAt}`;
-      } catch (err) {
-        titleEl.textContent = '실시간 이용 데이터를 불러오지 못했습니다';
-        subEl.textContent = '잠시 후 다시 접속하거나 메인 계산기에서 배지를 확인해 주세요.';
-        console.error('landing realtime load failed:', err);
-      }
-    }
-
-    loadLandingRealtime();
-    window.setInterval(loadLandingRealtime, 30000);
-
-    document.querySelectorAll('a[href], button[data-track]').forEach((el) => {
-      el.addEventListener('click', () => {
-        if (typeof gtag !== 'function') return;
-        gtag('event', 'landing_click', {
-          event_category: 'conversion',
-          event_label: el.textContent.trim().slice(0, 60),
-        });
-      });
-    });
-  </script>
+<body>
+  <p><a href="/">디디운송 홈화면으로 이동</a></p>
 </body>
 </html>
