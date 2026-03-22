@@ -41,6 +41,11 @@ function run(cmd) {
   execSync(cmd, { stdio: "inherit" });
 }
 
+function copyFileSafe(src, dest) {
+  ensureDir(path.dirname(dest));
+  fs.copyFileSync(src, dest);
+}
+
 function copyRootStaticFiles() {
   const entries = fs.readdirSync(ROOT, { withFileTypes: true });
 
@@ -153,7 +158,12 @@ const cssOut = path.join(DIST, "assets", "css", "style.min.css");
 ensureDir(path.dirname(cssOut));
 
 if (fs.existsSync(cssIn)) {
-  run(`npx cleancss -O2 -o "${cssOut}" "${cssIn}"`);
+  try {
+    run(`npx cleancss -O2 -o "${cssOut}" "${cssIn}"`);
+  } catch (err) {
+    console.warn("⚠️ CSS minify 실패. 원본 CSS를 그대로 복사합니다.");
+    copyFileSafe(cssIn, cssOut);
+  }
 } else {
   console.warn("⚠️ assets/css/style.css 파일이 없습니다. CSS minify를 건너뜁니다.");
 }
@@ -165,23 +175,28 @@ const jsTmp = path.join(DIST, "assets", "js", "__tmp.min.js");
 ensureDir(path.dirname(jsMin));
 
 if (fs.existsSync(jsIn)) {
-  // terser로 1차 압축
-  run(`npx terser "${jsIn}" -c -m -o "${jsTmp}"`);
+  try {
+    // terser로 1차 압축
+    run(`npx terser "${jsIn}" -c -m -o "${jsTmp}"`);
 
-  // 난독화
-  run(
-    `npx javascript-obfuscator "${jsTmp}" --output "${jsMin}" ` +
-      `--compact true ` +
-      `--control-flow-flattening false ` +
-      `--dead-code-injection false ` +
-      `--debug-protection false ` +
-      `--disable-console-output false ` +
-      `--string-array true ` +
-      `--string-array-encoding base64 ` +
-      `--string-array-threshold 0.75`
-  );
-
-  if (fs.existsSync(jsTmp)) fs.unlinkSync(jsTmp);
+    // 난독화
+    run(
+      `npx javascript-obfuscator "${jsTmp}" --output "${jsMin}" ` +
+        `--compact true ` +
+        `--control-flow-flattening false ` +
+        `--dead-code-injection false ` +
+        `--debug-protection false ` +
+        `--disable-console-output false ` +
+        `--string-array true ` +
+        `--string-array-encoding base64 ` +
+        `--string-array-threshold 0.75`
+    );
+  } catch (err) {
+    console.warn("⚠️ JS minify/obfuscate 실패. 원본 JS를 그대로 복사합니다.");
+    copyFileSafe(jsIn, jsMin);
+  } finally {
+    if (fs.existsSync(jsTmp)) fs.unlinkSync(jsTmp);
+  }
 } else {
   console.warn("⚠️ assets/js/app.js 파일이 없습니다. JS minify를 건너뜁니다.");
 }
