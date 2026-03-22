@@ -3173,7 +3173,7 @@ const borderColors = comparison.labels.map((label) =>
     renderAll();
 
     const askCleanBtn = $("#askClean");
-    if (askCleanBtn && CROSS_LINK) askCleanBtn.textContent = DEFAULT_SERVICE === "clean" ? "디디운송으로 이동하기" : "디디클린으로 이동하기";
+    if (askCleanBtn && CROSS_LINK) askCleanBtn.textContent = DEFAULT_SERVICE === "clean" ? "소형이사 계산기로 이동하기" : "디디클린으로 이동하기";
 
     const altServiceLink = document.querySelector(".alt-service-link");
     if (altServiceLink) {
