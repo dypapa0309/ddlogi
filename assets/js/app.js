@@ -15,6 +15,49 @@
       });
     }
 
+    function getSelectableOptionInput(card) {
+      if (!card || !card.matches('.option:not(.item-qty-row):not(.throw-toggle-row)')) return null;
+      return card.querySelector('input[type="radio"], input[type="checkbox"]');
+    }
+
+    function syncSelectableCardStates(root = document) {
+      root.querySelectorAll('.option:not(.item-qty-row):not(.throw-toggle-row)').forEach((card) => {
+        const inputEl = getSelectableOptionInput(card);
+        if (!inputEl) return;
+        card.classList.toggle('is-selected', !!inputEl.checked);
+        card.classList.toggle('is-disabled', !!inputEl.disabled);
+      });
+    }
+
+    document.addEventListener('click', (event) => {
+      const card = event.target.closest('.option:not(.item-qty-row):not(.throw-toggle-row)');
+      if (!card) return;
+      if (event.target.closest('button, a, textarea, select') || event.target.matches('input[type="number"], input[type="date"]')) return;
+
+      const inputEl = getSelectableOptionInput(card);
+      if (!inputEl || inputEl.disabled) return;
+      if (event.target === inputEl) return;
+
+      if (inputEl.type === 'radio') {
+        if (inputEl.checked) return;
+        inputEl.checked = true;
+      } else {
+        inputEl.checked = !inputEl.checked;
+      }
+
+      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+      syncSelectableCardStates();
+    });
+
+    document.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement)) return;
+      if (target.type !== 'radio' && target.type !== 'checkbox') return;
+      syncSelectableCardStates();
+    });
+
+    syncSelectableCardStates();
+
     /* =========================================================
        Global knobs
     ========================================================= */
