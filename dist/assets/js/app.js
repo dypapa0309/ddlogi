@@ -2984,6 +2984,11 @@ const borderColors = comparison.labels.map((label) =>
       }
     }
 
+    function getLeadclearPath() {
+      if (state.activeService === SERVICE.CLEAN) return "/ddclean/leadclear/";
+      return "/calculator/leadclear/";
+    }
+
     function redirectToLeadclearPage(text) {
       const message = String(text || "").trim();
       if (!message) return false;
@@ -2994,7 +2999,7 @@ const borderColors = comparison.labels.map((label) =>
         console.warn("Leadclear payload save failed:", err);
       }
 
-      window.location.href = "/calculator/leadclear/";
+      window.location.href = getLeadclearPath();
       return true;
     }
 

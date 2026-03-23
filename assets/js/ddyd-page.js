@@ -410,9 +410,47 @@
     ].join("\n");
   }
 
-  function goSms() {
+  async function copyToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.top = "-9999px";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
+      } catch (_) {
+        return false;
+      }
+    }
+  }
+
+  function redirectToLeadclearPage(text) {
+    const message = String(text || "").trim();
+    if (!message) return false;
+
+    try {
+      sessionStorage.setItem("ddlogiLeadSmsPayload", message);
+    } catch (err) {
+      console.warn("Leadclear payload save failed:", err);
+    }
+
+    window.location.href = "/ddyd/leadclear/";
+    return true;
+  }
+
+  async function goSms() {
     trackEvent("quote_submit_click", { contact_channel: "sms", event_label: "yongdal_result_cta" });
-    window.location.href = `sms:${PHONE_NUMBER}?body=${encodeURIComponent(smsBody())}`;
+    const message = smsBody();
+    await copyToClipboard(message);
+    redirectToLeadclearPage(message);
   }
 
   $$(".yd-size-card").forEach((btn) => btn.addEventListener("click", () => openModal(btn.dataset.size)));

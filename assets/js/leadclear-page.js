@@ -1,6 +1,8 @@
 (function () {
   const STORAGE_KEY = "ddlogiLeadSmsPayload";
   const PHONE = "01075416143";
+  const SERVICE_TYPE = document.body?.dataset?.leadclearService || "small_move";
+  const PAGE_PATH = document.body?.dataset?.leadclearPage || window.location.pathname;
 
   function buildSmsHref(phone, text) {
     const ua = navigator.userAgent || "";
@@ -47,16 +49,16 @@
     if (typeof window.gtag === "function") {
       window.gtag("event", "leadclear_page_view", {
         event_category: "conversion",
-        event_label: "calculator_leadclear_page",
-        service_type: "small_move",
+        event_label: PAGE_PATH,
+        service_type: SERVICE_TYPE,
       });
     }
 
     if (Array.isArray(window.dataLayer)) {
       window.dataLayer.push({
         event: "leadclear_page_view",
-        service_type: "small_move",
-        page_path: "/calculator/leadclear/",
+        service_type: SERVICE_TYPE,
+        page_path: PAGE_PATH,
       });
     }
   }
