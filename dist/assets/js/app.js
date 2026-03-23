@@ -41,6 +41,17 @@
     const SITE_BRAND = document.body?.dataset.siteBrand || (DEFAULT_SERVICE === "clean" ? "당고 입주청소" : "당고");
     const CROSS_LINK = document.body?.dataset.crossLink || "";
     const CROSS_LABEL = document.body?.dataset.crossLabel || (DEFAULT_SERVICE === "clean" ? "이사도 필요하시다면 클릭해주세요" : "청소도 필요하시다면 클릭해주세요");
+    const TRACK_SERVICE = DEFAULT_SERVICE === "clean" ? "cleaning" : "small_move";
+
+    function trackEvent(action, extra = {}) {
+      if (typeof window.gtag !== "function") return;
+      window.gtag("event", action, {
+        event_category: "conversion",
+        service_type: TRACK_SERVICE,
+        page_path: window.location.pathname,
+        ...extra,
+      });
+    }
 
 
     function createGaFloatingBadge() {
@@ -210,6 +221,12 @@ async function loadGaRealtimeBadge() {
     loadGaRealtimeBadge();
     window.setInterval(loadGaRealtimeBadge, 30000);
     setupStickyBarToggle();
+    document.querySelectorAll('a[href^="tel:"]').forEach((el) => {
+      el.addEventListener("click", () => trackEvent("contact_click", { contact_channel: "phone", event_label: el.textContent.trim().slice(0, 60) }));
+    });
+    document.querySelectorAll('a[href^="sms:"]').forEach((el) => {
+      el.addEventListener("click", () => trackEvent("contact_click", { contact_channel: "sms", event_label: el.textContent.trim().slice(0, 60) }));
+    });
 
     function formatWon(n) {
       const x = Math.trunc(Number(n) || 0); // ✅ 반올림 X (원단위 버림)
@@ -1394,7 +1411,10 @@ function normalizeItemKey(k) {
       });
     }
 
-    $("#calcDistance")?.addEventListener("click", calcDistanceKm);
+    $("#calcDistance")?.addEventListener("click", () => {
+      trackEvent("distance_calculate", { event_label: "move_distance" });
+      calcDistanceKm();
+    });
 
     /* =========================================================
        Reservation bindings (common)
@@ -3170,6 +3190,7 @@ const borderColors = comparison.labels.map((label) =>
     $("#channelInquiry")?.addEventListener("click", async (e) => {
       e.preventDefault();
       if (!validateMoveInquiryBeforeSend()) return;
+      trackEvent("quote_submit_click", { contact_channel: "sms", event_label: "result_primary_cta" });
       const msg = buildInquiryMessage();
       const copied = await copyToClipboard(msg);
       const ok = openSmsAppWithPrefill(msg);
@@ -3202,6 +3223,7 @@ const borderColors = comparison.labels.map((label) =>
 
     $("#sendInquiry")?.addEventListener("click", async () => {
       if (!validateMoveInquiryBeforeSend()) return;
+      trackEvent("quote_send_confirm", { contact_channel: "sms", event_label: "confirm_send" });
       const msg = buildInquiryMessage();
       closeModal("confirmInquiryModal");
 
@@ -3212,6 +3234,7 @@ const borderColors = comparison.labels.map((label) =>
     });
 
     $("#askClean")?.addEventListener("click", () => {
+      trackEvent("cross_service_click", { target_service: DEFAULT_SERVICE === "clean" ? "small_move" : "cleaning" });
       closeModal("confirmInquiryModal");
       if (CROSS_LINK) {
         window.location.href = CROSS_LINK;

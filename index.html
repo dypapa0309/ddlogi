@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>당고 홈화면 | 소형이사 비용 빠른 확인</title>
-  <meta name="description" content="당고 홈화면입니다. 광고 유입 고객이 빠르게 판단하고 바로 소형이사 계산기와 상담으로 이어질 수 있게 구성했습니다." />
+  <title>당고 홈화면 | 소형이사 · 입주청소 · 용달 빠른 확인</title>
+  <meta name="description" content="당고 홈화면입니다. 광고 유입 고객이 소형이사, 입주청소, 용달 중 필요한 서비스를 바로 고르고 계산기와 상담으로 빠르게 이어질 수 있게 구성했습니다." />
   <link rel="canonical" href="https://ddlogi.netlify.app/" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="당고 홈화면 | 소형이사 비용 빠른 확인" />
-  <meta property="og:description" content="광고 유입 고객이 바로 소형이사 계산기와 상담으로 이어질 수 있는 당고 홈화면입니다." />
+  <meta property="og:title" content="당고 홈화면 | 소형이사 · 입주청소 · 용달 빠른 확인" />
+  <meta property="og:description" content="광고 유입 고객이 소형이사, 입주청소, 용달 중 필요한 서비스를 바로 고르고 계산기와 상담으로 이어질 수 있는 당고 홈화면입니다." />
   <meta property="og:image" content="https://ddlogi.netlify.app/assets/img/hero-bin.jpg" />
   <meta property="og:url" content="https://ddlogi.netlify.app/" />
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-KML8CS1NXL"></script>
@@ -41,15 +41,29 @@
         <div class="landing-panel landing-panel--hero landing-reveal" data-reveal>
           <div class="landing-eyebrow">당장 필요할 때 당장 고고, 당고!</div>
           <div class="landing-eyebrow">1분 견적 · 추가요금 없음 · 기사 직접 연결</div>
-          <h1 class="landing-title">소형이사 비용,<br><span class="accent">지금 바로 확인</span></h1>
-          <p class="landing-copy">복잡하게 비교하지 말고, 먼저 지금 조건으로 얼마쯤 나오는지 바로 보세요.</p>
+          <h1 class="landing-title">당고 계산기에서<br><span class="accent">지금 바로 확인</span></h1>
+          <p class="landing-copy">소형이사, 입주청소, 용달 중 필요한 서비스를 먼저 고르고 지금 조건 기준 예상 금액을 바로 확인해보세요.</p>
         </div>
       </section>
 
       <section class="landing-scene">
         <article class="landing-panel landing-reveal" data-reveal>
-          <div class="landing-kicker">STEP 1</div>
-          <h2 class="landing-message">먼저 소형이사 계산기로 이동해서<br>현재 조건 예상 금액을 확인합니다.</h2>
+          <div class="landing-kicker">SERVICE</div>
+          <h2 class="landing-message">필요한 서비스부터 고르고<br>바로 계산기로 들어가세요.</h2>
+          <div class="landing-service-grid">
+            <a class="landing-service-card" href="/calculator/" data-track-action="service_select" data-track-service="small_move">
+              <div class="landing-service-card__title">당고 소형이사</div>
+              <div class="landing-service-card__desc">원룸이사, 반포장, 보관이사까지 바로 계산</div>
+            </a>
+            <a class="landing-service-card" href="/ddclean/" data-track-action="service_select" data-track-service="cleaning">
+              <div class="landing-service-card__title">당고 입주청소</div>
+              <div class="landing-service-card__desc">평수와 옵션 기준 예상 청소 금액 확인</div>
+            </a>
+            <a class="landing-service-card" href="/ddyd/" data-track-action="service_select" data-track-service="yongdal">
+              <div class="landing-service-card__title">당고 용달</div>
+              <div class="landing-service-card__desc">차만 필요한 간단 용달은 거리 기준으로 바로 계산</div>
+            </a>
+          </div>
         </article>
       </section>
 
@@ -82,14 +96,18 @@
       <section class="landing-scene landing-scene--cta">
         <article class="landing-panel landing-panel--cta landing-reveal" data-reveal>
           <div class="landing-kicker">GO</div>
-          <h2 class="landing-message">바로 계산기로 들어가서<br>금액 확인 후 상담 연결하세요.</h2>
+          <h2 class="landing-message">필요한 계산기로 들어가서<br>금액 확인 후 바로 상담 연결하세요.</h2>
           <div class="landing-cta-stack">
-            <a class="landing-main-cta" href="/calculator/">👉 지금 바로 비용 계산하고 상담 연결하기</a>
-            <a class="landing-sub-cta" href="tel:01075416143">📞 전화 바로 연결 (가장 빠름)</a>
+            <a class="landing-main-cta" href="/calculator/" data-track-action="cta_click" data-track-service="small_move">👉 당고 소형이사 계산하고 상담 연결하기</a>
+            <a class="landing-main-cta" href="/ddclean/" data-track-action="cta_click" data-track-service="cleaning">🧼 당고 입주청소 계산하고 상담 연결하기</a>
+            <a class="landing-main-cta" href="/ddyd/" data-track-action="cta_click" data-track-service="yongdal">🛻 당고 용달 계산하고 상담 연결하기</a>
+            <a class="landing-sub-cta" href="tel:01075416143" data-track-action="contact_click" data-track-service="home" data-track-channel="phone">📞 전화 바로 연결 (가장 빠름)</a>
           </div>
           <div class="landing-quicklinks">
-            <a href="/ddclean/">당고 입주청소</a>
-            <a href="/en/">영어 버전</a>
+            <a href="/calculator/" data-track-action="quicklink_click" data-track-service="small_move">당고 소형이사</a>
+            <a href="/ddclean/" data-track-action="quicklink_click" data-track-service="cleaning">당고 입주청소</a>
+            <a href="/ddyd/" data-track-action="quicklink_click" data-track-service="yongdal">당고 용달</a>
+            <a href="/en/" data-track-action="quicklink_click" data-track-service="english">영어 버전</a>
           </div>
         </article>
       </section>
@@ -97,13 +115,13 @@
   </div>
 
   <div class="quick-contact-dock" aria-label="빠른 상담">
-    <a class="quick-contact-dock__btn quick-contact-dock__btn--call" href="tel:01075416143" aria-label="전화 상담">
+    <a class="quick-contact-dock__btn quick-contact-dock__btn--call" href="tel:01075416143" aria-label="전화 상담" data-track-action="contact_click" data-track-service="home" data-track-channel="phone">
       <span class="quick-contact-dock__label">
         <span class="quick-contact-dock__icon">📞</span>
         <span class="quick-contact-dock__text">전화</span>
       </span>
     </a>
-    <a class="quick-contact-dock__btn" href="sms:01075416143" aria-label="문자 상담">
+    <a class="quick-contact-dock__btn" href="sms:01075416143" aria-label="문자 상담" data-track-action="contact_click" data-track-service="home" data-track-channel="sms">
       <span class="quick-contact-dock__label">
         <span class="quick-contact-dock__icon">💬</span>
         <span class="quick-contact-dock__text">문자</span>
@@ -152,12 +170,14 @@
 
     revealNodes.forEach((node) => revealObserver.observe(node));
 
-    document.querySelectorAll('a[href], button[data-track]').forEach((el) => {
+    document.querySelectorAll('a[href], button[data-track], [data-track-action]').forEach((el) => {
       el.addEventListener('click', () => {
         if (typeof gtag !== 'function') return;
-        gtag('event', 'landing_click', {
+        gtag('event', el.dataset.trackAction || 'landing_click', {
           event_category: 'conversion',
           event_label: el.textContent.trim().slice(0, 60),
+          service_type: el.dataset.trackService || 'home',
+          contact_channel: el.dataset.trackChannel || '',
         });
       });
     });

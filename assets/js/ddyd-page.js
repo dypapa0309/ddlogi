@@ -5,6 +5,16 @@
   const HELPER_FEE = 10000;
   const BASE_VEHICLE_FEE = 27000;
 
+  function trackEvent(action, extra = {}) {
+    if (typeof window.gtag !== "function") return;
+    window.gtag("event", action, {
+      event_category: "conversion",
+      service_type: "yongdal",
+      page_path: window.location.pathname,
+      ...extra,
+    });
+  }
+
   const state = {
     startAddress: "",
     endAddress: "",
@@ -289,6 +299,7 @@
   }
 
   async function calculateDistance() {
+    trackEvent("distance_calculate", { event_label: "yongdal_distance" });
     state.startAddress = (els.start.value || "").trim();
     state.endAddress = (els.end.value || "").trim();
     if (!state.startAddress || !state.endAddress) {
@@ -400,6 +411,7 @@
   }
 
   function goSms() {
+    trackEvent("quote_submit_click", { contact_channel: "sms", event_label: "yongdal_result_cta" });
     window.location.href = `sms:${PHONE_NUMBER}?body=${encodeURIComponent(smsBody())}`;
   }
 
@@ -409,6 +421,12 @@
   els.helpTo?.addEventListener("change", (e) => { state.helperTo = e.target.checked; renderFees(); });
   els.smsBtn?.addEventListener("click", goSms);
   els.modalConfirmBtn?.addEventListener("click", closeModal);
+  document.querySelectorAll('a[href^="tel:"]').forEach((el) => {
+    el.addEventListener("click", () => trackEvent("contact_click", { contact_channel: "phone", event_label: el.textContent.trim().slice(0, 60) }));
+  });
+  document.querySelectorAll('a[href^="sms:"]').forEach((el) => {
+    el.addEventListener("click", () => trackEvent("contact_click", { contact_channel: "sms", event_label: el.textContent.trim().slice(0, 60) }));
+  });
 
   els.modal?.addEventListener("click", (e) => {
     if (e.target.closest("[data-close-modal]")) {
