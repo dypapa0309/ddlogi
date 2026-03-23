@@ -123,9 +123,43 @@
         <div class="card yd-card">
           <div class="yd-section-head">
             <div class="landing-eyebrow">STEP 3</div>
+            <h2>이동 날짜 · 시간</h2>
+          </div>
+          <div class="field">
+            <span>이동 날짜</span>
+            <div class="date-wrap" style="margin-top:10px;">
+              <input type="date" id="moveDate" class="address-input date-input" required />
+              <span class="date-icon" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="field" style="margin-top:18px;">
+            <span>희망 시간</span>
+            <div class="time-grid" aria-label="용달 희망 시간 선택" style="margin-top:10px;">
+              <label class="time-chip"><input type="radio" name="timeSlot" value="7" /><span>7시</span></label>
+              <label class="time-chip"><input type="radio" name="timeSlot" value="8" /><span>8시</span></label>
+              <label class="time-chip"><input type="radio" name="timeSlot" value="9" /><span>9시</span></label>
+              <label class="time-chip"><input type="radio" name="timeSlot" value="10" /><span>10시</span></label>
+              <label class="time-chip"><input type="radio" name="timeSlot" value="11" /><span>11시</span></label>
+              <label class="time-chip"><input type="radio" name="timeSlot" value="12" /><span>12시</span></label>
+              <label class="time-chip"><input type="radio" name="timeSlot" value="13" /><span>13시</span></label>
+              <label class="time-chip"><input type="radio" name="timeSlot" value="14" /><span>14시</span></label>
+              <label class="time-chip"><input type="radio" name="timeSlot" value="15" /><span>15시</span></label>
+              <label class="time-chip"><input type="radio" name="timeSlot" value="16" /><span>16시</span></label>
+              <label class="time-chip"><input type="radio" name="timeSlot" value="17" /><span>17시</span></label>
+              <label class="time-chip"><input type="radio" name="timeSlot" value="18" /><span>18시</span></label>
+            </div>
+            <div class="sub" style="margin-top:12px;">배차 상황에 따라 최종 시간은 상담 후 확정됩니다.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="card yd-card">
+          <div class="yd-section-head">
+            <div class="landing-eyebrow">STEP 4</div>
             <h2>기사 도움 여부</h2>
           </div>
-          <div class="sub">기사님이 함께 들어드려야 하는 경우에만 체크해 주세요. 출발지 10,000원 / 도착지 10,000원 추가예요.</div>
+          <div class="sub">기사님이 함께 들어드려야 하는 경우와 동승이 필요한 경우만 체크해 주세요.</div>
           <div class="yd-help-grid">
             <label class="yd-check-card">
               <input type="checkbox" id="helpFrom" />
@@ -141,6 +175,13 @@
                 <small>+10,000원</small>
               </span>
             </label>
+            <label class="yd-check-card">
+              <input type="checkbox" id="rideAlong" />
+              <span>
+                <strong>동승자 1명 탑승</strong>
+                <small>+20,000원</small>
+              </span>
+            </label>
           </div>
         </div>
       </section>
@@ -148,12 +189,13 @@
       <section class="section">
         <div class="card yd-card">
           <div class="yd-section-head">
-            <div class="landing-eyebrow">STEP 4</div>
+            <div class="landing-eyebrow">STEP 5</div>
             <h2>예상 용달비</h2>
           </div>
           <div class="yd-breakdown">
             <div class="yd-row"><span>거리 운임</span><b id="distanceFeeText">0원</b></div>
             <div class="yd-row"><span>기사 도움</span><b id="helperFeeText">0원</b></div>
+            <div class="yd-row"><span>동승자</span><b id="rideFeeText">0원</b></div>
             <div class="yd-row yd-row--total"><span>예상 금액</span><b id="totalFeeText">0원</b></div>
           </div>
           <div class="result-cta-stack">

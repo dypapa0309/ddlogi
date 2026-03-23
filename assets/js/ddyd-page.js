@@ -3,6 +3,7 @@
 
   const PHONE_NUMBER = "01075416143";
   const HELPER_FEE = 10000;
+  const RIDE_ALONG_FEE = 20000;
   const BASE_VEHICLE_FEE = 27000;
 
   function trackEvent(action, extra = {}) {
@@ -23,6 +24,9 @@
     selected: {},
     helperFrom: false,
     helperTo: false,
+    rideAlong: false,
+    moveDate: "",
+    timeSlot: "",
   };
 
   const ITEM_GROUPS = {
@@ -92,10 +96,13 @@
     distanceText: $("#distanceText"),
     distanceMeta: $("#distanceMeta"),
     summary: $("#selectedItemsSummary"),
+    moveDate: $("#moveDate"),
     helpFrom: $("#helpFrom"),
     helpTo: $("#helpTo"),
+    rideAlong: $("#rideAlong"),
     distanceFeeText: $("#distanceFeeText"),
     helperFeeText: $("#helperFeeText"),
+    rideFeeText: $("#rideFeeText"),
     totalFeeText: $("#totalFeeText"),
     smsBtn: $("#smsBtn"),
     modal: $("#itemsModal"),
@@ -137,8 +144,12 @@
     return (state.helperFrom ? HELPER_FEE : 0) + (state.helperTo ? HELPER_FEE : 0);
   }
 
+  function rideFee() {
+    return state.rideAlong ? RIDE_ALONG_FEE : 0;
+  }
+
   function totalFee() {
-    return moveDistanceFee(state.distanceKm) + helperFee();
+    return moveDistanceFee(state.distanceKm) + helperFee() + rideFee();
   }
 
   function currentSelectedEntries() {
@@ -159,6 +170,7 @@
   function renderFees() {
     els.distanceFeeText.textContent = formatWon(moveDistanceFee(state.distanceKm));
     els.helperFeeText.textContent = formatWon(helperFee());
+    els.rideFeeText.textContent = formatWon(rideFee());
     els.totalFeeText.textContent = formatWon(totalFee());
   }
 
@@ -394,20 +406,35 @@
   function smsBody() {
     const items = currentSelectedEntries();
     const helperText = [state.helperFrom ? "출발지 도움" : null, state.helperTo ? "도착지 도움" : null].filter(Boolean).join(", ") || "없음";
+    const schedule = `${state.moveDate || "-"} / ${state.timeSlot ? `${state.timeSlot}시` : "-"}`;
     const total = totalFee();
     const deposit = Math.round(total * 0.2);
     const balance = total - deposit;
     return [
       "당고 용달 예약 문의",
+      `이동 일정: ${schedule}`,
       `출발지: ${state.startAddress || "-"}`,
       `도착지: ${state.endAddress || "-"}`,
       `거리: ${state.distanceKm > 0 ? `${state.distanceKm.toFixed(1)}km` : "-"}`,
       `선택 품목: ${items.length ? items.join(", ") : "없음"}`,
       `기사 도움: ${helperText}`,
+      `동승자: ${state.rideAlong ? "1명" : "없음"}`,
       `예상 용달비: ${formatWon(total)}`,
       `예약금(20%): ${formatWon(deposit)}`,
       `잔금(80%): ${formatWon(balance)}`,
     ].join("\n");
+  }
+
+  function validateBeforeSubmit() {
+    if (!state.startAddress || !state.endAddress || state.distanceKm <= 0) {
+      alert("먼저 출발지와 도착지를 입력하고 거리 계산을 해줘.");
+      return false;
+    }
+    if (!state.moveDate || !state.timeSlot) {
+      alert("이동 날짜와 시간을 선택해줘.");
+      return false;
+    }
+    return true;
   }
 
   async function copyToClipboard(text) {
@@ -447,6 +474,7 @@
   }
 
   async function goSms() {
+    if (!validateBeforeSubmit()) return;
     trackEvent("quote_submit_click", { contact_channel: "sms", event_label: "yongdal_result_cta" });
     const message = smsBody();
     await copyToClipboard(message);
@@ -455,8 +483,24 @@
 
   $$(".yd-size-card").forEach((btn) => btn.addEventListener("click", () => openModal(btn.dataset.size)));
   els.calcBtn?.addEventListener("click", calculateDistance);
+  if (els.moveDate) {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    els.moveDate.min = `${yyyy}-${mm}-${dd}`;
+    els.moveDate.addEventListener("change", (e) => {
+      state.moveDate = e.target.value || "";
+    });
+  }
+  $$('input[name="timeSlot"]').forEach((radio) => {
+    radio.addEventListener("change", (e) => {
+      if (e.target.checked) state.timeSlot = String(e.target.value || "");
+    });
+  });
   els.helpFrom?.addEventListener("change", (e) => { state.helperFrom = e.target.checked; renderFees(); });
   els.helpTo?.addEventListener("change", (e) => { state.helperTo = e.target.checked; renderFees(); });
+  els.rideAlong?.addEventListener("change", (e) => { state.rideAlong = e.target.checked; renderFees(); });
   els.smsBtn?.addEventListener("click", goSms);
   els.modalConfirmBtn?.addEventListener("click", closeModal);
   document.querySelectorAll('a[href^="tel:"]').forEach((el) => {
