@@ -123,12 +123,13 @@ function setupStickyBarToggle() {
   const stickyBar = document.getElementById("stickyPriceBar");
   const toggleBtn = document.getElementById("stickyToggleBtn");
   if (!stickyBar || !toggleBtn) return;
+  const isEnglish = (document.body?.dataset.lang || "").toLowerCase() === "en";
 
   const setExpanded = (expanded) => {
     stickyBar.classList.toggle("is-expanded", expanded);
     stickyBar.classList.toggle("is-collapsed", !expanded);
     toggleBtn.setAttribute("aria-expanded", expanded ? "true" : "false");
-    toggleBtn.textContent = expanded ? "접기" : "상세";
+    toggleBtn.textContent = expanded ? (isEnglish ? "Hide" : "접기") : (isEnglish ? "Details" : "상세");
   };
 
   setExpanded(false);

@@ -186,38 +186,38 @@ content="DDLOGI provides transparent small-move estimates in Korea. Enter distan
       <div data-only="move">
         <h2>Distance</h2>
         <div class="card">
-          <div class="sub">Pickup 주소</div>
-          <input type="text" id="startAddress" class="address-input" placeholder="예: 서울특별시 강남구 테헤란로 152" />
+          <div class="sub">Pickup address</div>
+          <input type="text" id="startAddress" class="address-input" placeholder="Example: 152 Teheran-ro, Gangnam-gu, Seoul" />
 
           <div class="option" style="margin-top:12px;">
             <div>
-              Stopover가 있다면 체크해주세요
+              Check this if you have a stopover
               <div class="sub" style="margin:6px 0 0;">Start -> stopover -> destination total distance</div>
             </div>
             <input type="checkbox" id="hasWaypoint" />
           </div>
 
           <div id="waypointWrap" style="display:none; margin-top:10px;">
-            <div class="sub">Stopover 주소</div>
-            <input type="text" id="waypointAddress" class="address-input" placeholder="예: 경기도 성남시 분당구..." />
+            <div class="sub">Stopover address</div>
+            <input type="text" id="waypointAddress" class="address-input" placeholder="Example: Bundang-gu, Seongnam-si, Gyeonggi-do" />
 
             <div class="waypoint-tools">
               <div class="sub" style="margin-top:12px;">Stopover Details</div>
               <div class="waypoint-actions">
-                <button type="button" class="wizard-primary" id="openWaypointSetupModalBtn" data-open-modal="waypointSetupModal">Stopover Details하기</button>
+                <button type="button" class="wizard-primary" id="openWaypointSetupModalBtn" data-open-modal="waypointSetupModal">Open stopover details</button>
               </div>
-              <div class="mini-summary" id="waypointLoadMiniSummary">Stopover 짐양: 선택 None</div>
-              <div class="mini-summary" id="waypointItemsMiniSummary">Stopover Furniture & Appliances: 선택 None</div>
-              <div class="mini-summary" id="waypointItemsNotePreview" style="margin-top:10px; opacity:.9;">Stopover 짐 Notes: None</div>
-              <div class="mini-summary" id="waypointThrowMiniSummary" style="margin-top:10px;">Stopover 버려주세요: 선택 None</div>
-              <div class="mini-summary" id="waypointThrowNotePreview" style="margin-top:10px; opacity:.9;">Stopover 버려주세요 Notes: None</div>
-              <div class="mini-summary" id="waypointCarryMiniSummary" style="margin-top:10px;">Stopover 계단: Elevator 있음</div>
+              <div class="mini-summary" id="waypointLoadMiniSummary">Stopover load: None selected</div>
+              <div class="mini-summary" id="waypointItemsMiniSummary">Stopover furniture & appliances: None selected</div>
+              <div class="mini-summary" id="waypointItemsNotePreview" style="margin-top:10px; opacity:.9;">Stopover notes: None</div>
+              <div class="mini-summary" id="waypointThrowMiniSummary" style="margin-top:10px;">Stopover throw-away items: None selected</div>
+              <div class="mini-summary" id="waypointThrowNotePreview" style="margin-top:10px; opacity:.9;">Stopover throw-away notes: None</div>
+              <div class="mini-summary" id="waypointCarryMiniSummary" style="margin-top:10px;">Stopover stairs: Elevator available</div>
               <div class="mini-summary" id="waypointLadderMiniSummary" style="margin-top:10px;">Stopover Ladder Truck: Not needed</div>
             </div>
           </div>
 
-          <div class="sub" style="margin-top: 15px;">Drop-off 주소</div>
-          <input type="text" id="endAddress" class="address-input" placeholder="예: 경기도 부천시 상동로 87" />
+          <div class="sub" style="margin-top: 15px;">Drop-off address</div>
+          <input type="text" id="endAddress" class="address-input" placeholder="Example: 87 Sangdong-ro, Bucheon-si, Gyeonggi-do" />
 
           <button id="calcDistance" class="calc-btn" type="button">Calculate Distance</button>
 
@@ -230,10 +230,10 @@ content="DDLOGI provides transparent small-move estimates in Korea. Enter distan
       <div data-only="clean">
         <h2>Cleaning Address</h2>
         <div class="card">
-          <div class="sub">주소</div>
-          <input type="text" id="cleanAddress" class="address-input" placeholder="예: 인천광역시 미추홀구..." />
-          <div class="sub" style="margin-top:12px;">추가 메모</div>
-          <textarea id="cleanAddressNote" class="address-input" rows="2" placeholder="예: 공동현관 비밀번호 / 주차방법 등"></textarea>
+          <div class="sub">Address</div>
+          <input type="text" id="cleanAddress" class="address-input" placeholder="Example: Michuhol-gu, Incheon" />
+          <div class="sub" style="margin-top:12px;">Extra note</div>
+          <textarea id="cleanAddressNote" class="address-input" rows="2" placeholder="Example: door code / parking instructions"></textarea>
         </div>
       </div>
     </section>
@@ -245,7 +245,7 @@ content="DDLOGI provides transparent small-move estimates in Korea. Enter distan
 
         <div class="section-center"><div class="sub">Moving date</div></div>
         <div class="date-wrap">
-          <input type="date" id="moveDate" class="address-input date-input" required />
+          <input type="date" id="moveDate" class="address-input date-input" lang="en" required />
           <span class="date-icon" aria-hidden="true"></span>
         </div>
 
@@ -253,7 +253,7 @@ content="DDLOGI provides transparent small-move estimates in Korea. Enter distan
 
         <div class="section-center"><div class="sub">Preferred time</div></div>
 
-        <div class="time-grid" aria-label="Preferred time 선택">
+        <div class="time-grid" aria-label="Preferred time">
           <label class="time-chip"><input type="radio" name="timeSlot" value="7" /><span>7 AM</span></label>
           <label class="time-chip"><input type="radio" name="timeSlot" value="8" /><span>8 AM</span></label>
           <label class="time-chip"><input type="radio" name="timeSlot" value="9" /><span>9 AM</span></label>
@@ -697,10 +697,10 @@ content="DDLOGI provides transparent small-move estimates in Korea. Enter distan
         </button>
 
         <div id="ddBizInfo" class="dd-footer-biz" hidden>
-          <div class="dd-footer-line"><b>상호</b> 이상한 회사 · <b>대표</b> 이상빈</div>
-          <div class="dd-footer-line"><b>사업자등록번호</b> 876-28-01550</div>
-          <div class="dd-footer-line"><b>주소</b> 경기도 부천시 상동로87 가나베스트타운쓰리, 803-102호</div>
-          <div class="dd-footer-line"><b>연락처</b> 010-4094-1666 · <b>이메일</b> dypapa0309@gmail.com</div>
+          <div class="dd-footer-line"><b>Business name</b> Strange Company · <b>Representative</b> Sangbin Lee</div>
+          <div class="dd-footer-line"><b>Business registration number</b> 876-28-01550</div>
+          <div class="dd-footer-line"><b>Address</b> 803-102, Gana Best Town 3, 87 Sangdong-ro, Bucheon-si, Gyeonggi-do</div>
+          <div class="dd-footer-line"><b>Contact</b> 010-4094-1666 · <b>Email</b> dypapa0309@gmail.com</div>
           <div class="dd-footer-line dd-footer-muted">© DDLOGI. All rights reserved.</div>
         </div>
       </div>
@@ -715,10 +715,13 @@ content="DDLOGI provides transparent small-move estimates in Korea. Enter distan
       <div class="sticky-left">
         <div class="sticky-label">Current estimated amount</div>
         <div class="sticky-price" id="stickyPrice">₩0</div>
-        <div class="sticky-under">
-          <br>Estimated Quote은 <br>than the average of 7 providers <br>약 <b>13.8% 저렴합니다</b>
+        <div class="sticky-under" id="stickyPriceDetail">
+          <br>This estimate is <br>about <b>13.8% lower</b> <br>than the average of 7 providers
         </div>
       </div>
+      <button type="button" class="sticky-toggle" id="stickyToggleBtn" aria-expanded="false" aria-controls="stickyPriceDetail">
+        Details
+      </button>
     </div>
   </div>
 
