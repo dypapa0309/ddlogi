@@ -90,6 +90,7 @@
   const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
   const els = {
+    dateWrap: $(".date-wrap"),
     start: $("#startAddress"),
     end: $("#endAddress"),
     calcBtn: $("#calcDistanceBtn"),
@@ -489,6 +490,11 @@
     const mm = String(today.getMonth() + 1).padStart(2, "0");
     const dd = String(today.getDate()).padStart(2, "0");
     els.moveDate.min = `${yyyy}-${mm}-${dd}`;
+    els.dateWrap?.addEventListener("click", () => {
+      els.moveDate.focus();
+      if (typeof els.moveDate.showPicker === "function") els.moveDate.showPicker();
+      else els.moveDate.click();
+    });
     els.moveDate.addEventListener("change", (e) => {
       state.moveDate = e.target.value || "";
     });
