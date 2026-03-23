@@ -1291,16 +1291,58 @@ function normalizeItemKey(k) {
       renderAll();
     }
 
+    function normalizeAddressForSearch(addr) {
+      return String(addr || "")
+        .replace(/\s+/g, " ")
+        .replace(/,.*$/g, "")
+        .replace(/\b\d+\s*동\b/gi, "")
+        .replace(/\b\d+\s*호\b/gi, "")
+        .replace(/\b\d+\s*층\b/gi, "")
+        .replace(/\bB\d+\s*층\b/gi, "")
+        .replace(/\([^)]*\)/g, "")
+        .trim();
+    }
+
     function geocode(geocoder, addr) {
       return new Promise((resolve, reject) => {
         if (!addr) return reject(new Error("empty address"));
-        geocoder.addressSearch(addr, (result, status) => {
-          if (status === window.kakao.maps.services.Status.OK && result && result[0]) {
-            resolve({ lat: Number(result[0].y), lng: Number(result[0].x) });
-          } else {
+
+        const services = window.kakao?.maps?.services;
+        const statusOk = services?.Status?.OK;
+        const places = services ? new services.Places() : null;
+        const candidates = Array.from(
+          new Set([String(addr || "").trim(), normalizeAddressForSearch(addr)].filter(Boolean))
+        );
+
+        const tryKeywordSearch = (keywordIndex = 0) => {
+          if (!places || keywordIndex >= candidates.length) {
             reject(new Error("geocode failed"));
+            return;
           }
-        });
+          places.keywordSearch(candidates[keywordIndex], (result, status) => {
+            if (status === statusOk && result && result[0]) {
+              resolve({ lat: Number(result[0].y), lng: Number(result[0].x) });
+              return;
+            }
+            tryKeywordSearch(keywordIndex + 1);
+          });
+        };
+
+        const tryAddressSearch = (index = 0) => {
+          if (index >= candidates.length) {
+            tryKeywordSearch(0);
+            return;
+          }
+          geocoder.addressSearch(candidates[index], (result, status) => {
+            if (status === statusOk && result && result[0]) {
+              resolve({ lat: Number(result[0].y), lng: Number(result[0].x) });
+              return;
+            }
+            tryAddressSearch(index + 1);
+          });
+        };
+
+        tryAddressSearch(0);
       });
     }
 
@@ -1346,7 +1388,7 @@ function normalizeItemKey(k) {
           if (distanceText) distanceText.textContent = "주소를 다시 확인해주세요";
           const hasDetail = isLikelyDetailedAddress(start) || isLikelyDetailedAddress(end) || (state.hasWaypoint && isLikelyDetailedAddress(wp));
           if (hasDetail) showAddressGuidePopup();
-          else alert("거리 계산에 실패했어. 주소를 더 구체적으로 입력해줘 (도로명/건물명 추천).");
+          else alert("거리 계산에 실패했어. 동·호수는 빼고 도로명주소나 건물명까지만 입력해줘.");
         }
       });
     }

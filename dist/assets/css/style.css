@@ -647,9 +647,11 @@ hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
   font-weight:1100;
   border:1px solid rgba(17,24,39,0.10);
   background:#FFFFFF;
+  color:#0F172A;
 }
 .contact-btn.ghost{
   background:#F8FAFC;
+  color:#0F172A;
   opacity:0.95;
 }
 .contact-btn.ghost:hover{ opacity:1; }
