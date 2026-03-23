@@ -138,6 +138,7 @@ ensureDir(DIST);
 // 2) 폴더 복사
 copyRecursive(path.join(ROOT, "assets"), path.join(DIST, "assets"));
 copyRecursive(path.join(ROOT, "calculator"), path.join(DIST, "calculator"));
+copyRecursive(path.join(ROOT, "ddyd"), path.join(DIST, "ddyd"));
 copyRecursive(path.join(ROOT, "en"), path.join(DIST, "en"));
 copyRecursive(path.join(ROOT, "ddclean"), path.join(DIST, "ddclean"));
 copyRecursive(path.join(ROOT, "admin"), path.join(DIST, "admin"));

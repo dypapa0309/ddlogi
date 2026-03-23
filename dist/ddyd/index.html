@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>당고 용달 계산기 | 차만 필요한 간단 용달</title>
+  <meta name="description" content="당고 용달 계산기입니다. 출발지와 도착지 주소를 넣고 거리 계산 후, 짐 크기와 기사 도움 여부만 선택하면 예상 용달비와 문자 예약 내용을 바로 확인할 수 있습니다." />
+  <meta name="keywords" content="용달, 당고 용달, 전국용달, 당일용달, 용달예약, 용달비용, 용달요금, 1톤용달, 소형이사, 짐운반, 화물운송, 용달차, 용달기사" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://ddlogi.netlify.app/ddyd/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="당고 용달 | 거리 계산으로 바로 보는 간단 용달비" />
+  <meta property="og:description" content="주소 입력 → 거리 계산 → 짐 크기 선택 → 문자 상담까지 한 번에 이어지는 당고 용달 계산기입니다." />
+  <meta property="og:image" content="https://ddlogi.netlify.app/assets/img/hero-truck.jpg" />
+  <meta property="og:url" content="https://ddlogi.netlify.app/ddyd/" />
+  <meta property="og:locale" content="ko_KR" />
+
+  <meta name="naver-site-verification" content="678161b38e6ea859e9e863da9807f759ce7e331e" />
+  <meta name="google-site-verification" content="2Ty8rFRVnpPuNKFrt7b8DAno9v7kEe1f7Pnr9_bRcsU" />
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KML8CS1NXL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KML8CS1NXL');
+  </script>
+
+  <script
+    type="text/javascript"
+    src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e72755495282830e0006d49708dabe5b&libraries=services&autoload=false">
+  </script>
+
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body data-lang="ko">
+  <div class="container">
+    <div class="page-linkbar page-linkbar--space">
+      <div class="page-linkbar__group">
+        <a class="page-link" href="/">홈화면</a>
+        <a class="page-link" href="/calculator/">당고 소형이사</a>
+        <a class="page-link" href="/ddclean/">당고 입주청소</a>
+        <a class="page-link is-current" href="/ddyd/">당고 용달</a>
+        <a class="page-link" href="/en/">English Page</a>
+      </div>
+      <div class="langbar" role="navigation" aria-label="Language switch">
+        <a class="lang-pill" href="/ddyd/" data-lang="ko" aria-current="page">KR</a>
+        <a class="lang-pill" href="/en/" data-lang="en">EN</a>
+      </div>
+    </div>
+
+    <section class="section page-intro-card">
+      <div class="card">
+        <div class="landing-eyebrow">당장 필요할 때 당장 고고, 당고!</div>
+        <h1 style="margin:14px 0 8px; font-size:30px; line-height:1.2; letter-spacing:-0.04em;">당고 용달 계산기로 바로 계산하세요</h1>
+        <div class="sub">차만 필요한 간단한 용달이라면 거리와 짐 크기만 넣고 바로 예상 금액을 확인할 수 있어요.</div>
+      </div>
+    </section>
+
+    <main class="yd-shell">
+      <section class="section">
+        <div class="card yd-card">
+          <div class="yd-section-head">
+            <div class="landing-eyebrow">STEP 1</div>
+            <h2>출발지 · 도착지 · 거리 계산</h2>
+          </div>
+          <div class="yd-grid yd-grid--two">
+            <label class="field">
+              <span>출발지 주소</span>
+              <input type="text" id="startAddress" class="address-input" placeholder="예: 부개동, 부평구청역, 인천 부평구 부개동" autocomplete="street-address" />
+            </label>
+            <label class="field">
+              <span>도착지 주소</span>
+              <input type="text" id="endAddress" class="address-input" placeholder="예: 화곡동, 까치산역, 서울 강서구 화곡동" autocomplete="street-address" />
+            </label>
+          </div>
+          <div class="yd-distance-box">
+            <button type="button" class="contact-btn mega yd-calc-btn" id="calcDistanceBtn">거리 계산하기</button>
+            <div class="mini-summary yd-distance-result">
+              <div class="yd-distance-line"><span>계산된 거리</span><strong id="distanceText">주소를 입력해주세요</strong></div>
+              <div class="sub" id="distanceMeta">부개동·화곡동·까치산역 같은 러프한 주소도 최대한 계산해드려요.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="card yd-card">
+          <div class="yd-section-head">
+            <div class="landing-eyebrow">STEP 2</div>
+            <h2>짐 크기 선택</h2>
+          </div>
+          <div class="sub">품목별 금액은 따로 없어요. 어떤 짐인지 빠르게 파악하기 위한 선택이에요.</div>
+          <div class="yd-size-grid">
+            <button type="button" class="yd-size-card" data-size="small">
+              <span class="yd-size-name">소형짐</span>
+              <span class="yd-size-desc">가방, 모니터, 전자레인지 같은 가벼운 짐</span>
+            </button>
+            <button type="button" class="yd-size-card" data-size="medium">
+              <span class="yd-size-name">중형짐</span>
+              <span class="yd-size-desc">책상, 행거, 자전거, 소형 가전</span>
+            </button>
+            <button type="button" class="yd-size-card" data-size="large">
+              <span class="yd-size-name">대형짐</span>
+              <span class="yd-size-desc">냉장고, 침대, 소파, 안마의자 등</span>
+            </button>
+          </div>
+          <div class="mini-summary" id="selectedItemsSummary">아직 선택한 짐이 없어요.</div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="card yd-card">
+          <div class="yd-section-head">
+            <div class="landing-eyebrow">STEP 3</div>
+            <h2>기사 도움 여부</h2>
+          </div>
+          <div class="sub">기사님이 함께 들어드려야 하는 경우에만 체크해 주세요. 출발지 10,000원 / 도착지 10,000원 추가예요.</div>
+          <div class="yd-help-grid">
+            <label class="yd-check-card">
+              <input type="checkbox" id="helpFrom" />
+              <span>
+                <strong>출발지에서 기사 도움</strong>
+                <small>+10,000원</small>
+              </span>
+            </label>
+            <label class="yd-check-card">
+              <input type="checkbox" id="helpTo" />
+              <span>
+                <strong>도착지에서 기사 도움</strong>
+                <small>+10,000원</small>
+              </span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="card yd-card">
+          <div class="yd-section-head">
+            <div class="landing-eyebrow">STEP 4</div>
+            <h2>예상 용달비</h2>
+          </div>
+          <div class="yd-breakdown">
+            <div class="yd-row"><span>거리 운임</span><b id="distanceFeeText">0원</b></div>
+            <div class="yd-row"><span>기사 도움</span><b id="helperFeeText">0원</b></div>
+            <div class="yd-row yd-row--total"><span>예상 금액</span><b id="totalFeeText">0원</b></div>
+          </div>
+          <div class="result-cta-stack">
+            <button type="button" class="contact-btn mega result-main-cta" id="smsBtn">문자 상담 / 예약하기</button>
+            <div class="mini-summary">문자 내용에 출발지, 도착지, 거리, 선택 짐, 기사 도움 여부와 함께 예약금 20% / 잔금 80%가 자동으로 들어가요.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="card yd-card">
+          <div class="yd-transfer-copy">짐이 많거나, 포장·운반까지 함께 필요하신가요?</div>
+          <a class="contact-btn ghost" href="/calculator/" style="text-decoration:none;">당고 소형이사 계산기로 이동하기</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="itemsModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="짐 선택">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <div class="modal-title" id="modalTitle">짐 선택</div>
+        <button class="modal-x" type="button" data-close-modal aria-label="닫기">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="sub" id="modalCopy">해당하는 짐을 선택해 주세요.</p>
+        <div class="yd-modal-list" id="modalList"></div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="wizard-btn" id="modalConfirmBtn">선택 완료</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="quick-contact-dock" aria-label="빠른 상담">
+    <a class="quick-contact-dock__btn quick-contact-dock__btn--call" href="tel:01075416143" aria-label="전화 상담">
+      <span class="quick-contact-dock__label">
+        <span class="quick-contact-dock__icon">📞</span>
+        <span class="quick-contact-dock__text">전화</span>
+      </span>
+    </a>
+    <a class="quick-contact-dock__btn" href="sms:01075416143" aria-label="문자 상담">
+      <span class="quick-contact-dock__label">
+        <span class="quick-contact-dock__icon">💬</span>
+        <span class="quick-contact-dock__text">문자</span>
+      </span>
+    </a>
+  </div>
+
+  <script src="/assets/js/ddyd-page.js"></script>
+</body>
+</html>
