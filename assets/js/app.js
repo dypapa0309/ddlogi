@@ -3347,6 +3347,157 @@ const borderColors = comparison.labels.map((label) =>
 
     updateStickyBarVisibility();
 
+    function setElementValue(id, value, eventName = "input") {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.value = value;
+      el.dispatchEvent(new Event(eventName, { bubbles: true }));
+    }
+
+    function setElementChecked(id, checked) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.checked = !!checked;
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    function setRadioValue(name, value) {
+      const target = document.querySelector(`input[name="${name}"][value="${CSS.escape(String(value))}"]`);
+      if (!target) return;
+      target.checked = true;
+      target.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    function getAvailableMoveItems() {
+      return Array.from(document.querySelectorAll('.itemQty[data-item]'))
+        .map((input) => input.getAttribute('data-item'))
+        .filter(Boolean);
+    }
+
+    async function applyAiPatch(patch = {}) {
+      if (state.activeService === SERVICE.CLEAN) {
+        if (patch.clean_type) setRadioValue("cleanType", patch.clean_type);
+        if (patch.clean_soil) setRadioValue("cleanSoil", patch.clean_soil);
+        if (patch.move_date) setElementValue("moveDate", patch.move_date, "change");
+        if (patch.time_slot) setRadioValue("timeSlot", patch.time_slot);
+        if (patch.clean_pyeong != null) setStepperValue(document.getElementById("cleanPyeong"), patch.clean_pyeong);
+        if (patch.clean_rooms != null) setStepperValue(document.getElementById("cleanRooms"), patch.clean_rooms);
+        if (patch.clean_baths != null) setStepperValue(document.getElementById("cleanBaths"), patch.clean_baths);
+        if (patch.clean_balconies != null) setStepperValue(document.getElementById("cleanBalconies"), patch.clean_balconies);
+        if (patch.clean_wardrobes != null) setStepperValue(document.getElementById("cleanWardrobes"), patch.clean_wardrobes);
+        if (patch.clean_address) setElementValue("cleanAddress", patch.clean_address);
+        if (patch.clean_note) setElementValue("cleanNote", patch.clean_note);
+        if (patch.clean_parking_hard != null) setElementChecked("cleanParkingHard", patch.clean_parking_hard);
+        if (patch.clean_no_elevator != null) setElementChecked("cleanNoElevator", patch.clean_no_elevator);
+        if (patch.clean_floor != null) setStepperValue(document.getElementById("cleanFloor"), patch.clean_floor);
+        if (patch.clean_outer_window_enabled != null) setElementChecked("cleanOuterWindowEnabled", patch.clean_outer_window_enabled);
+        if (patch.clean_outer_window_pyeong != null) setStepperValue(document.getElementById("cleanOuterWindowPyeong"), patch.clean_outer_window_pyeong);
+        if (patch.clean_phytoncide_enabled != null) setElementChecked("cleanPhytoncideEnabled", patch.clean_phytoncide_enabled);
+        if (patch.clean_disinfect_enabled != null) setElementChecked("cleanDisinfectEnabled", patch.clean_disinfect_enabled);
+        renderAll();
+        return;
+      }
+
+      if (patch.vehicle) {
+        const vehicleCard = document.querySelector(`.vehicle[data-vehicle="${CSS.escape(String(patch.vehicle))}"]`);
+        vehicleCard?.click();
+      }
+      if (patch.move_type) setRadioValue("moveType", patch.move_type);
+      if (patch.move_date) setElementValue("moveDate", patch.move_date, "change");
+      if (patch.time_slot) setRadioValue("timeSlot", patch.time_slot);
+      if (patch.start_address) setElementValue("startAddress", patch.start_address);
+      if (patch.end_address) setElementValue("endAddress", patch.end_address);
+      if (patch.has_waypoint != null) setElementChecked("hasWaypoint", patch.has_waypoint);
+      if (patch.waypoint_address) setElementValue("waypointAddress", patch.waypoint_address);
+      if (patch.load_level != null) setRadioValue("load", patch.load_level);
+      if (patch.no_from != null) setElementChecked("noFrom", patch.no_from);
+      if (patch.from_floor != null) setStepperValue(document.getElementById("fromFloor"), patch.from_floor);
+      if (patch.no_to != null) setElementChecked("noTo", patch.no_to);
+      if (patch.to_floor != null) setStepperValue(document.getElementById("toFloor"), patch.to_floor);
+      if (patch.helper_from != null) setElementChecked("helperFrom", patch.helper_from);
+      if (patch.helper_to != null) setElementChecked("helperTo", patch.helper_to);
+      if (patch.cant_carry_from != null) setElementChecked("cantCarryFrom", patch.cant_carry_from);
+      if (patch.cant_carry_to != null) setElementChecked("cantCarryTo", patch.cant_carry_to);
+      if (patch.ladder_from_enabled != null) setElementChecked("ladderFromEnabled", patch.ladder_from_enabled);
+      if (patch.ladder_from_floor != null) setStepperValue(document.getElementById("ladderFromFloor"), patch.ladder_from_floor);
+      if (patch.ladder_to_enabled != null) setElementChecked("ladderToEnabled", patch.ladder_to_enabled);
+      if (patch.ladder_to_floor != null) setStepperValue(document.getElementById("ladderToFloor"), patch.ladder_to_floor);
+      if (patch.ride != null) setStepperValue(document.getElementById("ride"), patch.ride);
+      if (patch.items && typeof patch.items === "object") {
+        Object.entries(patch.items).forEach(([key, qty]) => setItemQty(key, qty));
+        syncItemsModalFromState();
+      }
+      if (patch.mattress_sizes && typeof patch.mattress_sizes === "object") {
+        Object.entries(patch.mattress_sizes).forEach(([sizeKey, qty]) => setMattressSize(sizeKey, qty));
+      }
+      if (patch.items_note) setElementValue("itemsNote", patch.items_note);
+
+      renderAll();
+      if (state.startAddress && state.endAddress) {
+        calcDistanceKm();
+      }
+    }
+
+    window.DDLOGI_AI = {
+      serviceType: TRACK_SERVICE,
+      getSnapshot() {
+        if (state.activeService === SERVICE.CLEAN) {
+          return {
+            service_type: "cleaning",
+            move_date: state.moveDate,
+            time_slot: state.timeSlot,
+            clean_type: state.cleanType,
+            clean_soil: state.cleanSoil,
+            clean_pyeong: state.cleanPyeong,
+            clean_rooms: state.cleanRooms,
+            clean_baths: state.cleanBaths,
+            clean_balconies: state.cleanBalconies,
+            clean_wardrobes: state.cleanWardrobes,
+            clean_address: state.cleanAddress,
+            clean_parking_hard: state.cleanParkingHard,
+            clean_no_elevator: state.cleanNoElevator,
+            clean_floor: state.cleanFloor,
+            clean_outer_window_enabled: state.cleanOuterWindowEnabled,
+            clean_outer_window_pyeong: state.cleanOuterWindowPyeong,
+            clean_phytoncide_enabled: state.cleanPhytoncideEnabled,
+            clean_disinfect_enabled: state.cleanDisinfectEnabled,
+            clean_note: state.cleanNote,
+          };
+        }
+
+        return {
+          service_type: "small_move",
+          vehicle: state.vehicle,
+          move_type: state.moveType,
+          move_date: state.moveDate,
+          time_slot: state.timeSlot,
+          start_address: state.startAddress,
+          end_address: state.endAddress,
+          has_waypoint: state.hasWaypoint,
+          waypoint_address: state.waypointAddress,
+          load_level: state.loadLevel,
+          no_from: state.noFrom,
+          from_floor: state.fromFloor,
+          no_to: state.noTo,
+          to_floor: state.toFloor,
+          helper_from: state.helperFrom,
+          helper_to: state.helperTo,
+          cant_carry_from: state.cantCarryFrom,
+          cant_carry_to: state.cantCarryTo,
+          ladder_from_enabled: state.ladderFromEnabled,
+          ladder_from_floor: state.ladderFromFloor,
+          ladder_to_enabled: state.ladderToEnabled,
+          ladder_to_floor: state.ladderToFloor,
+          ride: state.ride,
+          items: state.items,
+          mattress_sizes: state.mattressSizes,
+          items_note: state.itemsNote,
+          available_items: getAvailableMoveItems(),
+        };
+      },
+      applyPatch: applyAiPatch,
+    };
+
     window.addEventListener("load", updateStickyBarVisibility);
   });
 })();

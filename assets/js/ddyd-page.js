@@ -482,6 +482,43 @@
     redirectToLeadclearPage(message);
   }
 
+  async function applyAiPatch(patch = {}) {
+    function setValue(input, value, eventName = "input") {
+      if (!input) return;
+      input.value = value;
+      input.dispatchEvent(new Event(eventName, { bubbles: true }));
+    }
+
+    function setChecked(input, checked) {
+      if (!input) return;
+      input.checked = !!checked;
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    function setRadioValue(name, value) {
+      const radio = document.querySelector(`input[name="${name}"][value="${CSS.escape(String(value))}"]`);
+      if (!radio) return;
+      radio.checked = true;
+      radio.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    if (patch.start_address) setValue(els.start, patch.start_address);
+    if (patch.end_address) setValue(els.end, patch.end_address);
+    if (patch.move_date) setValue(els.moveDate, patch.move_date, "change");
+    if (patch.time_slot) setRadioValue("timeSlot", patch.time_slot);
+    if (patch.helper_from != null) setChecked(els.helpFrom, patch.helper_from);
+    if (patch.helper_to != null) setChecked(els.helpTo, patch.helper_to);
+    if (patch.ride_along != null) setChecked(els.rideAlong, patch.ride_along);
+    if (patch.items && typeof patch.items === "object") {
+      Object.entries(patch.items).forEach(([name, qty]) => setItemQty(name, qty));
+    }
+
+    renderAll();
+    if (state.startAddress && state.endAddress) {
+      await calculateDistance();
+    }
+  }
+
   $$(".yd-size-card").forEach((btn) => btn.addEventListener("click", () => openModal(btn.dataset.size)));
   els.calcBtn?.addEventListener("click", calculateDistance);
   if (els.moveDate) {
@@ -545,6 +582,25 @@
     if (!input) return;
     setItemQty(input.getAttribute("data-item-input"), input.value);
   });
+
+  window.DDLOGI_AI = {
+    serviceType: "yongdal",
+    getSnapshot() {
+      return {
+        service_type: "yongdal",
+        start_address: state.startAddress,
+        end_address: state.endAddress,
+        move_date: state.moveDate,
+        time_slot: state.timeSlot,
+        helper_from: state.helperFrom,
+        helper_to: state.helperTo,
+        ride_along: state.rideAlong,
+        items: state.selected,
+        available_yongdal_items: Object.values(ITEM_GROUPS).flatMap((group) => group.items.map(([name]) => name)),
+      };
+    },
+    applyPatch: applyAiPatch,
+  };
 
   renderAll();
 })();
