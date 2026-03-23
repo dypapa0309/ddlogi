@@ -38,7 +38,7 @@
 
 
     const DEFAULT_SERVICE = document.body?.dataset.defaultService || "move";
-    const SITE_BRAND = document.body?.dataset.siteBrand || (DEFAULT_SERVICE === "clean" ? "디디클린" : "디디운송");
+    const SITE_BRAND = document.body?.dataset.siteBrand || (DEFAULT_SERVICE === "clean" ? "당고 입주청소" : "당고");
     const CROSS_LINK = document.body?.dataset.crossLink || "";
     const CROSS_LABEL = document.body?.dataset.crossLabel || (DEFAULT_SERVICE === "clean" ? "이사도 필요하시다면 클릭해주세요" : "청소도 필요하시다면 클릭해주세요");
 
@@ -119,6 +119,25 @@
 
 const gaBadge = createGaFloatingBadge();
 
+function setupStickyBarToggle() {
+  const stickyBar = document.getElementById("stickyPriceBar");
+  const toggleBtn = document.getElementById("stickyToggleBtn");
+  if (!stickyBar || !toggleBtn) return;
+
+  const setExpanded = (expanded) => {
+    stickyBar.classList.toggle("is-expanded", expanded);
+    stickyBar.classList.toggle("is-collapsed", !expanded);
+    toggleBtn.setAttribute("aria-expanded", expanded ? "true" : "false");
+    toggleBtn.textContent = expanded ? "접기" : "상세";
+  };
+
+  setExpanded(false);
+  toggleBtn.addEventListener("click", () => {
+    const expanded = toggleBtn.getAttribute("aria-expanded") === "true";
+    setExpanded(!expanded);
+  });
+}
+
 async function loadGaRealtimeBadge() {
   if (!gaBadge?.badge) return;
 
@@ -189,6 +208,7 @@ async function loadGaRealtimeBadge() {
 
     loadGaRealtimeBadge();
     window.setInterval(loadGaRealtimeBadge, 30000);
+    setupStickyBarToggle();
 
     function formatWon(n) {
       const x = Math.trunc(Number(n) || 0); // ✅ 반올림 X (원단위 버림)
@@ -3083,7 +3103,7 @@ const borderColors = comparison.labels.map((label) =>
         const price = formatWon(calcCurrentPrice() * DISPLAY_MULTIPLIER);
 
         return [
-          `${SITE_BRAND} 견적 문의 (${SITE_BRAND === "디디클린" ? "입주청소" : "입주청소"})`,
+          `${SITE_BRAND} 견적 문의 (입주청소)`,
           "",
           `유형: ${type}`,
           `오염도: ${soil}`,
@@ -3173,12 +3193,12 @@ const borderColors = comparison.labels.map((label) =>
     renderAll();
 
     const askCleanBtn = $("#askClean");
-    if (askCleanBtn && CROSS_LINK) askCleanBtn.textContent = DEFAULT_SERVICE === "clean" ? "소형이사 계산기로 이동하기" : "디디클린으로 이동하기";
+    if (askCleanBtn && CROSS_LINK) askCleanBtn.textContent = DEFAULT_SERVICE === "clean" ? "당고 소형이사로 이동하기" : "당고 입주청소로 이동하기";
 
     const altServiceLink = document.querySelector(".alt-service-link");
     if (altServiceLink) {
       altServiceLink.setAttribute("href", CROSS_LINK || (DEFAULT_SERVICE === "clean" ? "/calculator/" : "/ddclean/"));
-      altServiceLink.textContent = DEFAULT_SERVICE === "clean" ? "🚚 이사도 필요하시다면 클릭해주세요" : "🧼 청소도 필요하시다면 클릭해주세요";
+      altServiceLink.textContent = DEFAULT_SERVICE === "clean" ? "🚚 당고 소형이사도 필요하시다면 클릭해주세요" : "🧼 당고 입주청소도 필요하시다면 클릭해주세요";
     }
 
     updateStickyBarVisibility();

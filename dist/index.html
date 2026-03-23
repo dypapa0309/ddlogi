@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>당고 홈화면 | 소형이사 비용 빠른 확인</title>
+  <meta name="description" content="당고 홈화면입니다. 광고 유입 고객이 빠르게 판단하고 바로 소형이사 계산기와 상담으로 이어질 수 있게 구성했습니다." />
+  <link rel="canonical" href="https://ddlogi.netlify.app/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="당고 홈화면 | 소형이사 비용 빠른 확인" />
+  <meta property="og:description" content="광고 유입 고객이 바로 소형이사 계산기와 상담으로 이어질 수 있는 당고 홈화면입니다." />
+  <meta property="og:image" content="https://ddlogi.netlify.app/assets/img/hero-bin.jpg" />
+  <meta property="og:url" content="https://ddlogi.netlify.app/" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KML8CS1NXL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KML8CS1NXL');
+  </script>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body data-lang="ko">
+  <div class="container">
+    <div class="page-linkbar page-linkbar--space">
+      <div class="page-linkbar__group">
+        <a class="page-link is-current" href="/">홈화면</a>
+        <a class="page-link" href="/calculator/">당고 소형이사</a>
+        <a class="page-link" href="/ddclean/">당고 입주청소</a>
+        <a class="page-link" href="/en/">English Page</a>
+      </div>
+      <div class="langbar" role="navigation" aria-label="Language switch">
+        <a class="lang-pill" href="/" data-lang="ko" aria-current="page">KR</a>
+        <a class="lang-pill" href="/en/" data-lang="en">EN</a>
+      </div>
+    </div>
+
+    <main class="landing-shell">
+      <section class="landing-scene landing-scene--hero">
+        <div class="landing-panel landing-panel--hero landing-reveal" data-reveal>
+          <div class="landing-eyebrow">당장 필요할 때 당장 고고, 당고!</div>
+          <div class="landing-eyebrow">1분 견적 · 추가요금 없음 · 기사 직접 연결</div>
+          <h1 class="landing-title">소형이사 비용,<br><span class="accent">지금 바로 확인</span></h1>
+          <p class="landing-copy">복잡하게 비교하지 말고, 먼저 지금 조건으로 얼마쯤 나오는지 바로 보세요.</p>
+        </div>
+      </section>
+
+      <section class="landing-scene">
+        <article class="landing-panel landing-reveal" data-reveal>
+          <div class="landing-kicker">STEP 1</div>
+          <h2 class="landing-message">먼저 소형이사 계산기로 이동해서<br>현재 조건 예상 금액을 확인합니다.</h2>
+        </article>
+      </section>
+
+      <section class="landing-scene">
+        <article class="landing-panel landing-reveal" data-reveal>
+          <div class="landing-kicker">STEP 2</div>
+          <h2 class="landing-message">결과 화면에서 바로 문자나 전화로 연결하면<br>추가 설명 없이 빠르게 접수됩니다.</h2>
+        </article>
+      </section>
+
+      <section class="landing-scene">
+        <article class="landing-panel landing-reveal" data-reveal>
+          <div class="landing-kicker">POINT</div>
+          <h2 class="landing-message">사다리차나 인부처럼 외주 비용은<br>숨기지 않고 정가 기준으로 안내합니다.</h2>
+          <p class="landing-warning">지금 미루면 같은 조건이어도 기사 수요와 시간대에 따라 금액이 올라갈 수 있습니다.</p>
+        </article>
+      </section>
+
+      <section class="landing-scene">
+        <article class="landing-panel landing-panel--live landing-reveal" data-reveal>
+          <div class="landing-kicker">LIVE</div>
+          <h2 class="landing-message">지금 들어온 사람들도<br>같은 흐름으로 견적을 보고 있습니다.</h2>
+          <div class="landing-live" id="landingRealtimeBox">
+            <div class="landing-live__title" id="landingRealtimeTitle">지금 실제 이용 흐름을 불러오는 중입니다</div>
+            <div class="landing-live__sub" id="landingRealtimeSub">배포 환경에서는 GA 실시간 함수 값을 기준으로 최근 이용 흐름을 그대로 보여줍니다.</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="landing-scene landing-scene--cta">
+        <article class="landing-panel landing-panel--cta landing-reveal" data-reveal>
+          <div class="landing-kicker">GO</div>
+          <h2 class="landing-message">바로 계산기로 들어가서<br>금액 확인 후 상담 연결하세요.</h2>
+          <div class="landing-cta-stack">
+            <a class="landing-main-cta" href="/calculator/">👉 지금 바로 비용 계산하고 상담 연결하기</a>
+            <a class="landing-sub-cta" href="tel:01075416143">📞 전화 바로 연결 (가장 빠름)</a>
+          </div>
+          <div class="landing-quicklinks">
+            <a href="/ddclean/">당고 입주청소</a>
+            <a href="/en/">영어 버전</a>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    async function loadLandingRealtime() {
+      const titleEl = document.getElementById('landingRealtimeTitle');
+      const subEl = document.getElementById('landingRealtimeSub');
+      if (!titleEl || !subEl) return;
+
+      try {
+        const res = await fetch('/.netlify/functions/gaRealtime', { cache: 'no-store' });
+        const data = await res.json();
+        if (!res.ok || !data?.ok) throw new Error(data?.error || 'GA realtime request failed');
+
+        const activeUsers = Number(data.activeUsers || 0);
+        const pageViews = Number(data.screenPageViews || 0);
+        const eventCount = Number(data.eventCount || 0);
+        const fetchedAt = data.fetchedAtKst || '-';
+
+        titleEl.textContent = activeUsers > 0
+          ? `지금 ${activeUsers.toLocaleString()}명이 견적 흐름을 보고 있습니다`
+          : '지금은 한가한 시간대지만 바로 상담 연결은 가능합니다';
+        subEl.textContent = `최근 30분 조회 ${pageViews.toLocaleString()}회 · 실시간 이벤트 ${eventCount.toLocaleString()}건 · 업데이트 ${fetchedAt}`;
+      } catch (err) {
+        titleEl.textContent = '실시간 이용 데이터를 불러오지 못했습니다';
+        subEl.textContent = '잠시 후 다시 접속하거나 소형이사 계산기에서 배지를 확인해 주세요.';
+        console.error('landing realtime load failed:', err);
+      }
+    }
+
+    loadLandingRealtime();
+    window.setInterval(loadLandingRealtime, 30000);
+
+    const revealNodes = document.querySelectorAll('[data-reveal]');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.24, rootMargin: '0px 0px -10% 0px' });
+
+    revealNodes.forEach((node) => revealObserver.observe(node));
+
+    document.querySelectorAll('a[href], button[data-track]').forEach((el) => {
+      el.addEventListener('click', () => {
+        if (typeof gtag !== 'function') return;
+        gtag('event', 'landing_click', {
+          event_category: 'conversion',
+          event_label: el.textContent.trim().slice(0, 60),
+        });
+      });
+    });
+  </script>
+</body>
+</html>
