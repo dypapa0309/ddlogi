@@ -1634,6 +1634,7 @@ function normalizeItemKey(k) {
       let nextQty = q;
 
       if (itemsModalContext === "main" && k === "침대매트리스(킹제외)") {
+        const currentQty = toInt(target[k], 0);
         const sumSizes = Object.values(state.mattressSizes).reduce((a, b) => a + toInt(b, 0), 0);
         if (nextQty <= 0) {
           Object.keys(state.mattressSizes).forEach((sizeKey) => {
@@ -1641,7 +1642,7 @@ function normalizeItemKey(k) {
           });
         } else {
           if (sumSizes > nextQty) nextQty = sumSizes;
-          if (nextQty > 0 && sumSizes === 0) openModal("mattressSizeModal");
+          if (nextQty > 0 && (sumSizes === 0 || nextQty > currentQty)) openModal("mattressSizeModal");
         }
         syncMattressSizeModalFromState();
       }
@@ -2016,7 +2017,14 @@ function normalizeItemKey(k) {
   const PRICE = {
     // 가전
     "전자레인지": 2500,
+    "에어프라이기": 2500,
+    "오븐": 7000,
+    "로봇청소기": 3000,
     "공기청정기": 5000,
+    "가습기(소형)": 3000,
+    "가습기(중형)": 5000,
+    "제습기(소형)": 7000,
+    "제습기(중형)": 10000,
     "청소기": 5000,
     "TV(55이하)": 15000,
     "TV(65이상)": 30000,
@@ -2036,13 +2044,17 @@ function normalizeItemKey(k) {
 
     "김치냉장고": 50000,
     "스타일러": 120000,
+    "안마의자": 80000,
 
     // 가구
     "의자": 2500,
     "행거": 5000,
     "협탁/사이드테이블(소형)": 10000,
     "화장대(소형)": 10000,
+    "전신거울": 5000,
     "책상/테이블(일반)": 10000,
+    "식탁(소형)": 15000,
+    "식탁(대형)": 30000,
     "서랍장(3~5단)": 10000,
     "책장(일반)": 20000,
     "수납장/TV장(일반)": 20000,
@@ -2053,7 +2065,11 @@ function normalizeItemKey(k) {
     // 침대
     "침대매트리스(킹제외)": 20000,
     "침대프레임(분해/조립)": 40000,
-    "기타가전가구(분해/조립)": 20000
+    "기타가전가구(분해/조립)": 20000,
+
+    // 기타품목
+    "자전거": 10000,
+    "전기자전거": 15000
   };
 
   // 항목별 합산
