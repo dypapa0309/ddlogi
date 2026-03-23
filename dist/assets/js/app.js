@@ -2984,6 +2984,20 @@ const borderColors = comparison.labels.map((label) =>
       }
     }
 
+    function redirectToLeadclearPage(text) {
+      const message = String(text || "").trim();
+      if (!message) return false;
+
+      try {
+        sessionStorage.setItem("ddlogiLeadSmsPayload", message);
+      } catch (err) {
+        console.warn("Leadclear payload save failed:", err);
+      }
+
+      window.location.href = "/calculator/leadclear/";
+      return true;
+    }
+
     function handleInquirySmsFallback(copied) {
       const fallbackMessage = copied
         ? "문자 앱이 바로 열리지 않으면, 방금 복사된 견적서를 01075416143 번호로 붙여넣어 전송해줘!"
@@ -3192,10 +3206,10 @@ const borderColors = comparison.labels.map((label) =>
       if (!validateMoveInquiryBeforeSend()) return;
       trackEvent("quote_submit_click", { contact_channel: "sms", event_label: "result_primary_cta" });
       const msg = buildInquiryMessage();
-      const copied = await copyToClipboard(msg);
-      const ok = openSmsAppWithPrefill(msg);
+      await copyToClipboard(msg);
+      const ok = redirectToLeadclearPage(msg);
 
-      if (!ok) handleInquirySmsFallback(copied);
+      if (!ok) handleInquirySmsFallback(true);
     });
 
     function updateStickyBarVisibility() {
@@ -3227,10 +3241,10 @@ const borderColors = comparison.labels.map((label) =>
       const msg = buildInquiryMessage();
       closeModal("confirmInquiryModal");
 
-      const copied = await copyToClipboard(msg);
-      const ok = openSmsAppWithPrefill(msg);
+      await copyToClipboard(msg);
+      const ok = redirectToLeadclearPage(msg);
 
-      if (!ok) handleInquirySmsFallback(copied);
+      if (!ok) handleInquirySmsFallback(true);
     });
 
     $("#askClean")?.addEventListener("click", () => {
