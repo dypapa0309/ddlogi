@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>에어컨청소 견적 계산기 | 당고</title>
+  <meta name="description" content="에어컨청소 접수 페이지입니다. 에어컨 종류와 대수를 선택하고 예상 금액을 확인하세요." />
+  <meta name="robots" content="index, follow" />
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PZCBT88P');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <style>
+    /* ── ac-clean 전용 추가 스타일 (ddlogi 블루 색상 기준) ── */
+
+    .wizard-top {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 12px 10px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .wizard-cheer {
+      margin-top: 10px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .stage-pill-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .stage-pill {
+      border: 1px solid var(--line);
+      background: var(--card2);
+      color: var(--muted);
+      border-radius: 14px;
+      padding: 10px 8px;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      text-align: center;
+    }
+    .stage-pill.is-active {
+      background: rgba(47,128,237,0.08);
+      color: var(--accent);
+      border-color: rgba(47,128,237,0.24);
+    }
+    .stage-pill.is-done {
+      background: rgba(22,163,74,0.06);
+      color: var(--ok);
+      border-color: rgba(22,163,74,0.18);
+    }
+    @media (max-width: 480px) {
+      .stage-pill { font-size: 11px; padding: 8px 4px; }
+    }
+
+    /* detail selection */
+    .detail-picker-launch {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--card);
+      min-height: 68px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      text-align: left;
+      color: var(--text);
+      font: 800 16px/1.3 inherit;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+    .detail-picker-launch strong { color: var(--accent); font-size: 14px; font-weight: 900; white-space: nowrap; }
+    .detail-selection-summary { margin-top: 14px; }
+    .detail-selection-empty {
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px dashed var(--line2);
+      background: rgba(248,250,252,0.72);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .detail-selection-list { display: flex; flex-wrap: wrap; gap: 10px; }
+    .detail-selection-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .detail-selection-chip strong { color: var(--accent); font-weight: 900; }
+    .detail-selection-meta { margin-top: 12px; color: var(--muted); font-size: 13px; font-weight: 800; }
+    .detail-selection-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    @media (max-width: 480px) { .detail-selection-grid { grid-template-columns: 1fr; } }
+
+    .detail-select-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .detail-select-card:hover { transform: translateY(-1px); }
+    .detail-select-card.is-selected {
+      border-color: rgba(47,128,237,0.4);
+      box-shadow: 0 12px 28px rgba(47,128,237,0.12);
+      background: rgba(239,246,255,0.9);
+    }
+    .detail-select-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .detail-select-card__title { font-size: 18px; font-weight: 900; color: var(--text); line-height: 1.25; }
+    .detail-select-card__desc { margin-top: 6px; color: var(--muted); font-size: 14px; line-height: 1.45; }
+    .detail-select-card__price { flex: none; color: var(--accent); font-size: 14px; font-weight: 900; white-space: nowrap; }
+    .detail-select-stepper {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      align-self: flex-start;
+      padding: 8px;
+      border-radius: 999px;
+      background: rgba(47,128,237,0.06);
+    }
+    .detail-step-btn {
+      width: 36px; height: 36px;
+      border: 0; border-radius: 999px;
+      background: var(--card);
+      color: var(--text);
+      font-size: 22px; font-weight: 900; line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(17,24,39,0.08);
+    }
+    .detail-select-qty { min-width: 24px; text-align: center; color: var(--text); font-size: 17px; font-weight: 900; }
+
+    /* modal foot stack */
+    .modal-foot--stack { display: flex; flex-direction: column; gap: 10px; }
+
+    /* CTA button */
+    .contact-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; appearance: none; cursor: pointer;
+      border-radius: 16px; padding: 14px 14px;
+      font-weight: 1100; border: 1px solid var(--line);
+      background: var(--card); font-family: inherit;
+      text-decoration: none;
+    }
+    .contact-btn.ghost { background: var(--card2); }
+    .cta-text { display: flex; flex-direction: column; gap: 4px; text-align: center; }
+    .cta-text .title { font-size: 15px; }
+    .cta-text .desc { font-size: 12px; color: var(--muted); font-weight: 900; }
+    .contact-btn.mega {
+      position: relative; border-radius: 18px; padding: 16px 16px; min-height: 58px;
+      background: linear-gradient(180deg, #3B8DEA 0%, #2F80ED 100%);
+      border: 1px solid rgba(47,128,237,0.18); color: #FFFFFF;
+      box-shadow: 0 14px 28px rgba(47,128,237,0.22);
+    }
+    .contact-btn.mega .cta-text .title { font-size: 16px; font-weight: 1100; letter-spacing: -0.02em; }
+    .contact-btn.mega .cta-text .desc { font-size: 12px; font-weight: 900; color: rgba(255,255,255,0.86); }
+    .contact-btn.mega:hover { filter: brightness(1.04); transform: translateY(-1px); }
+    .contact-btn.mega:active { transform: translateY(0); }
+    .result-main-cta { min-height: 72px; }
+    .result-cta-stack { display: flex; flex-direction: column; gap: 10px; }
+    .result-card-kicker { font-size: 12px; font-weight: 800; letter-spacing: .02em; color: var(--muted); margin-bottom: 10px; }
+    .result-summary { line-height: 1.7; color: var(--text); }
+    .result-price-card { padding: 20px; }
+    .result-price-top { display: flex; flex-direction: column; gap: 8px; }
+    .result-price-under { line-height: 1.6; color: var(--muted); font-size: 13px; }
+
+    /* checkout form */
+    .checkout-modal-copy { margin: 0 0 16px; color: var(--muted); line-height: 1.7; }
+    .checkout-form { display: grid; gap: 12px; }
+    .checkout-field { display: grid; gap: 8px; }
+    .checkout-field span { font-size: 14px; font-weight: 900; color: var(--text); }
+    .checkout-field input {
+      width: 100%; min-height: 52px; padding: 0 16px;
+      border-radius: 14px; border: 1px solid var(--line2);
+      background: var(--card); font: inherit; color: var(--text);
+    }
+    .checkout-field input:focus { outline: none; border-color: rgba(47,128,237,0.36); box-shadow: 0 0 0 4px rgba(47,128,237,0.10); }
+
+    /* address search */
+    .address-search-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: end; }
+    .address-search-btn {
+      height: 50px; margin-top: 8px; padding: 0 18px;
+      border-radius: 14px; border: 1px solid rgba(47,128,237,0.24);
+      background: rgba(47,128,237,0.06); color: var(--accent);
+      font-size: 14px; font-weight: 900; cursor: pointer; white-space: nowrap; font-family: inherit;
+    }
+    .address-search-btn:hover { background: rgba(47,128,237,0.12); }
+
+    /* time grid */
+    .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+
+    /* landing hero */
+    .landing-hero { padding: 8px 4px 16px; }
+    .landing-eyebrow { font-size: 13px; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
+
+    /* page link current */
+    .page-link.is-current { background: rgba(47,128,237,0.08); color: var(--accent); border-color: rgba(47,128,237,0.24); }
+  </style>
+</head>
+<body data-default-service="ac_clean" data-analytics-page="estimate_ac_clean">
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PZCBT88P" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<div class="container">
+
+  <div class="page-linkbar page-linkbar--space">
+    <div class="page-linkbar__group">
+      <a class="page-link" href="/">홈화면</a>
+      <a class="page-link" href="/calculator/">소형이사</a>
+      <a class="page-link" href="/ddclean/">입주청소</a>
+      <a class="page-link" href="/ddyd/">용달</a>
+      <a class="page-link is-current" href="/ac-clean/">에어컨청소</a>
+    </div>
+  </div>
+
+  <section class="landing-shell dango-estimate-intro">
+    <div class="landing-hero">
+      <div class="landing-eyebrow">당장 필요할 때, 당장 고고. 당고!</div>
+      <h1 class="landing-title">에어컨청소<br><span class="accent">견적 계산기로 바로 계산하세요.</span></h1>
+      <p class="landing-copy">에어컨 종류와 대수, 방문 일정을 순서대로 넣으면 됩니다.</p>
+    </div>
+  </section>
+
+  <!-- 위자드 단계 표시 -->
+  <section class="wizard-top wizard-stage-shell" aria-label="견적 진행 단계">
+    <div class="wizard-progress">
+      <div class="wizard-progress-bar" id="wizardStageBar"></div>
+    </div>
+    <div class="wizard-cheer" id="wizardCheer">좋아요. 이제 하나씩 넣으면 돼요. 에어컨 기종을 먼저 골라주세요.</div>
+    <div class="stage-pill-row" id="wizardStagePills">
+      <button type="button" class="stage-pill is-active">1. 기종 선택</button>
+      <button type="button" class="stage-pill">2. 세부 내용</button>
+      <button type="button" class="stage-pill">3. 일정 선택</button>
+      <button type="button" class="stage-pill">4. 방문 주소</button>
+      <button type="button" class="stage-pill">5. 결과 확인</button>
+    </div>
+  </section>
+
+  <!-- Step 1: 기종 선택 -->
+  <section class="section step-card" data-step="1">
+    <h2>필요한 서비스를 선택하세요</h2>
+    <div class="card">
+      <div class="option">
+        <div><strong>벽걸이 에어컨</strong><br />가정용 벽걸이 세척</div>
+        <input type="radio" name="serviceCategory" value="wall" />
+      </div>
+      <div class="option">
+        <div><strong>스탠드 에어컨</strong><br />스탠드형 세척</div>
+        <input type="radio" name="serviceCategory" value="stand" />
+      </div>
+      <div class="option">
+        <div><strong>2in1 에어컨</strong><br />벽걸이와 스탠드 세트</div>
+        <input type="radio" name="serviceCategory" value="twoinone" />
+      </div>
+      <div class="option">
+        <div><strong>시스템 에어컨</strong><br />매립형 시스템 세척</div>
+        <input type="radio" name="serviceCategory" value="system" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 2: 세부 내용 (detail selection UI가 card 상단에 주입됨) -->
+  <section class="section step-card" data-step="2" hidden>
+    <h2>세부 내용</h2>
+    <div class="card">
+      <!-- .detail-picker-launch + #detailSelectionSummary 는 JS가 afterbegin으로 주입 -->
+      <div class="option item-qty-row">
+        <div><strong>대수</strong><br />청소할 에어컨 수를 넣어주세요.</div>
+        <div class="stepper">
+          <button type="button" class="stepper-btn" data-stepper="genericQty" data-dir="-1">−</button>
+          <input type="number" id="genericQty" class="stepper-input" value="1" min="1" />
+          <button type="button" class="stepper-btn" data-stepper="genericQty" data-dir="1">+</button>
+          <span class="stepper-unit">대</span>
+        </div>
+      </div>
+      <div class="sub" style="margin-top:16px;">상세 요청</div>
+      <input type="text" id="serviceDetailName" class="address-input" placeholder="브랜드나 모델명이 있으면 적어주세요." />
+      <div class="option"><div>현장 확인이 먼저 필요해요</div><input type="checkbox" id="optionVisitEstimate" /></div>
+      <div class="option"><div>당일 방문이 필요해요</div><input type="checkbox" id="optionHomeVisit" /></div>
+      <div class="option"><div>빠른 일정이 필요해요</div><input type="checkbox" id="optionUrgent" /></div>
+      <div class="option"><div>2대 이상 같이 진행해요</div><input type="checkbox" id="optionGroup" /></div>
+      <div class="option"><div>주차나 사다리 조건이 있어요</div><input type="checkbox" id="optionParking" /></div>
+      <div class="option"><div>완전 분해 세척으로 요청해요</div><input type="checkbox" id="optionPremium" /></div>
+      <div class="sub" style="margin-top:16px;">추가 메모</div>
+      <textarea id="serviceMemo" class="address-input" rows="4" placeholder="방문 전에 알아야 할 점을 적어주세요."></textarea>
+    </div>
+  </section>
+
+  <!-- Step 3: 일정 선택 -->
+  <section class="section step-card" data-step="3" hidden>
+    <h2>일정 선택</h2>
+    <div class="card">
+      <div class="sub" style="margin-top:16px;">방문 날짜</div>
+      <div class="date-wrap">
+        <input type="date" id="moveDate" class="address-input date-input" />
+        <span class="date-icon" aria-hidden="true"></span>
+      </div>
+      <div class="sub" style="margin-top:16px;">희망 시간</div>
+      <div class="time-grid">
+        <label class="time-chip"><input type="radio" name="timeSlot" value="am" /><span>오전</span></label>
+        <label class="time-chip"><input type="radio" name="timeSlot" value="pm" /><span>오후</span></label>
+        <label class="time-chip"><input type="radio" name="timeSlot" value="night" /><span>저녁</span></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 4: 방문 주소 -->
+  <section class="section step-card" data-step="4" hidden>
+    <h2>방문 주소</h2>
+    <div class="card">
+      <div class="sub">방문 주소</div>
+      <div class="address-search-row">
+        <input type="text" id="serviceAddress" class="address-input" placeholder="예: 서울 송파구 문정동 ..." />
+        <button type="button" class="address-search-btn" data-address-target="serviceAddress">주소 검색</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 5: 결과 확인 -->
+  <section class="section step-card result-step" data-step="5" hidden>
+    <h2>예상 견적</h2>
+    <div class="result-shell">
+      <div class="card result-summary-card">
+        <div class="result-card-kicker">입력하신 조건</div>
+        <div id="summary" class="result-summary"></div>
+      </div>
+      <div class="card price-card result-price-card">
+        <div class="result-price-top">
+          <div class="result-card-kicker">현재 예상 금액</div>
+          <div class="price" id="price">₩0</div>
+          <div class="price-under result-price-under" id="priceUnder"></div>
+        </div>
+      </div>
+      <div class="result-cta-stack">
+        <button type="button" class="contact-btn mega result-main-cta" id="startCheckoutCta">
+          <span class="cta-text">
+            <span class="title">지금 문의하고 접수하기</span>
+            <span class="desc">이름과 연락처 입력 후 문자로 바로 접수됩니다.</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 위자드 이전/다음 -->
+  <div class="wizard-nav" id="wizardNav">
+    <button type="button" class="wizard-btn ghost" id="wizardPrev">이전 단계</button>
+    <button type="button" class="wizard-btn" id="wizardNext">다음 단계</button>
+  </div>
+
+  <footer class="dd-footer" role="contentinfo">
+    <div class="dd-footer-inner">
+      <button type="button" class="dd-footer-toggle" aria-expanded="false" aria-controls="ddBizInfo">사업자정보 <span class="dd-footer-caret" aria-hidden="true">▾</span></button>
+      <div id="ddBizInfo" class="dd-footer-biz" hidden>
+        <div class="dd-footer-line"><b>상호</b> 이상한 회사 · <b>대표</b> 이상빈</div>
+        <div class="dd-footer-line"><b>사업자등록번호</b> 876-28-01550</div>
+        <div class="dd-footer-line"><b>주소</b> 경기도 부천시 상동로87 가나베스트타운쓰리, 803-102호</div>
+        <div class="dd-footer-line"><b>연락처</b> 010-4094-1666 · <b>이메일</b> dangzang.gogo@gmail.com</div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- 스티키 바 -->
+<div id="stickyPriceBar" class="is-collapsed" aria-hidden="false">
+  <div class="sticky-inner">
+    <div class="sticky-left">
+      <div class="sticky-label">현재 예상 금액</div>
+      <div class="sticky-price" id="stickyPrice">₩0</div>
+      <div class="sticky-under" id="stickyPriceDetail"></div>
+    </div>
+    <button type="button" class="sticky-toggle" id="stickyToggleBtn" aria-expanded="false">상세</button>
+  </div>
+</div>
+
+<!-- 접수 확인 모달 -->
+<div class="modal" id="checkoutStartModal" hidden aria-hidden="true">
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-panel">
+    <div class="modal-head">
+      <div class="modal-title">접수 전 확인해주세요.</div>
+      <button class="modal-x" type="button" data-close-modal aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="checkout-modal-copy">이름과 연락처를 넣으면 견적 내용을 문자로 바로 보내드려요.</p>
+      <div class="checkout-form">
+        <label class="checkout-field">
+          <span>이름</span>
+          <input type="text" id="checkoutCustomerName" placeholder="이름을 넣어주세요" autocomplete="name" />
+        </label>
+        <label class="checkout-field">
+          <span>연락처</span>
+          <input type="tel" id="checkoutCustomerPhone" placeholder="01012345678" autocomplete="tel" inputmode="numeric" />
+        </label>
+      </div>
+      <div class="mini-summary" id="checkoutInlineMessage">입력을 마치면 문자 앱으로 바로 이동합니다.</div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="wizard-btn primary large" id="confirmCheckoutStart">문자로 접수하기</button>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/meta-pixel.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const STORAGE_KEY = 'ddlogiLeadSmsPayload';
+  const SITE_PHONE  = '01075416143';
+  const SITE_BRAND  = '당고 에어컨청소';
+
+  const CHEER = {
+    1: '좋아요. 이제 하나씩 넣으면 돼요. 에어컨 기종을 먼저 골라주세요.',
+    2: '좋아요. 청소할 에어컨 종류와 대수를 골라주세요.',
+    3: '좋아요. 방문 날짜와 희망 시간을 골라주세요.',
+    4: '좋아요. 방문 주소를 입력해주세요.',
+    5: '이제 거의 끝났어요. 금액과 접수 내용을 확인하면 됩니다.'
+  };
+
+  const CATEGORY_MAP = {
+    wall:     { label: '벽걸이 에어컨', base: 56000 },
+    stand:    { label: '스탠드 에어컨', base: 92000 },
+    twoinone: { label: '2in1 에어컨',   base: 139000 },
+    system:   { label: '시스템 에어컨', base: 82000 }
+  };
+
+  const DETAIL_ITEMS = {
+    wall:     { label: '벽걸이',      desc: '가정용 벽걸이 에어컨',  price: 56000 },
+    stand:    { label: '스탠드',      desc: '스탠드형 에어컨',        price: 92000 },
+    twoinone: { label: '2in1',        desc: '벽걸이+스탠드 세트',     price: 139000 },
+    system1:  { label: '시스템 1way', desc: '천장형 1way 매립형',     price: 82000 },
+    system2:  { label: '시스템 2way', desc: '천장형 2way 매립형',     price: 110000 },
+    system4:  { label: '시스템 4way', desc: '천장형 4way 매립형',     price: 150000 }
+  };
+
+  const OPTION_LABELS = {
+    visitEstimate: '현장 확인이 먼저 필요해요',
+    homeVisit:     '당일 방문이 필요해요',
+    urgent:        '빠른 일정이 필요해요',
+    group:         '2대 이상 같이 진행해요',
+    parking:       '주차나 사다리 조건이 있어요',
+    premium:       '완전 분해 세척으로 요청해요'
+  };
+  const OPTION_FEES = {
+    visitEstimate: 15000, homeVisit: 15000, urgent: 10000,
+    group: 30000, parking: 10000, premium: 30000
+  };
+
+  /* ── state ── */
+  const state = {
+    currentStep: 1,
+    category: '',
+    detailSelections: Object.fromEntries(Object.keys(DETAIL_ITEMS).map(k => [k, 0])),
+    modelName: '', memo: '', address: '', moveDate: '', timeSlot: '',
+    visitEstimate: false, homeVisit: false, urgent: false,
+    group: false, parking: false, premium: false
+  };
+
+  /* ── helpers ── */
+  function $(sel)  { return document.querySelector(sel); }
+  function $$(sel) { return Array.from(document.querySelectorAll(sel)); }
+  function fmt(v)  { return `${Number(v||0).toLocaleString('ko-KR')}원`; }
+  function cleanPhone(v) { return String(v||'').replace(/\D+/g,''); }
+
+  function showToast(msg, type) {
+    let el = document.getElementById('__acToast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = '__acToast';
+      Object.assign(el.style, {
+        position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)',
+        color:'#fff', padding:'12px 20px', borderRadius:'12px', fontWeight:'700',
+        fontSize:'14px', zIndex:'9999', boxShadow:'0 8px 24px rgba(0,0,0,.18)',
+        pointerEvents:'none', transition:'opacity .25s', opacity:'0', whiteSpace:'nowrap'
+      });
+      document.body.appendChild(el);
+    }
+    el.style.background = type === 'error' ? '#b91c1c' : '#20170f';
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.style.opacity = '0'; }, 3000);
+  }
+
+  /* ── detail selection ── */
+  function detailEntries() {
+    return Object.entries(state.detailSelections).filter(([,v]) => Number(v||0) > 0);
+  }
+  function detailTotalQty() {
+    return Object.values(state.detailSelections).reduce((s,v) => s + Number(v||0), 0);
+  }
+  function detailTotalPrice() {
+    return Object.entries(state.detailSelections).reduce((s,[k,v]) =>
+      s + (DETAIL_ITEMS[k]?.price || 0) * Number(v||0), 0);
+  }
+
+  /* ── read DOM → state ── */
+  function readState() {
+    state.category      = $('input[name="serviceCategory"]:checked')?.value || '';
+    state.modelName     = $('#serviceDetailName')?.value?.trim() || '';
+    state.memo          = $('#serviceMemo')?.value?.trim() || '';
+    state.visitEstimate = !!$('#optionVisitEstimate')?.checked;
+    state.homeVisit     = !!$('#optionHomeVisit')?.checked;
+    state.urgent        = !!$('#optionUrgent')?.checked;
+    state.group         = !!$('#optionGroup')?.checked;
+    state.parking       = !!$('#optionParking')?.checked;
+    state.premium       = !!$('#optionPremium')?.checked;
+    state.moveDate      = $('#moveDate')?.value || '';
+    state.timeSlot      = $('input[name="timeSlot"]:checked')?.value || '';
+    state.address       = $('#serviceAddress')?.value?.trim() || '';
+  }
+
+  /* ── price ── */
+  function calcPrice() {
+    readState();
+    const dtPrice = detailTotalPrice();
+    const base = CATEGORY_MAP[state.category]?.base || 56000;
+    let total = dtPrice > 0 ? dtPrice : base;
+    if (state.visitEstimate) total += OPTION_FEES.visitEstimate;
+    if (state.homeVisit)     total += OPTION_FEES.homeVisit;
+    if (state.urgent)        total += OPTION_FEES.urgent;
+    if (state.group)         total += OPTION_FEES.group;
+    if (state.parking)       total += OPTION_FEES.parking;
+    if (state.premium)       total += OPTION_FEES.premium;
+    return Math.round(total);
+  }
+
+  /* ── summary lines ── */
+  function summaryLines() {
+    const entries = detailEntries();
+    const timeMap = { am:'오전', pm:'오후', night:'저녁' };
+    const opts = [
+      state.visitEstimate ? OPTION_LABELS.visitEstimate : null,
+      state.homeVisit     ? OPTION_LABELS.homeVisit     : null,
+      state.urgent        ? OPTION_LABELS.urgent        : null,
+      state.group         ? OPTION_LABELS.group         : null,
+      state.parking       ? OPTION_LABELS.parking       : null,
+      state.premium       ? OPTION_LABELS.premium       : null
+    ].filter(Boolean);
+    return [
+      `접수 유형: ${CATEGORY_MAP[state.category]?.label || '-'}`,
+      `에어컨 종류: ${entries.length ? entries.map(([k,v]) => `${DETAIL_ITEMS[k].label} ${v}대`).join(', ') : '선택 없음'}`,
+      `방문 주소: ${state.address || '-'}`,
+      `희망 날짜: ${state.moveDate || '-'}`,
+      state.timeSlot  ? `희망 시간: ${timeMap[state.timeSlot] || state.timeSlot}` : null,
+      state.modelName ? `모델 정보: ${state.modelName}` : null,
+      opts.length     ? `추가 요청: ${opts.join(' · ')}` : null,
+      state.memo      ? `메모: ${state.memo}` : null
+    ].filter(Boolean);
+  }
+
+  /* ── render ── */
+  function renderPrice() {
+    readState();
+    const total = calcPrice();
+    if ($('#stickyPrice')) $('#stickyPrice').textContent = fmt(total);
+    if ($('#price'))       $('#price').textContent = fmt(total);
+    if ($('#stickyPriceDetail')) $('#stickyPriceDetail').textContent = '시장 평균 대비 18.3% 저렴';
+    if ($('#priceUnder'))  $('#priceUnder').textContent = '기본 세척비에 대수와 분해 요청을 반영한 예상 금액입니다.';
+    if ($('#summary'))     $('#summary').innerHTML = summaryLines().map(l => `<div class="mini-summary">${l}</div>`).join('');
+  }
+
+  function updateStageShell() {
+    const pct = Math.round((state.currentStep / 5) * 100);
+    if ($('#wizardStageBar')) $('#wizardStageBar').style.width = `${pct}%`;
+    if ($('#wizardCheer'))    $('#wizardCheer').textContent = CHEER[state.currentStep] || '';
+    $$('#wizardStagePills .stage-pill').forEach((pill, i) => {
+      pill.classList.toggle('is-active', i + 1 === state.currentStep);
+      pill.classList.toggle('is-done',   i + 1 < state.currentStep);
+    });
+  }
+
+  function showStep(step) {
+    state.currentStep = Math.max(1, Math.min(5, step));
+    $$('[data-step]').forEach(sec => {
+      const active = String(sec.dataset.step) === String(state.currentStep);
+      sec.hidden = !active;
+      sec.classList.toggle('is-active', active);
+    });
+    updateStageShell();
+    renderPrice();
+    if ($('#wizardPrev')) $('#wizardPrev').disabled = state.currentStep === 1;
+    if ($('#wizardNext')) $('#wizardNext').textContent = state.currentStep === 5 ? '접수하기' : '다음 단계';
+    const shell = document.querySelector('.wizard-stage-shell');
+    if (shell) {
+      const top = shell.getBoundingClientRect().top + window.pageYOffset - 8;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  }
+
+  /* ── validate ── */
+  function validateStep(step) {
+    readState();
+    if (step === 1) return !!state.category;
+    if (step === 2) return detailTotalQty() > 0;
+    if (step === 3) return !!state.moveDate && !!state.timeSlot;
+    if (step === 4) return state.address.trim().length >= 5;
+    return true;
+  }
+
+  /* ── detail selection UI ── */
+  function renderDetailModal() {
+    const grid = $('#detailSelectionGrid');
+    if (!grid) return;
+    grid.innerHTML = Object.entries(DETAIL_ITEMS).map(([key, item]) => {
+      const qty = state.detailSelections[key] || 0;
+      return `
+        <div class="detail-select-card${qty > 0 ? ' is-selected' : ''}" data-detail-key="${key}">
+          <div class="detail-select-card__head">
+            <div>
+              <div class="detail-select-card__title">${item.label}</div>
+              <div class="detail-select-card__desc">${item.desc}</div>
+            </div>
+            <div class="detail-select-card__price">${fmt(item.price)}</div>
+          </div>
+          <div class="detail-select-stepper">
+            <button type="button" class="detail-step-btn" data-detail-dir="-1" aria-label="${item.label} 줄이기">−</button>
+            <div class="detail-select-qty">${qty}</div>
+            <button type="button" class="detail-step-btn" data-detail-dir="1" aria-label="${item.label} 늘리기">+</button>
+          </div>
+        </div>`;
+    }).join('');
+    renderDetailSummary();
+  }
+
+  function renderDetailSummary() {
+    const totalQty = detailTotalQty();
+    const entries = detailEntries();
+    const launchStrong = $('.detail-picker-launch strong');
+    if (launchStrong) launchStrong.textContent = `에어컨 종류 ${totalQty}대`;
+    const summary = $('#detailSelectionSummary');
+    if (summary) {
+      summary.innerHTML = !entries.length
+        ? `<div class="detail-selection-empty">에어컨 종류를 아직 고르지 않았어요. 버튼을 눌러 선택해보세요.</div>`
+        : `<div class="detail-selection-list">
+            ${entries.map(([k]) => `
+              <div class="detail-selection-chip">
+                <span>${DETAIL_ITEMS[k].label}</span>
+                <strong>${state.detailSelections[k]}대</strong>
+              </div>`).join('')}
+           </div>
+           <div class="detail-selection-meta">선택 ${totalQty}대 / 추가 금액 ${fmt(detailTotalPrice())}</div>`;
+    }
+    const modalSummary = $('#detailSelectionModalSummary');
+    if (modalSummary) {
+      modalSummary.textContent = entries.length
+        ? `에어컨 종류 ${totalQty}대 선택`
+        : '아직 선택한 항목이 없어요.';
+    }
+  }
+
+  function mountDetailSelectionUi() {
+    const detailStep = document.querySelector('.step-card[data-step="2"]');
+    if (!detailStep) return;
+    const card = detailStep.querySelector('.card');
+    if (!card) return;
+    card.insertAdjacentHTML('afterbegin', `
+      <div class="sub">에어컨 종류</div>
+      <button type="button" class="detail-picker-launch" data-open-modal="detailSelectionModal">
+        <span>세부 항목 선택하기</span>
+        <strong>에어컨 종류 0대</strong>
+      </button>
+      <div id="detailSelectionSummary" class="detail-selection-summary" style="margin-bottom:8px;"></div>
+    `);
+    const qtyRow = card.querySelector('.item-qty-row');
+    if (qtyRow) qtyRow.hidden = true;
+
+    if (!$('#detailSelectionModal')) {
+      document.body.insertAdjacentHTML('beforeend', `
+        <div class="modal" id="detailSelectionModal" hidden aria-hidden="true">
+          <div class="modal-backdrop" data-close-modal></div>
+          <div class="modal-panel modal-panel-wide">
+            <div class="modal-head">
+              <div class="modal-title">청소할 에어컨 종류와 대수를 골라주세요.</div>
+              <button class="modal-x" type="button" data-close-modal aria-label="닫기">×</button>
+            </div>
+            <div class="modal-body">
+              <p class="checkout-modal-copy">에어컨 종류를 실제에 가깝게 골라주세요. 카드를 누르면 1대부터 바로 선택됩니다.</p>
+              <div id="detailSelectionGrid" class="detail-selection-grid"></div>
+            </div>
+            <div class="modal-foot modal-foot--stack">
+              <div id="detailSelectionModalSummary" class="mini-summary">아직 선택한 항목이 없어요.</div>
+              <button type="button" class="wizard-btn primary large" data-close-modal>선택 완료</button>
+            </div>
+          </div>
+        </div>
+      `);
+    }
+    renderDetailModal();
+    renderDetailSummary();
+  }
+
+  /* ── modal ── */
+  function openModal(id) {
+    const m = document.getElementById(id);
+    if (!m) return;
+    m.hidden = false;
+    m.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    if (id === 'detailSelectionModal') renderDetailModal();
+  }
+  function closeModal(id) {
+    const m = document.getElementById(id);
+    if (!m) return;
+    m.hidden = true;
+    m.setAttribute('aria-hidden', 'true');
+    if (!document.querySelector('.modal:not([hidden])')) document.body.classList.remove('modal-open');
+  }
+
+  /* ── address postcode ── */
+  function openPostcode(targetId) {
+    const input = document.getElementById(targetId);
+    if (!input) return;
+    if (!window.daum?.Postcode) { input.focus(); return; }
+    new window.daum.Postcode({
+      oncomplete(data) {
+        input.value = data.roadAddress || data.jibunAddress || data.address || '';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }).open();
+  }
+
+  /* ── inquiry message ── */
+  function buildMessage(customerName, customerPhone) {
+    readState();
+    const entries = detailEntries();
+    const timeMap = { am:'오전', pm:'오후', night:'저녁' };
+    const opts = [
+      state.visitEstimate ? OPTION_LABELS.visitEstimate : null,
+      state.homeVisit     ? OPTION_LABELS.homeVisit     : null,
+      state.urgent        ? OPTION_LABELS.urgent        : null,
+      state.group         ? OPTION_LABELS.group         : null,
+      state.parking       ? OPTION_LABELS.parking       : null,
+      state.premium       ? OPTION_LABELS.premium       : null
+    ].filter(Boolean);
+    return [
+      `${SITE_BRAND} 견적 문의`,
+      '',
+      `이름: ${customerName}`,
+      `연락처: ${customerPhone}`,
+      '',
+      `서비스: 에어컨청소`,
+      `기종: ${CATEGORY_MAP[state.category]?.label || '-'}`,
+      `에어컨 종류: ${entries.length ? entries.map(([k,v]) => `${DETAIL_ITEMS[k].label} ${v}대`).join(', ') : '-'}`,
+      state.modelName ? `모델명: ${state.modelName}` : null,
+      `방문 주소: ${state.address || '-'}`,
+      `희망 날짜: ${state.moveDate || '-'}`,
+      state.timeSlot ? `희망 시간: ${timeMap[state.timeSlot] || state.timeSlot}` : null,
+      opts.length    ? `추가 요청: ${opts.join(', ')}` : null,
+      state.memo     ? `메모: ${state.memo}` : null,
+      '',
+      `예상 금액: ${fmt(calcPrice())}`
+    ].filter(v => v !== null).join('\n');
+  }
+
+  async function copyToClipboard(text) {
+    try { await navigator.clipboard.writeText(text); return true; }
+    catch {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch { return false; }
+    }
+  }
+
+  async function startCheckout() {
+    const name  = ($('#checkoutCustomerName')?.value  || '').trim();
+    const phone = cleanPhone($('#checkoutCustomerPhone')?.value || '');
+    const msgEl = $('#checkoutInlineMessage');
+    const btn   = $('#confirmCheckoutStart');
+    if (!name || phone.length < 10) {
+      if (msgEl) msgEl.textContent = '이름과 연락처를 정확히 넣어주세요.';
+      return;
+    }
+    const orig = btn?.textContent || '';
+    if (btn) { btn.disabled = true; btn.textContent = '준비 중...'; }
+    try {
+      const msg = buildMessage(name, phone);
+      await copyToClipboard(msg);
+      closeModal('checkoutStartModal');
+      try { sessionStorage.setItem(STORAGE_KEY, msg); } catch {}
+      window.location.href = '/ac-clean/leadclear/';
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
+    }
+  }
+
+  /* ── option labels with fees ── */
+  function applyOptionLabels() {
+    const idKeyMap = {
+      optionVisitEstimate: 'visitEstimate', optionHomeVisit: 'homeVisit',
+      optionUrgent: 'urgent', optionGroup: 'group',
+      optionParking: 'parking', optionPremium: 'premium'
+    };
+    Object.entries(idKeyMap).forEach(([id, key]) => {
+      const el = document.getElementById(id);
+      const label = el?.closest('.option')?.querySelector('div');
+      if (label) {
+        const fee = OPTION_FEES[key];
+        label.textContent = fee ? `${OPTION_LABELS[key]} (+${fee.toLocaleString()}원)` : OPTION_LABELS[key];
+      }
+    });
+  }
+
+  /* ── bind events ── */
+  function bindEvents() {
+    document.addEventListener('click', e => {
+      /* option card click */
+      const optRow = e.target.closest('.option');
+      if (optRow) {
+        if (!e.target.closest('input, button, a, label, textarea, select, .stepper, [data-open-modal], [data-close-modal]')) {
+          const ctrl = optRow.querySelector('input[type="checkbox"], input[type="radio"]');
+          if (ctrl) {
+            e.preventDefault();
+            ctrl.checked = ctrl.type === 'checkbox' ? !ctrl.checked : true;
+            ctrl.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+      }
+
+      /* modal open */
+      const openBtn = e.target.closest('[data-open-modal]');
+      if (openBtn) { e.preventDefault(); openModal(openBtn.dataset.openModal); }
+
+      /* modal close */
+      const closeBtn = e.target.closest('[data-close-modal]');
+      if (closeBtn) {
+        const modal = closeBtn.closest('.modal');
+        if (modal) { e.preventDefault(); closeModal(modal.id); }
+      }
+
+      /* detail selection card */
+      const detailCard = e.target.closest('.detail-select-card[data-detail-key]');
+      if (detailCard) {
+        const key     = detailCard.dataset.detailKey;
+        const stepBtn = e.target.closest('.detail-step-btn');
+        if (stepBtn) {
+          e.preventDefault();
+          state.detailSelections[key] = Math.max(0, (state.detailSelections[key] || 0) + Number(stepBtn.dataset.detailDir || 0));
+        } else if ((state.detailSelections[key] || 0) <= 0) {
+          state.detailSelections[key] = 1;
+        }
+        renderDetailModal();
+        renderPrice();
+        return;
+      }
+
+      /* address search */
+      const addrBtn = e.target.closest('[data-address-target]');
+      if (addrBtn) { e.preventDefault(); openPostcode(addrBtn.dataset.addressTarget); }
+
+      /* startCheckoutCta */
+      if (e.target.closest('#startCheckoutCta')) { openModal('checkoutStartModal'); }
+    });
+
+    /* steppers */
+    $$('.stepper-btn[data-stepper]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.stepper);
+        if (!input) return;
+        const min = Number(input.min || 0);
+        const max = input.max ? Number(input.max) : 99;
+        input.value = String(Math.min(max, Math.max(min, Number(input.value || 0) + Number(btn.dataset.dir || 0))));
+        renderPrice();
+      });
+    });
+
+    /* time chips */
+    $$('.time-chip').forEach(chip => {
+      chip.addEventListener('click', e => {
+        const radio = chip.querySelector('input[type="radio"]');
+        if (!radio || radio.disabled) return;
+        e.preventDefault();
+        radio.checked = true;
+        $$(`input[name="${radio.name}"]`).forEach(r => r.closest('.time-chip')?.classList.toggle('is-selected', r === radio));
+        renderPrice();
+      });
+    });
+
+    /* date wrap */
+    $$('.date-wrap').forEach(wrap => {
+      wrap.addEventListener('click', () => {
+        const input = wrap.querySelector('input[type="date"]');
+        if (!input) return;
+        input.focus();
+        try { if (input.showPicker) input.showPicker(); else input.click(); } catch {}
+      });
+    });
+
+    /* wizard prev / next */
+    $('#wizardPrev')?.addEventListener('click', () => showStep(state.currentStep - 1));
+    $('#wizardNext')?.addEventListener('click', () => {
+      if (!validateStep(state.currentStep)) { showToast('현재 단계 입력을 먼저 확인해주세요.', 'error'); return; }
+      if (state.currentStep === 5) { openModal('checkoutStartModal'); return; }
+      showStep(state.currentStep + 1);
+    });
+
+    /* stage pills */
+    $$('#wizardStagePills .stage-pill').forEach((pill, i) => {
+      pill.addEventListener('click', () => {
+        if (i + 1 <= state.currentStep || validateStep(state.currentStep)) showStep(i + 1);
+      });
+    });
+
+    /* sticky toggle */
+    $('#stickyToggleBtn')?.addEventListener('click', () => {
+      const bar = $('#stickyPriceBar');
+      const expanded = bar?.classList.toggle('is-expanded');
+      bar?.classList.toggle('is-collapsed', !expanded);
+      const btn = $('#stickyToggleBtn');
+      if (btn) { btn.textContent = expanded ? '접기' : '상세'; btn.setAttribute('aria-expanded', expanded ? 'true' : 'false'); }
+    });
+
+    /* footer toggle */
+    $('.dd-footer-toggle')?.addEventListener('click', () => {
+      const body    = $('#ddBizInfo');
+      const expanded = $('.dd-footer-toggle').getAttribute('aria-expanded') === 'true';
+      $('.dd-footer-toggle').setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (body) body.hidden = expanded;
+    });
+
+    /* checkout confirm */
+    $('#confirmCheckoutStart')?.addEventListener('click', startCheckout);
+
+    /* ESC */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') $$('.modal:not([hidden])').forEach(m => closeModal(m.id));
+    });
+
+    /* real-time price on any input/change */
+    document.addEventListener('input',  renderPrice);
+    document.addEventListener('change', renderPrice);
+  }
+
+  /* ── init ── */
+  function init() {
+    const dateInput = $('#moveDate');
+    if (dateInput) dateInput.min = new Date().toISOString().slice(0, 10);
+    mountDetailSelectionUi();
+    applyOptionLabels();
+    bindEvents();
+    renderPrice();
+    showStep(1);
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
