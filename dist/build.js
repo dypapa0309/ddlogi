@@ -141,6 +141,7 @@ copyRecursive(path.join(ROOT, "calculator"), path.join(DIST, "calculator"));
 copyRecursive(path.join(ROOT, "ddyd"), path.join(DIST, "ddyd"));
 copyRecursive(path.join(ROOT, "en"), path.join(DIST, "en"));
 copyRecursive(path.join(ROOT, "ddclean"), path.join(DIST, "ddclean"));
+copyRecursive(path.join(ROOT, "ac-clean"), path.join(DIST, "ac-clean"));
 copyRecursive(path.join(ROOT, "admin"), path.join(DIST, "admin"));
 copyRecursive(path.join(ROOT, "netlify"), path.join(DIST, "netlify"));
 
