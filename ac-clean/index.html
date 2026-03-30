@@ -283,15 +283,6 @@
     <h2>세부 내용</h2>
     <div class="card">
       <!-- .detail-picker-launch + #detailSelectionSummary 는 JS가 afterbegin으로 주입 -->
-      <div class="option item-qty-row">
-        <div><strong>대수</strong><br />청소할 에어컨 수를 넣어주세요.</div>
-        <div class="stepper">
-          <button type="button" class="stepper-btn" data-stepper="genericQty" data-dir="-1">−</button>
-          <input type="number" id="genericQty" class="stepper-input" value="1" min="1" />
-          <button type="button" class="stepper-btn" data-stepper="genericQty" data-dir="1">+</button>
-          <span class="stepper-unit">대</span>
-        </div>
-      </div>
       <div class="sub" style="margin-top:16px;">상세 요청</div>
       <input type="text" id="serviceDetailName" class="address-input" placeholder="브랜드나 모델명이 있으면 적어주세요." />
       <div class="option"><div>현장 확인이 먼저 필요해요</div><input type="checkbox" id="optionVisitEstimate" /></div>
@@ -685,9 +676,6 @@
       </button>
       <div id="detailSelectionSummary" class="detail-selection-summary" style="margin-bottom:8px;"></div>
     `);
-    const qtyRow = card.querySelector('.item-qty-row');
-    if (qtyRow) qtyRow.hidden = true;
-
     if (!$('#detailSelectionModal')) {
       document.body.insertAdjacentHTML('beforeend', `
         <div class="modal" id="detailSelectionModal" hidden aria-hidden="true">
