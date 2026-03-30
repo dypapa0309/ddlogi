@@ -272,10 +272,6 @@
         <input type="radio" name="serviceCategory" value="stand" />
       </div>
       <div class="option">
-        <div><strong>2in1 에어컨</strong><br />벽걸이와 스탠드 세트</div>
-        <input type="radio" name="serviceCategory" value="twoinone" />
-      </div>
-      <div class="option">
         <div><strong>시스템 에어컨</strong><br />매립형 시스템 세척</div>
         <input type="radio" name="serviceCategory" value="system" />
       </div>
@@ -336,6 +332,8 @@
         <input type="text" id="serviceAddress" class="address-input" placeholder="예: 서울 송파구 문정동 ..." />
         <button type="button" class="address-search-btn" data-address-target="serviceAddress">주소 검색</button>
       </div>
+      <div class="sub" style="margin-top:12px;">상세주소</div>
+      <input type="text" id="serviceDetailAddress" class="address-input" placeholder="예: 101동 1234호, 특이사항 등" />
     </div>
   </section>
 
@@ -442,19 +440,18 @@
   };
 
   const CATEGORY_MAP = {
-    wall:     { label: '벽걸이 에어컨', base: 56000 },
-    stand:    { label: '스탠드 에어컨', base: 92000 },
-    twoinone: { label: '2in1 에어컨',   base: 139000 },
-    system:   { label: '시스템 에어컨', base: 82000 }
+    wall:   { label: '벽걸이 에어컨', base: 60000 },
+    stand:  { label: '스탠드 에어컨', base: 110000 },
+    system: { label: '시스템 에어컨', base: 80000 }
   };
 
   const DETAIL_ITEMS = {
-    wall:     { label: '벽걸이',      desc: '가정용 벽걸이 에어컨',  price: 56000 },
-    stand:    { label: '스탠드',      desc: '스탠드형 에어컨',        price: 92000 },
-    twoinone: { label: '2in1',        desc: '벽걸이+스탠드 세트',     price: 139000 },
-    system1:  { label: '시스템 1way', desc: '천장형 1way 매립형',     price: 82000 },
-    system2:  { label: '시스템 2way', desc: '천장형 2way 매립형',     price: 110000 },
-    system4:  { label: '시스템 4way', desc: '천장형 4way 매립형',     price: 150000 }
+    wall:     { label: '벽걸이',      desc: '가정용 벽걸이 에어컨',  price: 60000 },
+    stand:    { label: '스탠드',      desc: '스탠드형 에어컨',        price: 110000 },
+    system1:  { label: '시스템 1way', desc: '천장형 1way 매립형',     price: 80000 },
+    system2:  { label: '시스템 2way', desc: '천장형 2way 매립형',     price: 100000 },
+    system4:  { label: '시스템 4way', desc: '천장형 4way 매립형',     price: 130000 },
+    outdoor:  { label: '실외기',      desc: '실외기 별도 청소 (추가)',  price: 30000 }
   };
 
   const OPTION_LABELS = {
@@ -475,7 +472,7 @@
     currentStep: 1,
     category: '',
     detailSelections: Object.fromEntries(Object.keys(DETAIL_ITEMS).map(k => [k, 0])),
-    modelName: '', memo: '', address: '', moveDate: '', timeSlot: '',
+    modelName: '', memo: '', address: '', detailAddress: '', moveDate: '', timeSlot: '',
     visitEstimate: false, homeVisit: false, urgent: false,
     group: false, parking: false, premium: false
   };
@@ -532,6 +529,7 @@
     state.moveDate      = $('#moveDate')?.value || '';
     state.timeSlot      = $('input[name="timeSlot"]:checked')?.value || '';
     state.address       = $('#serviceAddress')?.value?.trim() || '';
+    state.detailAddress = $('#serviceDetailAddress')?.value?.trim() || '';
   }
 
   /* ── price ── */
@@ -565,6 +563,7 @@
       `접수 유형: ${CATEGORY_MAP[state.category]?.label || '-'}`,
       `에어컨 종류: ${entries.length ? entries.map(([k,v]) => `${DETAIL_ITEMS[k].label} ${v}대`).join(', ') : '선택 없음'}`,
       `방문 주소: ${state.address || '-'}`,
+      state.detailAddress ? `상세주소: ${state.detailAddress}` : null,
       `희망 날짜: ${state.moveDate || '-'}`,
       state.timeSlot  ? `희망 시간: ${timeMap[state.timeSlot] || state.timeSlot}` : null,
       state.modelName ? `모델 정보: ${state.modelName}` : null,
@@ -768,6 +767,7 @@
       `에어컨 종류: ${entries.length ? entries.map(([k,v]) => `${DETAIL_ITEMS[k].label} ${v}대`).join(', ') : '-'}`,
       state.modelName ? `모델명: ${state.modelName}` : null,
       `방문 주소: ${state.address || '-'}`,
+      state.detailAddress ? `상세주소: ${state.detailAddress}` : null,
       `희망 날짜: ${state.moveDate || '-'}`,
       state.timeSlot ? `희망 시간: ${timeMap[state.timeSlot] || state.timeSlot}` : null,
       opts.length    ? `추가 요청: ${opts.join(', ')}` : null,
