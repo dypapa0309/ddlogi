@@ -1561,8 +1561,8 @@ body.modal-open{ overflow:hidden; }
   box-sizing:border-box;
 }
 
-#wizardNav, .wizard-top { display:none !important; }
-.step-card { display:block; }
+body.onepage-mode #wizardNav,
+body.onepage-mode .wizard-top { display:none !important; }
 body.onepage-mode .step-card { display:block; }
 
 .waypoint-tools,
