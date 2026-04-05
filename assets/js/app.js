@@ -3511,6 +3511,7 @@ const revealObserver = new IntersectionObserver((entries)=>{
 },{threshold:0.15});
 
 document.querySelectorAll("section,.card,.service-card").forEach(el=>{
+  if(el.classList.contains("landing-scene")) return;
   el.classList.add("reveal");
   revealObserver.observe(el);
 });
