@@ -2296,6 +2296,11 @@ button:active{ transform:scale(0.97); }
     linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);
 }
 .landing-reveal{
+  opacity:1;
+  transform:translateY(0) scale(1);
+  filter:blur(0);
+}
+.js-ready .landing-reveal{
   opacity:0;
   transform:translateY(54px) scale(.965);
   filter:blur(10px);
@@ -2304,7 +2309,7 @@ button:active{ transform:scale(0.97); }
     transform .82s cubic-bezier(.16,1,.3,1),
     filter .72s cubic-bezier(.16,1,.3,1);
 }
-.landing-reveal.is-visible{
+.js-ready .landing-reveal.is-visible{
   opacity:1;
   transform:translateY(0) scale(1);
   filter:blur(0);
@@ -2556,8 +2561,8 @@ button:active{ transform:scale(0.97); }
 /* ── /Review marquee ─────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce){
-  .landing-reveal,
-  .landing-reveal.is-visible{
+  .js-ready .landing-reveal,
+  .js-ready .landing-reveal.is-visible{
     opacity:1;
     transform:none;
     filter:none;
