@@ -220,46 +220,70 @@
   <script src="/assets/js/ai-chat.js"></script>
   <script>
   (function() {
-    const PER_ROW = 22; // 행당 카드 수 (뒤에 복제해서 seamless 루프)
-
-    function shuffle(arr) {
-      const a = arr.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
+    var R = [
+      {v:5,s:'소형이사',n:'이*진',d:'2025-11',t:'연락하고 당일에 왔어요. 원룸인데 2시간 안에 끝남.'},
+      {v:5,s:'소형이사',n:'최*우',d:'2025-10',t:'금액도 계산기랑 딱 맞게 나왔어요. 추가요금 없이 끝났습니다.'},
+      {v:5,s:'소형이사',n:'김*아',d:'2026-01',t:'반포장으로 했는데 옷이랑 그릇 다 싸줬어요. 저는 그냥 서 있었습니다.'},
+      {v:5,s:'소형이사',n:'박*현',d:'2025-12',t:'빠르고 깔끔했어요. 다음에 또 쓸 것 같아요.'},
+      {v:5,s:'소형이사',n:'강*호',d:'2025-09',t:'사다리차 필요한지 미리 확인해줘서 좋았어요.'},
+      {v:5,s:'소형이사',n:'조*민',d:'2025-08',t:'기사님이 와서 포장부터 자리 배치까지 다 도와줬어요.'},
+      {v:4,s:'소형이사',n:'윤*서',d:'2026-02',t:'예약 잡고 당일 바로 왔어요. 대기 없이 진행됐습니다.'},
+      {v:5,s:'소형이사',n:'한*준',d:'2025-11',t:'원룸 탈출 이사였는데 짐 분류부터 동선까지 다 알려줬어요.'},
+      {v:5,s:'소형이사',n:'임*영',d:'2025-07',t:'추가요금 없이 계산기 금액 그대로 나왔고 물건도 안 긁혔어요.'},
+      {v:5,s:'소형이사',n:'정*수',d:'2025-06',t:'친절하고 꼼꼼했습니다. 유리 제품도 멀쩡하게 왔어요.'},
+      {v:5,s:'소형이사',n:'오*린',d:'2025-05',t:'당일 이사였는데 오전에 연락해서 오후에 출발해줬어요.'},
+      {v:5,s:'소형이사',n:'신*경',d:'2026-03',t:'보관이사였는데 창고 보관도 깔끔하게 해줬어요.'},
+      {v:5,s:'입주청소',n:'정*민',d:'2025-11',t:'기름때 심한 주방이었는데 새것처럼 됐어요.'},
+      {v:5,s:'입주청소',n:'한*영',d:'2025-12',t:'32평 했는데 화장실 3개 다 완벽하게 해줬어요.'},
+      {v:4,s:'입주청소',n:'오*준',d:'2026-01',t:'붙박이 안쪽까지 닦아주는 거 몰랐는데 알아서 해줘서 감사했습니다.'},
+      {v:5,s:'입주청소',n:'유*희',d:'2025-10',t:'다른 업체보다 빠르게 답변 왔고 금액도 투명했어요.'},
+      {v:5,s:'입주청소',n:'이*나',d:'2025-09',t:'전 세입자가 지저분하게 쓴 집인데 완전히 새집 됐어요.'},
+      {v:5,s:'입주청소',n:'김*란',d:'2025-08',t:'냉장고 내부 청소까지 한 번에 다 해결됐어요.'},
+      {v:5,s:'입주청소',n:'박*주',d:'2026-02',t:'화장실 줄눈까지 다 닦아줬어요. 진짜 새집 같았어요.'},
+      {v:5,s:'입주청소',n:'최*혜',d:'2025-07',t:'창문 바깥쪽도 닦아줬어요. 사진 찍어서 결과 보내줬습니다.'},
+      {v:5,s:'입주청소',n:'장*린',d:'2025-06',t:'계산기 금액 그대로 청구됐어요. 추가 없었습니다.'},
+      {v:5,s:'입주청소',n:'권*율',d:'2025-05',t:'아이 있는 집이라 친환경 제품 쓴다고 미리 설명해줬어요.'},
+      {v:5,s:'용달',n:'강*호',d:'2025-11',t:'냉장고 하나 옮기는 거라 부르기 애매했는데 딱 맞는 견적 나왔어요.'},
+      {v:5,s:'용달',n:'신*경',d:'2025-12',t:'사무실 책상 3개 45분 만에 끝. 가격도 저렴했어요.'},
+      {v:4,s:'용달',n:'이*수',d:'2026-02',t:'거리 기준 금액이 딱 나와서 바로 결정했어요.'},
+      {v:5,s:'용달',n:'문*호',d:'2025-09',t:'짐 크기 미리 말했더니 딱 맞는 차 보내줬어요.'},
+      {v:5,s:'용달',n:'남*준',d:'2025-08',t:'이케아 픽업 부탁했는데 흔쾌히 해줬어요. 가격도 투명했어요.'},
+      {v:5,s:'용달',n:'하*나',d:'2025-07',t:'연락하고 당일 바로 와줬어요. 빠르고 깔끔했어요.'},
+      {v:5,s:'용달',n:'배*석',d:'2026-01',t:'가전제품 이동인데 포장까지 해줬어요.'},
+      {v:5,s:'용달',n:'전*미',d:'2025-06',t:'작은 짐이었는데 불친절함 하나 없었어요.'},
+      {v:5,s:'에어컨청소',n:'조*란',d:'2025-08',t:'여름 전에 하길 잘했어요. 냄새가 완전히 없어졌어요.'},
+      {v:5,s:'에어컨청소',n:'문*석',d:'2025-07',t:'분해 세척인데 먼지 진짜 많이 나왔어요. 효과 확실해요.'},
+      {v:4,s:'에어컨청소',n:'윤*나',d:'2025-09',t:'실외기도 같이 해줬어요. 계산기 금액 그대로 청구됐습니다.'},
+      {v:5,s:'에어컨청소',n:'성*아',d:'2025-06',t:'아이 방 에어컨이라 걱정했는데 세척 후 사진 보내줬어요.'},
+      {v:5,s:'에어컨청소',n:'차*빈',d:'2026-01',t:'냉방 효율이 확실히 올라간 게 느껴졌어요.'},
+      {v:5,s:'에어컨청소',n:'주*경',d:'2025-10',t:'스탠드 하나 벽걸이 두 개 했는데 냄새 완전히 사라졌어요.'},
+      {v:5,s:'에어컨청소',n:'구*희',d:'2025-05',t:'필터 교체 시기도 알려줘서 도움됐습니다.'},
+      {v:5,s:'에어컨청소',n:'민*연',d:'2025-11',t:'바닥에 물 하나 안 튀고 깔끔하게 끝났어요.'}
+    ];
 
     function makeCard(r) {
-      const el = document.createElement('div');
+      var el = document.createElement('div');
       el.className = 'review-mcard';
       el.innerHTML =
-        '<div class="review-mcard__stars">' + '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating) + '</div>' +
-        '<div class="review-mcard__text">\u201c' + r.text + '\u201d</div>' +
-        '<div class="review-mcard__meta">' + r.name + ' \u00b7 ' + r.service + ' \u00b7 ' + r.date + '</div>';
+        '<div class="review-mcard__stars">' + '★'.repeat(r.v) + '☆'.repeat(5-r.v) + '</div>' +
+        '<div class="review-mcard__text">\u201c' + r.t + '\u201d</div>' +
+        '<div class="review-mcard__meta">' + r.n + ' \u00b7 ' + r.s + ' \u00b7 ' + r.d + '</div>';
       return el;
     }
 
     function fillTrack(trackEl, reviews) {
-      const picked = shuffle(reviews).slice(0, PER_ROW);
-      // 원본 + 복제본 → seamless 루프
-      [...picked, ...picked].forEach(r => trackEl.appendChild(makeCard(r)));
+      var items = reviews.concat(reviews); // 복제본으로 seamless 루프
+      items.forEach(function(r){ trackEl.appendChild(makeCard(r)); });
     }
 
-    fetch('/assets/data/reviews.json')
-      .then(res => res.json())
-      .then(data => {
-        const move  = data.filter(r => r.service === '소형이사');
-        const clean = data.filter(r => r.service === '입주청소');
-        const yd    = data.filter(r => r.service === '용달');
-        const ac    = data.filter(r => r.service === '에어컨청소');
+    var move  = R.filter(function(r){ return r.s === '소형이사'; });
+    var clean = R.filter(function(r){ return r.s === '입주청소'; });
+    var yd    = R.filter(function(r){ return r.s === '용달'; });
+    var ac    = R.filter(function(r){ return r.s === '에어컨청소'; });
 
-        fillTrack(document.getElementById('marqueeTrack1'), [...move, ...clean]);
-        fillTrack(document.getElementById('marqueeTrack2'), [...yd, ...ac]);
-        fillTrack(document.getElementById('marqueeTrack3'), shuffle(data));
-      })
-      .catch(() => {});
+    fillTrack(document.getElementById('marqueeTrack1'), move.concat(clean));
+    fillTrack(document.getElementById('marqueeTrack2'), yd.concat(ac));
+    fillTrack(document.getElementById('marqueeTrack3'), R);
   })();
   </script>
 </body>
