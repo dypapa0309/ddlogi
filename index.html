@@ -205,6 +205,11 @@
 
     revealNodes.forEach((node) => revealObserver.observe(node));
 
+    // 안전장치: 1초 후에도 안 보이는 패널은 강제로 표시
+    setTimeout(function() {
+      revealNodes.forEach(function(n) { n.classList.add('is-visible'); });
+    }, 1000);
+
     document.querySelectorAll('a[href], button[data-track], [data-track-action]').forEach((el) => {
       el.addEventListener('click', () => {
         if (typeof gtag !== 'function') return;

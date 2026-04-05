@@ -2486,7 +2486,6 @@ button:active{ transform:scale(0.97); }
   background:
     radial-gradient(900px 260px at 0% 100%, rgba(59,130,246,0.08), transparent 55%),
     linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);
-  overflow:hidden;
 }
 .review-count-badge{
   margin-top:14px;
@@ -2495,10 +2494,11 @@ button:active{ transform:scale(0.97); }
   color:#2563EB;
 }
 .review-marquee-wrap{
-  margin:22px -34px 0;
+  margin-top:22px;
   display:flex;
   flex-direction:column;
   gap:10px;
+  overflow:hidden;
 }
 .review-marquee{
   overflow:hidden;
