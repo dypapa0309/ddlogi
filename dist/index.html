@@ -110,21 +110,18 @@
         <article class="landing-panel landing-panel--review landing-reveal" data-reveal>
           <div class="landing-kicker">REVIEW</div>
           <h2 class="landing-message">실제 이용 고객 후기</h2>
-          <div class="review-tabs" id="reviewTabs">
-            <button class="review-tab is-active" data-service="전체">전체</button>
-            <button class="review-tab" data-service="소형이사">소형이사</button>
-            <button class="review-tab" data-service="입주청소">입주청소</button>
-            <button class="review-tab" data-service="용달">용달</button>
-            <button class="review-tab" data-service="에어컨청소">에어컨청소</button>
-          </div>
-          <div class="review-carousel" id="reviewCarousel">
-            <div class="review-card" id="reviewCard">
-              <div class="review-card__stars" id="reviewStars">★★★★★</div>
-              <div class="review-card__text" id="reviewText">후기를 불러오는 중입니다...</div>
-              <div class="review-card__meta" id="reviewMeta"></div>
+          <div class="review-count-badge">총 2,000개 후기 · ★ 4.9</div>
+          <div class="review-marquee-wrap" id="reviewMarqueeWrap">
+            <div class="review-marquee">
+              <div class="review-marquee__track" id="marqueeTrack1"></div>
+            </div>
+            <div class="review-marquee">
+              <div class="review-marquee__track review-marquee__track--rev" id="marqueeTrack2"></div>
+            </div>
+            <div class="review-marquee">
+              <div class="review-marquee__track" id="marqueeTrack3"></div>
             </div>
           </div>
-          <div class="review-dots" id="reviewDots"></div>
         </article>
       </section>
 
@@ -223,21 +220,7 @@
   <script src="/assets/js/ai-chat.js"></script>
   <script>
   (function() {
-    const BATCH = 5;       // 한 탭에서 보여줄 후기 수 (도트 수)
-    const INTERVAL = 4000; // 자동 슬라이드 ms
-
-    let allReviews = [];
-    let pool = [];         // 현재 탭 기준 풀
-    let queue = [];        // 셔플된 큐
-    let idx = 0;
-    let timer = null;
-
-    const cardEl   = document.getElementById('reviewCard');
-    const starsEl  = document.getElementById('reviewStars');
-    const textEl   = document.getElementById('reviewText');
-    const metaEl   = document.getElementById('reviewMeta');
-    const dotsEl   = document.getElementById('reviewDots');
-    const tabsEl   = document.getElementById('reviewTabs');
+    const PER_ROW = 22; // 행당 카드 수 (뒤에 복제해서 seamless 루프)
 
     function shuffle(arr) {
       const a = arr.slice();
@@ -248,115 +231,35 @@
       return a;
     }
 
-    function buildQueue(reviews) {
-      pool = reviews;
-      queue = shuffle(pool).slice(0, BATCH);
-      idx = 0;
+    function makeCard(r) {
+      const el = document.createElement('div');
+      el.className = 'review-mcard';
+      el.innerHTML =
+        '<div class="review-mcard__stars">' + '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating) + '</div>' +
+        '<div class="review-mcard__text">\u201c' + r.text + '\u201d</div>' +
+        '<div class="review-mcard__meta">' + r.name + ' \u00b7 ' + r.service + ' \u00b7 ' + r.date + '</div>';
+      return el;
     }
 
-    function renderDots() {
-      dotsEl.innerHTML = '';
-      for (let i = 0; i < queue.length; i++) {
-        const d = document.createElement('button');
-        d.className = 'review-dot' + (i === idx ? ' is-active' : '');
-        d.setAttribute('aria-label', `후기 ${i + 1}`);
-        d.addEventListener('click', () => goTo(i));
-        dotsEl.appendChild(d);
-      }
+    function fillTrack(trackEl, reviews) {
+      const picked = shuffle(reviews).slice(0, PER_ROW);
+      // 원본 + 복제본 → seamless 루프
+      [...picked, ...picked].forEach(r => trackEl.appendChild(makeCard(r)));
     }
 
-    function updateDots() {
-      dotsEl.querySelectorAll('.review-dot').forEach((d, i) => {
-        d.classList.toggle('is-active', i === idx);
-      });
-    }
-
-    function showCard(direction) {
-      const r = queue[idx];
-      const enterClass = direction === 'next' ? 'is-entering' : 'is-entering-prev';
-
-      cardEl.classList.add('is-leaving');
-      setTimeout(() => {
-        starsEl.textContent = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-        textEl.textContent = `"${r.text}"`;
-        metaEl.textContent = `${r.name} · ${r.service} · ${r.date}`;
-        cardEl.classList.remove('is-leaving');
-        cardEl.classList.add('is-entering');
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => cardEl.classList.remove('is-entering'));
-        });
-        updateDots();
-      }, 280);
-    }
-
-    function goTo(i, direction) {
-      if (i === idx) return;
-      const dir = i > idx ? 'next' : 'prev';
-      idx = i;
-      showCard(direction || dir);
-      resetTimer();
-    }
-
-    function next() {
-      const nextIdx = (idx + 1) % queue.length;
-      goTo(nextIdx, 'next');
-    }
-
-    function resetTimer() {
-      clearInterval(timer);
-      timer = setInterval(next, INTERVAL);
-    }
-
-    function init(reviews) {
-      buildQueue(reviews);
-      // 첫 카드 즉시 표시
-      const r = queue[0];
-      starsEl.textContent = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-      textEl.textContent = `"${r.text}"`;
-      metaEl.textContent = `${r.name} · ${r.service} · ${r.date}`;
-      renderDots();
-      resetTimer();
-    }
-
-    // 탭 클릭
-    tabsEl.addEventListener('click', (e) => {
-      const tab = e.target.closest('.review-tab');
-      if (!tab) return;
-      tabsEl.querySelectorAll('.review-tab').forEach(t => t.classList.remove('is-active'));
-      tab.classList.add('is-active');
-      const svc = tab.dataset.service;
-      const filtered = svc === '전체' ? allReviews : allReviews.filter(r => r.service === svc);
-      buildQueue(filtered);
-      idx = 0;
-      const r = queue[0];
-      starsEl.textContent = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-      textEl.textContent = `"${r.text}"`;
-      metaEl.textContent = `${r.name} · ${r.service} · ${r.date}`;
-      renderDots();
-      resetTimer();
-    });
-
-    // 스와이프
-    let touchStartX = 0;
-    const carousel = document.getElementById('reviewCarousel');
-    carousel.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
-    carousel.addEventListener('touchend', (e) => {
-      const dx = e.changedTouches[0].clientX - touchStartX;
-      if (Math.abs(dx) < 40) return;
-      if (dx < 0) goTo((idx + 1) % queue.length, 'next');
-      else goTo((idx - 1 + queue.length) % queue.length, 'prev');
-    }, { passive: true });
-
-    // JSON 로드
     fetch('/assets/data/reviews.json')
-      .then(r => r.json())
+      .then(res => res.json())
       .then(data => {
-        allReviews = data;
-        init(allReviews);
+        const move  = data.filter(r => r.service === '소형이사');
+        const clean = data.filter(r => r.service === '입주청소');
+        const yd    = data.filter(r => r.service === '용달');
+        const ac    = data.filter(r => r.service === '에어컨청소');
+
+        fillTrack(document.getElementById('marqueeTrack1'), [...move, ...clean]);
+        fillTrack(document.getElementById('marqueeTrack2'), [...yd, ...ac]);
+        fillTrack(document.getElementById('marqueeTrack3'), shuffle(data));
       })
-      .catch(() => {
-        textEl.textContent = '후기를 불러올 수 없습니다.';
-      });
+      .catch(() => {});
   })();
   </script>
 </body>
