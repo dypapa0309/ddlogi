@@ -61,7 +61,7 @@
     /* =========================================================
        Global knobs
     ========================================================= */
-    const PRICE_MULTIPLIER = 0.59;
+    const PRICE_MULTIPLIER = 0.714;
     const DISPLAY_MULTIPLIER = 1;
     const CLEAN_PRICE_MULTIPLIER = 1;
     const MOVE_DEPOSIT_RATE = 0.2;
@@ -2222,24 +2222,19 @@ function normalizeItemKey(k) {
 
   // 보관이사는 "출발지 → 보관창고" + "보관창고 → 도착지" 2회 이동으로 계산
   // 따라서 이동 견적 덩어리를 2배 적용하고, 보관 일수 비용은 별도로 더한다.
-  let moveOnlyPrice =
-    workSubtotal +
-    distance +
+  const tripMultiplier = state.moveType === "storage" ? 2 : 1;
+  const scaledWorkSubtotal = workSubtotal * tripMultiplier * PRICE_MULTIPLIER;
+  const unscaledExtras =
+    (distance +
     cantCarry +
     helpers +
     ladders +
     ride +
     cleanOpt +
     items +
-    throwFee;
+    throwFee) * tripMultiplier;
 
-  if (state.moveType === "storage") {
-    moveOnlyPrice *= 2;
-  }
-
-  let price = moveOnlyPrice + storageFee;
-
-  price *= PRICE_MULTIPLIER;
+  let price = scaledWorkSubtotal + unscaledExtras + storageFee;
   return price;
 }
 
@@ -3071,7 +3066,9 @@ const borderColors = comparison.labels.map((label) =>
 
     function calcSmsMoveDiscountQuote(displayTotal) {
       const safeTotal = Number(displayTotal) || 0;
-      const discountedTotal = Math.max(0, Math.round(safeTotal * 0.97));
+      const helperTotal = moveHelperCount() * HELPER_FEE_PER_PERSON;
+      const discountableTotal = Math.max(0, safeTotal - helperTotal);
+      const discountedTotal = Math.max(0, Math.round(discountableTotal * 0.97) + helperTotal);
       const pricing = buildMovePricingBreakdown(discountedTotal, { channel: "direct" });
       return {
         discountedTotal: pricing.total,
