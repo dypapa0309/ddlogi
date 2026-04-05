@@ -194,9 +194,20 @@
     loadLandingRealtime();
     window.setInterval(loadLandingRealtime, 30000);
 
+    const revealNodes = document.querySelectorAll('[data-reveal]');
+
+    // 1) 이미 뷰포트 안에 있는 패널은 동기적으로 즉시 표시
+    revealNodes.forEach(function(node) {
+      const rect = node.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        node.classList.add('is-visible');
+      }
+    });
+
+    // 2) is-visible 붙인 뒤에 js-ready 추가 → 깜빡임 없음
     document.documentElement.classList.add('js-ready');
 
-    const revealNodes = document.querySelectorAll('[data-reveal]');
+    // 3) 스크롤 내려갈 때 나오는 패널은 observer로 처리
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
@@ -205,7 +216,11 @@
       });
     }, { threshold: 0.15, rootMargin: '0px 0px -5% 0px' });
 
-    revealNodes.forEach((node) => revealObserver.observe(node));
+    revealNodes.forEach(function(node) {
+      if (!node.classList.contains('is-visible')) {
+        revealObserver.observe(node);
+      }
+    });
 
     document.querySelectorAll('a[href], button[data-track], [data-track-action]').forEach((el) => {
       el.addEventListener('click', () => {
