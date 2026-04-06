@@ -194,6 +194,22 @@
     loadLandingRealtime();
     window.setInterval(loadLandingRealtime, 30000);
 
+    if(window.IntersectionObserver){
+      var _io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){
+            e.target.classList.remove('will-reveal');
+            e.target.classList.add('revealed');
+            _io.unobserve(e.target);
+          }
+        });
+      },{threshold:0, rootMargin:'0px 0px -60px 0px'});
+      document.querySelectorAll('.landing-panel').forEach(function(p){
+        p.classList.add('will-reveal');
+        _io.observe(p);
+      });
+    }
+
     document.querySelectorAll('a[href], button[data-track], [data-track-action]').forEach((el) => {
       el.addEventListener('click', () => {
         if (typeof gtag !== 'function') return;

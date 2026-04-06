@@ -2266,6 +2266,15 @@ button:active{ transform:scale(0.97); }
   box-shadow:var(--shadow2);
   padding:34px;
   width:min(720px, 100%);
+  transition:opacity 0.55s ease, transform 0.55s ease;
+}
+.landing-panel.will-reveal{
+  opacity:0;
+  transform:translateY(32px);
+}
+.landing-panel.revealed{
+  opacity:1;
+  transform:translateY(0);
 }
 .landing-panel--hero{
   background:
