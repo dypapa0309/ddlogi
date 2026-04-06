@@ -1618,15 +1618,6 @@ button:active{ transform:scale(0.97); }
   transition:transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
 }
 .service-card.active{ transform:translateY(-4px); }
-.reveal{
-  opacity:0;
-  transform:translateY(12px);
-  transition:opacity 200ms ease, transform 200ms ease;
-}
-.reveal.visible{
-  opacity:1;
-  transform:translateY(0);
-}
 .loading-dots span{ animation:dotPulse 1s infinite; }
 .loading-dots span:nth-child(2){ animation-delay:.2s; }
 .loading-dots span:nth-child(3){ animation-delay:.4s; }
@@ -2294,9 +2285,6 @@ button:active{ transform:scale(0.97); }
   background:
     radial-gradient(760px 260px at 50% 0%, rgba(37,99,235,0.16), transparent 55%),
     linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);
-}
-.landing-reveal{
-  opacity:1;
 }
 .landing-eyebrow{
   display:inline-flex;

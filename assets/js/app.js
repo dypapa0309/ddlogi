@@ -3501,21 +3501,6 @@ const borderColors = comparison.labels.map((label) =>
 
 /* ===== Animation Helpers ===== */
 
-/* 스크롤 등장 애니메이션 */
-const revealObserver = new IntersectionObserver((entries)=>{
-  entries.forEach(entry=>{
-    if(entry.isIntersecting){
-      entry.target.classList.add("visible");
-    }
-  });
-},{threshold:0.15});
-
-document.querySelectorAll("section,.card,.service-card").forEach(el=>{
-  if(el.classList.contains("landing-scene")) return;
-  el.classList.add("reveal");
-  revealObserver.observe(el);
-});
-
 
 /* 가격 카운트 애니메이션 */
 function animateNumber(el,newValue,duration=500){
