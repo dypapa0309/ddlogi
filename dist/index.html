@@ -194,21 +194,6 @@
     loadLandingRealtime();
     window.setInterval(loadLandingRealtime, 30000);
 
-    (function(){
-      var scroll_panels = document.querySelectorAll('.landing-panel:not(.landing-panel--hero)');
-      scroll_panels.forEach(function(p){ p.classList.add('reveal-pending'); });
-      var io = new IntersectionObserver(function(entries){
-        entries.forEach(function(e){
-          if(e.isIntersecting){
-            e.target.classList.remove('reveal-pending');
-            e.target.classList.add('is-visible');
-            io.unobserve(e.target);
-          }
-        });
-      },{threshold:0.05});
-      scroll_panels.forEach(function(p){ io.observe(p); });
-    })();
-
     document.querySelectorAll('a[href], button[data-track], [data-track-action]').forEach((el) => {
       el.addEventListener('click', () => {
         if (typeof gtag !== 'function') return;

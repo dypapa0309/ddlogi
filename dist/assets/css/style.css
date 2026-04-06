@@ -2250,18 +2250,14 @@ button:active{ transform:scale(0.97); }
   background:#EFF6FF;
 }
 .landing-shell{
-  display:grid;
-  gap:0;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  padding:20px 0 40px;
 }
 .landing-scene{
-  min-height:100svh;
   display:flex;
-  align-items:center;
   justify-content:center;
-  padding:28px 0;
-}
-.landing-scene--hero{
-  min-height:calc(100svh - 56px);
 }
 .landing-panel{
   border-radius:26px;
@@ -2270,15 +2266,6 @@ button:active{ transform:scale(0.97); }
   box-shadow:var(--shadow2);
   padding:34px;
   width:min(720px, 100%);
-  transition:opacity 0.55s ease, transform 0.55s ease;
-}
-.landing-panel.reveal-pending{
-  opacity:0;
-  transform:translateY(28px);
-}
-.landing-panel.is-visible{
-  opacity:1;
-  transform:translateY(0);
 }
 .landing-panel--hero{
   background:
@@ -2547,8 +2534,7 @@ button:active{ transform:scale(0.97); }
 @media (max-width: 640px){
   .page-linkbar--space{ align-items:flex-start; }
   .landing-scene{
-    min-height:auto;
-    padding:22px 0;
+    padding:0;
   }
   .landing-panel,
   .landing-card{ padding:22px; }
