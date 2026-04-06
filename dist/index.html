@@ -194,6 +194,18 @@
     loadLandingRealtime();
     window.setInterval(loadLandingRealtime, 30000);
 
+    (function(){
+      var panels = document.querySelectorAll('.landing-panel');
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){
+            e.target.classList.add('is-visible');
+            io.unobserve(e.target);
+          }
+        });
+      },{threshold:0.08});
+      panels.forEach(function(p){ io.observe(p); });
+    })();
 
     document.querySelectorAll('a[href], button[data-track], [data-track-action]').forEach((el) => {
       el.addEventListener('click', () => {
