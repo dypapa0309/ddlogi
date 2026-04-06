@@ -2270,9 +2270,11 @@ button:active{ transform:scale(0.97); }
   box-shadow:var(--shadow2);
   padding:34px;
   width:min(720px, 100%);
+  transition:opacity 0.55s ease, transform 0.55s ease;
+}
+.landing-panel.reveal-pending{
   opacity:0;
   transform:translateY(28px);
-  transition:opacity 0.55s ease, transform 0.55s ease;
 }
 .landing-panel.is-visible{
   opacity:1;
@@ -2282,8 +2284,6 @@ button:active{ transform:scale(0.97); }
   background:
     radial-gradient(1200px 380px at 0% 0%, rgba(59,130,246,0.16), transparent 55%),
     linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);
-  opacity:1;
-  transform:none;
 }
 .landing-panel--live{
   background:
