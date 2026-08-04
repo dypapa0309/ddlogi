@@ -360,17 +360,6 @@
     <button type="button" class="wizard-btn" id="wizardNext">다음 단계</button>
   </div>
 
-  <footer class="dd-footer" role="contentinfo">
-    <div class="dd-footer-inner">
-      <button type="button" class="dd-footer-toggle" aria-expanded="false" aria-controls="ddBizInfo">사업자정보 <span class="dd-footer-caret" aria-hidden="true">▾</span></button>
-      <div id="ddBizInfo" class="dd-footer-biz" hidden>
-        <div class="dd-footer-line"><b>상호</b> 이상한 회사 · <b>대표</b> 이상빈</div>
-        <div class="dd-footer-line"><b>사업자등록번호</b> 876-28-01550</div>
-        <div class="dd-footer-line"><b>주소</b> 경기도 부천시 상동로87 가나베스트타운쓰리, 803-102호</div>
-        <div class="dd-footer-line"><b>연락처</b> 010-4094-1666 · <b>이메일</b> dangzang.gogo@gmail.com</div>
-      </div>
-    </div>
-  </footer>
 </div>
 
 <!-- 스티키 바 -->
@@ -929,13 +918,6 @@
       if (btn) { btn.textContent = expanded ? '접기' : '상세'; btn.setAttribute('aria-expanded', expanded ? 'true' : 'false'); }
     });
 
-    /* footer toggle */
-    $('.dd-footer-toggle')?.addEventListener('click', () => {
-      const body    = $('#ddBizInfo');
-      const expanded = $('.dd-footer-toggle').getAttribute('aria-expanded') === 'true';
-      $('.dd-footer-toggle').setAttribute('aria-expanded', expanded ? 'false' : 'true');
-      if (body) body.hidden = expanded;
-    });
 
     /* checkout confirm */
     $('#confirmCheckoutStart')?.addEventListener('click', startCheckout);

@@ -24,7 +24,6 @@
     ["추가 옵션", "Extra Options"],
     ["버려주세요!", "Throw Away"],
     ["예상 견적", "Estimated Quote"],
-    ["사업자정보", "Business Info"],
     ["기숙사·사택 시즌 이벤트", "Dormitory / Company Housing Season Event"],
     ["이사업체 피해사례 보기", "View Real Moving Scam Cases"],
     ["가구·가전 선택하기", "Choose Furniture & Appliances"],
